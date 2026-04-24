@@ -1,36 +1,163 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<div align="center">
+
+# CoinPulse
+
+**Real-time crypto dashboard. Track prices, manage your watchlist and portfolio — live.**
+
+[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-coin--pulse--kappa.vercel.app-6366f1?style=for-the-badge)](https://coin-pulse-kappa.vercel.app)
+
+![Next.js](https://img.shields.io/badge/Next.js_16-black?style=flat-square&logo=next.js)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=flat-square&logo=mongodb&logoColor=white)
+![Tailwind](https://img.shields.io/badge/Tailwind_v4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)
+![Vercel](https://img.shields.io/badge/Vercel-black?style=flat-square&logo=vercel)
+
+</div>
+
+---
+
+## What is CoinPulse?
+
+CoinPulse is a full-stack crypto dashboard that streams live prices from Binance WebSocket API. Track your favorite coins, monitor your portfolio P&L in real time, and manage users through a role-based admin panel.
+
+---
+
+## Features
+
+| Feature | Description |
+|---------|-------------|
+| 📈 **Live prices** | Real-time price updates via Binance WebSocket for 6+ coins |
+| 🕯️ **Charts** | TradingView Lightweight Charts — Candlestick, Bar, Area, Line with 1H/24H/1W/1M/1Y ranges |
+| ⭐ **Watchlist** | Add/remove coins, track live prices across your personal list |
+| 💼 **Portfolio** | Track positions with buy price, quantity and real-time P&L |
+| 🔐 **Auth** | Email/password + Google OAuth, JWT sessions (7 days) |
+| 👥 **Roles** | superadmin / admin / developer / user with permission matrix |
+| ⚙️ **Admin panel** | User management, role assignment, delete users |
+| 👤 **Profile** | Edit name, email, change password |
+| 🌗 **Dark / Light theme** | Persisted theme switcher |
+| 🔍 **Search** | Live coin search with price dropdown |
+| 📱 **Responsive** | Sidebar collapses to icons on mobile, expandable search |
+
+---
+
+## Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Framework | Next.js 16 (App Router, Turbopack) |
+| Language | TypeScript (strict) |
+| Styling | Tailwind CSS v4 |
+| Charts | TradingView Lightweight Charts v5 |
+| Real-time | Binance WebSocket API |
+| State | Zustand |
+| Auth | NextAuth v4 — JWT, Credentials + Google OAuth |
+| Database | MongoDB Atlas + Mongoose |
+| Deploy | Vercel |
+
+---
+
+## Architecture
+
+Feature-Sliced Design (FSD) — layers import strictly downward:
+
+```
+app/ → widgets/ → features/ → entities/ → shared/
+```
+
+```
+app/          Next.js routing, layouts, providers
+widgets/      Sidebar, Header, CandlestickChart, MarketOverview, WatchlistTable, PortfolioTable
+features/     add-to-watchlist, remove-from-watchlist, add-to-portfolio, search-coin
+entities/     coin (PriceCard), user (auth-config)
+shared/       ui, lib (cn, formatters, db), hooks, store, types, api
+models/       Mongoose schemas (server-only)
+```
+
+---
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 20+
+- MongoDB Atlas cluster
+- Google Cloud OAuth credentials (optional)
+
+### 1. Clone & install
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/FishManHell/coin_pulse.git
+cd coin_pulse
+yarn install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Configure environment
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+cp .env.local.example .env.local
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```env
+# MongoDB Atlas
+MONGODB_URI=mongodb+srv://<user>:<password>@cluster.mongodb.net/coinpulse
 
-## Learn More
+# NextAuth
+NEXTAUTH_SECRET=        # openssl rand -base64 32
+NEXTAUTH_URL=http://localhost:3000
 
-To learn more about Next.js, take a look at the following resources:
+# Google OAuth (optional)
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 3. Run
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+yarn dev
+```
 
-## Deploy on Vercel
+Open [http://localhost:3000](http://localhost:3000)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## API Routes
+
+```
+POST   /api/auth/register           Register with email/password
+GET    /api/auth/[...nextauth]      NextAuth handler
+
+GET    /api/watchlist               Get user watchlist
+POST   /api/watchlist               Add coin to watchlist
+DELETE /api/watchlist/[symbol]      Remove coin from watchlist
+
+GET    /api/portfolio               Get portfolio positions
+POST   /api/portfolio               Add position
+DELETE /api/portfolio/[id]          Remove position
+
+PATCH  /api/profile                 Update own profile / change password
+
+GET    /api/admin/users             List all users (admin+)
+PATCH  /api/admin/users/[id]        Update user role/name/email (admin+)
+DELETE /api/admin/users/[id]        Delete user (superadmin only)
+```
+
+---
+
+## Role Permissions
+
+| Action | superadmin | admin | developer | user |
+|--------|:---:|:---:|:---:|:---:|
+| Settings page | ✅ | ✅ | ❌ | ❌ |
+| View users | ✅ | ✅ | ❌ | ❌ |
+| Change roles | ✅ | ✅* | ❌ | ❌ |
+| Change other's password | ✅ | ❌ | ❌ | ❌ |
+| Delete users | ✅ | ❌ | ❌ | ❌ |
+| Dashboard / Watchlist / Portfolio | ✅ | ✅ | ✅ | ✅ |
+
+*admin cannot assign superadmin role
+
+---
+
+## License
+
+MIT
