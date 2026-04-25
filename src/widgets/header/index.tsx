@@ -1,14 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import {ReactNode, useState} from "react";
 import { Search, Bell, X } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 import { ThemeToggle } from "@/shared/ui/theme-toggle";
 import { SearchCoin } from "@/features/search-coin";
 
-type Props = { title: string };
+interface HeaderProps { title: string; actions?: ReactNode };
 
-export const Header = ({ title }: Readonly<Props>) => {
+export const Header = ({ title, actions }: Readonly<HeaderProps>) => {
   const [searchOpen, setSearchOpen] = useState(false);
 
   return (
@@ -56,6 +56,8 @@ export const Header = ({ title }: Readonly<Props>) => {
         <div className="hidden md:block">
           <SearchCoin />
         </div>
+
+        {actions}
 
         <ThemeToggle />
 

@@ -10,16 +10,16 @@ import { Button } from "@/shared/ui/button";
 import type { CoinTicker } from "@/shared/types";
 
 const COIN_ICONS: Record<string, string> = {
-  BTCUSDT: "₿",
-  ETHUSDT: "Ξ",
-  BNBUSDT: "B",
-  SOLUSDT: "◎",
-  XRPUSDT: "✕",
-  ADAUSDT: "₳",
-  DOGEUSDT: "Ð",
-  AVAXUSDT: "A",
-  DOTUSDT: "●",
-  MATICUSDT: "M",
+  BTC: "₿",
+  ETH: "Ξ",
+  BNB: "B",
+  SOL: "◎",
+  XRP: "✕",
+  ADA: "₳",
+  DOGE: "Ð",
+  AVAX: "A",
+  DOT: "●",
+  MATIC: "M",
 };
 
 type Props = {
@@ -33,6 +33,10 @@ export const PriceCard = ({ ticker, onClick, selected }: Readonly<Props>) => {
   const prevPriceRef = useRef(ticker.price);
   const [flash, setFlash] = useState<"up" | "down" | null>(null);
 
+  const selectedQuote = useAppStore((s) => s.selectedQuote);
+  const coinNames = useAppStore((s) => s.coinNames);
+  const base = ticker.symbol.slice(0, -selectedQuote.length);
+  const displayName = coinNames[base] ?? base;
   const watchlist = useAppStore((s) => s.watchlist);
   const isWatched = watchlist.some((w) => w.symbol === ticker.symbol);
   const { add } = useAddToWatchlist();
@@ -67,14 +71,14 @@ export const PriceCard = ({ ticker, onClick, selected }: Readonly<Props>) => {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2.5">
           <div className="w-9 h-9 rounded-full gradient-accent flex items-center justify-center text-white text-sm font-bold shrink-0">
-            {COIN_ICONS[ticker.symbol] ?? ticker.name[0]}
+            {COIN_ICONS[base] ?? base[0]}
           </div>
           <div>
             <p className="text-sm font-semibold text-text-primary leading-none mb-0.5">
-              {ticker.name}
+              {displayName}
             </p>
             <p className="text-xs text-text-muted">
-              {ticker.symbol.replace("USDT", "")}/USDT
+              {base}/{selectedQuote}
             </p>
           </div>
         </div>
@@ -95,7 +99,7 @@ export const PriceCard = ({ ticker, onClick, selected }: Readonly<Props>) => {
             size="icon-sm"
             onClick={(e) => {
               e.stopPropagation();
-              isWatched ? remove(ticker.symbol) : add(ticker.symbol, ticker.name);
+              isWatched ? remove(ticker.symbol) : add(ticker.symbol, displayName);
             }}
             className={cn(
               "rounded-lg hover:bg-transparent",

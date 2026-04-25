@@ -19,7 +19,8 @@ import {
 } from "lightweight-charts";
 import type { Kline } from "@/shared/types";
 
-export type ChartType = "candlestick" | "line" | "area" | "bar";
+import type { ChartType } from "./chart-config";
+export type { ChartType };
 type Theme = "dark" | "light";
 
 type ChartColors = { bg: string; text: string; grid: string };

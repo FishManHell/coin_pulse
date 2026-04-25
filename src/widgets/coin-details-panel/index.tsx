@@ -6,16 +6,17 @@ import { useAppStore } from "@/shared/store";
 import { useAddToWatchlist } from "@/features/add-to-watchlist";
 import { useRemoveFromWatchlist } from "@/features/remove-from-watchlist";
 import { formatPrice, formatPercent, formatVolume, cn } from "@/shared/lib/utils";
+import { Button } from "@/shared/ui/button";
 
 const COIN_COLORS: Record<string, string> = {
-  BTCUSDT: "from-orange-500 to-yellow-400",
-  ETHUSDT: "from-blue-500 to-indigo-400",
-  BNBUSDT: "from-yellow-500 to-amber-400",
-  SOLUSDT: "from-purple-500 to-violet-400",
-  XRPUSDT: "from-sky-500 to-cyan-400",
-  ADAUSDT: "from-blue-600 to-blue-400",
-  DOGEUSDT: "from-yellow-400 to-amber-300",
-  AVAXUSDT: "from-red-500 to-rose-400",
+  BTC:  "from-orange-500 to-yellow-400",
+  ETH:  "from-blue-500 to-indigo-400",
+  BNB:  "from-yellow-500 to-amber-400",
+  SOL:  "from-purple-500 to-violet-400",
+  XRP:  "from-sky-500 to-cyan-400",
+  ADA:  "from-blue-600 to-blue-400",
+  DOGE: "from-yellow-400 to-amber-300",
+  AVAX: "from-red-500 to-rose-400",
 };
 
 type StatRowProps = { label: string; value: string; valueClass?: string };
@@ -29,20 +30,24 @@ const StatRow = ({ label, value, valueClass }: StatRowProps) => (
 
 export const CoinDetailsPanel = () => {
   const selectedSymbol = useAppStore((s) => s.selectedSymbol);
-  const prices = useAppStore((s) => s.prices);
-  const watchlist = useAppStore((s) => s.watchlist);
+  const selectedQuote  = useAppStore((s) => s.selectedQuote);
+  const coinNames      = useAppStore((s) => s.coinNames);
+  const prices         = useAppStore((s) => s.prices);
+  const watchlist      = useAppStore((s) => s.watchlist);
+
   const ticker = prices[selectedSymbol];
-  const { add } = useAddToWatchlist();
+  const { add }    = useAddToWatchlist();
   const { remove } = useRemoveFromWatchlist();
 
-  const isWatched = watchlist.some((w) => w.symbol === selectedSymbol);
-  const isUp = (ticker?.priceChangePercent ?? 0) >= 0;
-  const coinName = selectedSymbol.replace("USDT", "");
-  const gradientClass = COIN_COLORS[selectedSymbol] ?? "from-accent-indigo to-accent-cyan";
+  const base        = selectedSymbol.slice(0, -selectedQuote.length);
+  const displayName = coinNames[base] ?? base;
+  const isWatched   = watchlist.some((w) => w.symbol === selectedSymbol);
+  const isUp        = (ticker?.priceChangePercent ?? 0) >= 0;
+  const gradientClass = COIN_COLORS[base] ?? "from-accent-indigo to-accent-cyan";
 
-  // Price flash
   const prevPriceRef = useRef(ticker?.price);
   const [flash, setFlash] = useState<"up" | "down" | null>(null);
+
   useEffect(() => {
     if (!ticker?.price || ticker.price === prevPriceRef.current) return;
     setFlash(ticker.price > (prevPriceRef.current ?? 0) ? "up" : "down");
@@ -58,26 +63,27 @@ export const CoinDetailsPanel = () => {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className={cn("w-10 h-10 rounded-full bg-gradient-to-br flex items-center justify-center text-white font-bold text-sm shrink-0", gradientClass)}>
-              {coinName[0]}
+              {base[0]}
             </div>
             <div>
-              <p className="text-sm font-semibold text-text-primary">{coinName}</p>
-              <p className="text-xs text-text-muted">{coinName}/USDT</p>
+              <p className="text-sm font-semibold text-text-primary">{displayName}</p>
+              <p className="text-xs text-text-muted">{base}/{selectedQuote}</p>
             </div>
           </div>
 
-          {/* Watchlist toggle */}
-          <button
-            onClick={() => isWatched ? remove(selectedSymbol) : add(selectedSymbol, coinName)}
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={() => isWatched ? remove(selectedSymbol) : add(selectedSymbol, displayName)}
             className={cn(
-              "w-8 h-8 flex items-center justify-center rounded-lg transition-all",
+              "rounded-lg hover:bg-transparent",
               isWatched
-                ? "text-accent-cyan bg-accent-cyan/10"
-                : "text-text-muted hover:text-accent-cyan hover:bg-accent-cyan/10"
+                ? "text-accent-cyan"
+                : "text-text-muted hover:text-accent-cyan"
             )}
           >
             {isWatched ? <Star size={15} fill="currentColor" /> : <StarOff size={15} />}
-          </button>
+          </Button>
         </div>
 
         {/* Price */}
@@ -108,14 +114,13 @@ export const CoinDetailsPanel = () => {
           Market stats
         </p>
         <div>
-          <StatRow label="24h High" value={ticker ? `$${formatPrice(ticker.high24h)}` : "—"} valueClass="text-price-up" />
-          <StatRow label="24h Low"  value={ticker ? `$${formatPrice(ticker.low24h)}`  : "—"} valueClass="text-price-down" />
-          <StatRow label="24h Volume" value={ticker ? formatVolume(ticker.volume * ticker.price) : "—"} />
+          <StatRow label="24h High"    value={ticker ? `$${formatPrice(ticker.high24h)}` : "—"} valueClass="text-price-up" />
+          <StatRow label="24h Low"     value={ticker ? `$${formatPrice(ticker.low24h)}`  : "—"} valueClass="text-price-down" />
+          <StatRow label="24h Volume"  value={ticker ? formatVolume(ticker.volume * ticker.price) : "—"} />
           <StatRow label="Price change" value={ticker ? `${isUp ? "+" : ""}${formatPrice(ticker.priceChange)}` : "—"} valueClass={isUp ? "text-price-up" : "text-price-down"} />
         </div>
       </div>
 
-      {/* Live indicator */}
       <div className="px-5 pb-5 mt-auto">
         <div className="flex items-center gap-2 text-xs text-text-muted">
           <span className="w-1.5 h-1.5 rounded-full bg-price-up animate-pulse" />
