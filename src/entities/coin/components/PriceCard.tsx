@@ -6,6 +6,7 @@ import { cn, formatPrice, formatPercent } from "@/shared/lib/utils";
 import { useAppStore } from "@/shared/store";
 import { useAddToWatchlist } from "@/features/add-to-watchlist";
 import { useRemoveFromWatchlist } from "@/features/remove-from-watchlist";
+import { Button } from "@/shared/ui/button";
 import type { CoinTicker } from "@/shared/types";
 
 const COIN_ICONS: Record<string, string> = {
@@ -89,18 +90,20 @@ export const PriceCard = ({ ticker, onClick, selected }: Readonly<Props>) => {
           </span>
 
           {/* Star */}
-          <button
+          <Button
+            variant="ghost"
+            size="icon-sm"
             onClick={(e) => {
               e.stopPropagation();
               isWatched ? remove(ticker.symbol) : add(ticker.symbol, ticker.name);
             }}
             className={cn(
-              "p-1.5 rounded-lg transition-all",
+              "rounded-lg hover:bg-transparent",
               isWatched ? "text-accent-cyan" : "text-text-muted hover:text-accent-cyan"
             )}
           >
             <Star size={14} fill={isWatched ? "currentColor" : "none"} />
-          </button>
+          </Button>
         </div>
       </div>
 

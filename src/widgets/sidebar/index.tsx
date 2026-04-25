@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 import { ROLE_PERMISSIONS, type UserRole } from "@/shared/types/roles";
+import { Button } from "@/shared/ui/button";
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -96,14 +97,15 @@ export const Sidebar = () => {
         )}
 
         {/* Logout */}
-        <button
+        <Button
+          variant="ghost"
           onClick={() => signOut({ callbackUrl: "/login" })}
           title="Sign out"
-          className="w-full flex items-center justify-center lg:justify-start gap-3 lg:px-3 py-2 rounded-xl text-sm text-text-muted hover:text-price-down hover:bg-price-down/10 transition-all"
+          className="w-full justify-center lg:justify-start gap-3 lg:px-3 py-2 rounded-xl text-text-muted hover:text-price-down hover:bg-price-down/10"
         >
           <LogOut size={16} className="shrink-0" />
           <span className="hidden lg:block">Sign out</span>
-        </button>
+        </Button>
       </div>
     </aside>
   );
