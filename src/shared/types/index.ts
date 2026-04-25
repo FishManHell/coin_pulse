@@ -1,6 +1,5 @@
 export type CoinTicker = {
   symbol: string;
-  name: string;
   price: number;
   priceChange: number;
   priceChangePercent: number;

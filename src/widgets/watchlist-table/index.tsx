@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { Trash2, TrendingUp, TrendingDown, Star } from "lucide-react";
 import { useAppStore } from "@/shared/store";
-import { useWebSocket } from "@/shared/hooks/useWebSocket";
+import { usePriceStream } from "@/shared/hooks/usePriceStream";
 import { useRemoveFromWatchlist } from "@/features/remove-from-watchlist";
 import { formatPrice, formatPercent, cn } from "@/shared/lib/utils";
 import type { WatchlistItem } from "@/shared/types";
@@ -24,7 +24,7 @@ export const WatchlistTable = ({ initialItems }: Readonly<Props>) => {
   }, []);
 
   const symbols = watchlist.map((w) => w.symbol);
-  useWebSocket(symbols);
+  usePriceStream(symbols);
 
   if (watchlist.length === 0) {
     return (

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Trash2, Plus, TrendingUp, TrendingDown, Briefcase } from "lucide-react";
 import { useAppStore } from "@/shared/store";
-import { useWebSocket } from "@/shared/hooks/useWebSocket";
+import { usePriceStream } from "@/shared/hooks/usePriceStream";
 import { useAddToPortfolio } from "@/features/add-to-portfolio";
 import { useRemoveFromPortfolio } from "@/features/remove-from-portfolio";
 import { formatPrice, formatPercent, cn } from "@/shared/lib/utils";
@@ -35,7 +35,7 @@ export const PortfolioTable = ({ initialPositions }: Readonly<Props>) => {
   useEffect(() => { setPortfolio(initialPositions); }, []);
 
   const symbols = [...new Set(portfolio.map((p) => p.symbol))];
-  useWebSocket(symbols);
+  usePriceStream(symbols);
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
