@@ -9,7 +9,7 @@ import { GoogleSignInButton } from "../_components/google-sign-in-button";
 import { AuthRedirectLink } from "../_components/auth-redirect-link";
 import { AuthDivider } from "../_components/auth-divider";
 
-export default function LoginPage() {
+const LoginPage = () => {
   const router = useRouter();
 
   const { form, error, loading, handleChange, handleSubmit } = useAuthForm(
@@ -60,3 +60,5 @@ export default function LoginPage() {
     </div>
   );
 }
+
+export default LoginPage;

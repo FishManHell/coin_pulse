@@ -7,7 +7,7 @@ import { Header } from "@/widgets/header";
 import { PortfolioTable } from "@/widgets/portfolio-table";
 import type { PortfolioPosition as PortfolioPositionType } from "@/shared/types";
 
-export default async function PortfolioPage() {
+const PortfolioPage = async () => {
   const session = await getServerSession(authOptions);
   if (!session?.user) redirect("/login");
 
@@ -42,3 +42,5 @@ export default async function PortfolioPage() {
     </>
   );
 }
+
+export default PortfolioPage;
