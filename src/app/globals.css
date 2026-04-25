@@ -51,19 +51,8 @@
   --radius: 0.75rem;
 }
 
-/* Dark theme — default */
+/* Light theme — default */
 :root {
-  --bg: #0d0d14;
-  --surface: #13131f;
-  --surface-hover: #1a1a2e;
-  --border-base: #1e1e30;
-  --text-primary: #f1f5f9;
-  --text-secondary: #94a3b8;
-  --text-muted: #475569;
-}
-
-/* Light theme override */
-.light {
   --bg: #f8fafc;
   --surface: #ffffff;
   --surface-hover: #f1f5f9;
@@ -71,6 +60,17 @@
   --text-primary: #0f172a;
   --text-secondary: #475569;
   --text-muted: #94a3b8;
+}
+
+/* Dark theme */
+.dark {
+  --bg: #0d0d14;
+  --surface: #13131f;
+  --surface-hover: #1a1a2e;
+  --border-base: #1e1e30;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #475569;
 }
 
 * {

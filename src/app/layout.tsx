@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { ThemeProvider } from "next-themes";
 import { SessionProvider } from "@/shared/ui/session-provider";
 import "./globals.css";
+import {ReactNode} from "react";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -14,14 +16,18 @@ export const metadata: Metadata = {
   description: "Real-time crypto prices, watchlist and portfolio tracker",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{ children: React.ReactNode }>) {
+const RootLayout = ({children,}: Readonly<{ children: ReactNode }>) =>  {
   return (
-    <html lang="en" className={`${inter.variable} dark h-full`}>
+    <html lang="en" className={`${inter.variable} h-full`} suppressHydrationWarning>
       <body className="min-h-full bg-bg text-text-primary antialiased" suppressHydrationWarning>
-        <SessionProvider>{children}</SessionProvider>
+        <ThemeProvider attribute="class" defaultTheme="light" disableTransitionOnChange>
+          <SessionProvider>
+            {children}
+          </SessionProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
 }
+
+export default RootLayout;
