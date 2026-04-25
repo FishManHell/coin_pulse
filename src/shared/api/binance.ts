@@ -1,6 +1,8 @@
 import type { Kline, TimeRange } from "@/shared/types";
 
-const BASE = "https://api.binance.com/api/v3";
+// data-api.binance.vision is the public CDN mirror for market data —
+// avoids geo-blocks that hit api.binance.com from US-based serverless regions.
+const BASE = "https://data-api.binance.vision/api/v3";
 
 const CG_MARKETS =
   "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=1";

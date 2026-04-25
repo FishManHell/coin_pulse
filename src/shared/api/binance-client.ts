@@ -1,4 +1,4 @@
-const BASE = "https://api.binance.com/api/v3";
+const BASE = "https://data-api.binance.vision/api/v3";
 
 /**
  * Check whether a symbol pair is currently tradeable on Binance.
