@@ -1,4 +1,5 @@
 import type { Kline, TimeRange } from "@/shared/types";
+import binancePairs from "./binance-pairs.generated.json";
 
 // data-api.binance.vision is the public CDN mirror for market data —
 // avoids geo-blocks that hit api.binance.com from US-based serverless regions.
@@ -12,27 +13,15 @@ const STABLE_PRICE_MIN = 0.99;
 const STABLE_PRICE_MAX = 1.01;
 
 type MiniTicker = { symbol: string; lastPrice: string; quoteVolume: string };
-type ExchangeSymbol = { symbol: string; status: string; quoteAsset: string };
 
-// symbol → quoteAsset, only TRADING pairs
-const fetchTradingPairs = async (): Promise<Map<string, string>> => {
-  const res = await fetch(`${BASE}/exchangeInfo`, { next: { revalidate: 86400 } });
-  if (!res.ok) throw new Error(`Binance exchangeInfo error: ${res.status}`);
+// Reference data snapshotted at build time by scripts/generate-binance-pairs.mjs.
+// Avoids fetching the 22MB exchangeInfo response at runtime (exceeds Next data
+// cache 2MB per-item limit and would re-download on every revalidation).
+const tradingPairs = new Map<string, string>(binancePairs as [string, string][]);
 
-  const data: { symbols: ExchangeSymbol[] } = await res.json();
-  const map = new Map<string, string>();
-  for (const { symbol, status, quoteAsset } of data.symbols) {
-    if (status === "TRADING") map.set(symbol, quoteAsset);
-  }
-  return map;
-};
-
-// Detect USD stablecoins by price: if quoteAsset has a USDT pair priced ≈ $1, it's a stablecoin.
-// USDT itself is the reference — hardcoded as the only exception.
-const buildStablecoinSet = (
-  tickers: MiniTicker[],
-  tradingPairs: Map<string, string>
-): Set<string> => {
+// Detect USD stablecoins by price: if a quote asset has a USDT pair priced ≈ $1,
+// treat it as a stablecoin. USDT itself is the hardcoded reference.
+const buildStablecoinSet = (tickers: MiniTicker[]): Set<string> => {
   const stables = new Set<string>(["USDT"]);
 
   const usdtPriceMap = new Map<string, number>();
@@ -55,16 +44,13 @@ const buildStablecoinSet = (
 };
 
 export const fetchQuoteCurrencies = async (limit = 2): Promise<string[]> => {
-  const [tickersRes, tradingPairs] = await Promise.all([
-    fetch(`${BASE}/ticker/24hr?type=MINI`, { next: { revalidate: 3600 } }),
-    fetchTradingPairs(),
-  ]);
+  const tickersRes = await fetch(`${BASE}/ticker/24hr?type=MINI`, {
+    next: { revalidate: 3600 },
+  });
   if (!tickersRes.ok) throw new Error(`Binance ticker error: ${tickersRes.status}`);
 
   const tickers: MiniTicker[] = await tickersRes.json();
-  const stables = buildStablecoinSet(tickers, tradingPairs);
-
-  const MIN_PAIRS_FOR_QUOTE = 10;
+  const stables = buildStablecoinSet(tickers);
 
   const volumeByQuote = new Map<string, number>();
   for (const { symbol, quoteVolume } of tickers) {
@@ -81,15 +67,14 @@ export const fetchQuoteCurrencies = async (limit = 2): Promise<string[]> => {
 };
 
 export const fetchTopSymbols = async (limit = 6, quote = "USDT"): Promise<string[]> => {
-  const [tickersRes, tradingPairs, cgRes] = await Promise.all([
+  const [tickersRes, cgRes] = await Promise.all([
     fetch(`${BASE}/ticker/24hr?type=MINI`, { next: { revalidate: 60 } }),
-    fetchTradingPairs(),
     fetch(CG_MARKETS, { next: { revalidate: 86400 } }),
   ]);
   if (!tickersRes.ok) throw new Error(`Binance ticker error: ${tickersRes.status}`);
 
   const tickers: MiniTicker[] = await tickersRes.json();
-  const stables = buildStablecoinSet(tickers, tradingPairs);
+  const stables = buildStablecoinSet(tickers);
   const cgCoins: { symbol: string }[] = cgRes.ok ? await cgRes.json() : [];
   const cryptoSet = new Set(cgCoins.map((c) => c.symbol.toUpperCase()));
 
