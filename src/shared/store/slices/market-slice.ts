@@ -1,12 +1,13 @@
 import type { StateCreator } from "zustand";
-import type { CoinTicker } from "@/shared/types";
+import type { CoinTicker, CoinMeta, CoinMetaResponse } from "@/shared/types";
 import type { AppStore, StoreMutators } from "../types";
 
 export type MarketSlice = {
   prices: Record<string, CoinTicker>;
   coinNames: Record<string, string>;
+  tradeablePairs: CoinMeta[];
   updatePrice: (ticker: CoinTicker) => void;
-  setCoinNames: (names: Record<string, string>) => void;
+  setCoinMeta: (data: CoinMetaResponse) => void;
 };
 
 export const createMarketSlice: StateCreator<
@@ -17,6 +18,7 @@ export const createMarketSlice: StateCreator<
 > = (set) => ({
   prices: {},
   coinNames: {},
+  tradeablePairs: [],
 
   updatePrice: (ticker) =>
     set(
@@ -25,5 +27,6 @@ export const createMarketSlice: StateCreator<
       `market/updatePrice/${ticker.symbol}`,
     ),
 
-  setCoinNames: (names) => set({ coinNames: names }, false, "market/setCoinNames"),
+  setCoinMeta: ({ names, pairs }) =>
+    set({ coinNames: names, tradeablePairs: pairs }, false, "market/setCoinMeta"),
 });

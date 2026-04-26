@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Search, TrendingUp, TrendingDown } from "lucide-react";
 import { useAppStore } from "@/shared/store";
-import { searchCoins, type CoinMeta } from "@/shared/api/coins-list";
+import { useCoinFilter } from "@/shared/lib/use-coin-filter";
+import { useDismiss } from "@/shared/lib/use-dismiss";
+import type { CoinMeta } from "@/shared/types";
 import { formatPrice, cn } from "@/shared/lib/utils";
 
 type Props = { className?: string; autoFocus?: boolean };
@@ -18,26 +20,14 @@ export const SearchCoin = ({ className, autoFocus }: Props) => {
 
   const prices = useAppStore((s) => s.prices);
   const setSelectedSymbol = useAppStore((s) => s.setSelectedSymbol);
+  const results = useCoinFilter(query, { limit: 6 });
 
-  const results = searchCoins(query);
-
-  // Close on outside click
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (!containerRef.current?.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
+  const close = useCallback(() => {
+    setOpen(false);
+    inputRef.current?.blur();
   }, []);
 
-  // Close on Escape
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") { setOpen(false); inputRef.current?.blur(); }
-    };
-    document.addEventListener("keydown", handler);
-    return () => document.removeEventListener("keydown", handler);
-  }, []);
+  useDismiss(containerRef, close, open);
 
   const handleSelect = (coin: CoinMeta) => {
     setSelectedSymbol(coin.symbol);

@@ -51,3 +51,10 @@ export type ApiResponse<T> = {
   data?: T;
   error?: string;
 };
+
+export type CoinMeta = { symbol: string; name: string };
+
+export type CoinMetaResponse = {
+  names: Record<string, string>;
+  pairs: CoinMeta[];
+};
