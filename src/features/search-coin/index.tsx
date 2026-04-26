@@ -7,9 +7,9 @@ import { useAppStore } from "@/shared/store";
 import { searchCoins, type CoinMeta } from "@/shared/api/coins-list";
 import { formatPrice, cn } from "@/shared/lib/utils";
 
-type Props = { className?: string };
+type Props = { className?: string; autoFocus?: boolean };
 
-export const SearchCoin = ({ className }: Props) => {
+export const SearchCoin = ({ className, autoFocus }: Props) => {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
@@ -47,17 +47,18 @@ export const SearchCoin = ({ className }: Props) => {
   };
 
   return (
-    <div ref={containerRef} className={cn("relative", className)}>
+    <div ref={containerRef} className={cn("relative w-44 lg:w-52", className)}>
       <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none z-10" />
       <input
         ref={inputRef}
+        autoFocus={autoFocus}
         type="text"
         value={query}
         onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
         onFocus={() => setOpen(true)}
         placeholder="Search coins…"
         className={cn(
-          "w-44 lg:w-52 bg-bg border border-border-base rounded-xl pl-9 pr-4 py-2 text-sm",
+          "w-full bg-bg border border-border-base rounded-xl pl-9 pr-4 py-2 text-sm",
           "text-text-primary placeholder:text-text-muted outline-none",
           "focus:border-accent-indigo transition-colors"
         )}
