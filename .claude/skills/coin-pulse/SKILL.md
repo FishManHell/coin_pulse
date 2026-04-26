@@ -46,6 +46,7 @@ features/      — add-to-watchlist, remove-from-watchlist,
 entities/      — coin/PriceCard, user/auth-config
 shared/        — ui, lib (utils, db), types, hooks (useWebSocket, useTheme), store, api
 models/        — Mongoose schemas (server-only): User, WatchlistItem, PortfolioPosition
+scripts/       — Prebuild snapshots (Binance trading pairs)
 ```
 
 Cross-feature imports are forbidden. If two features need shared logic, move it to entities/ or shared/.
@@ -116,6 +117,15 @@ GOOGLE_CLIENT_SECRET   — Google Cloud Console
 - Combined streams: `wss://stream.binance.com:9443/stream?streams=btcusdt@ticker/ethusdt@ticker`
 - Single symbol ticker fields: `s`=symbol, `c`=price, `P`=% change, `p`=change, `v`=volume, `h`=high, `l`=low
 - Hook uses `cancelled` flag to handle React StrictMode double-invoke without console errors
+
+## Binance Trading Pairs — Build-Time Snapshot
+
+The `symbol → quoteAsset` map is snapshotted at build time into
+`shared/api/binance-pairs.generated.json` by `scripts/generate-binance-pairs.mjs`
+(runs as `prebuild` in `package.json`). `shared/api/binance.ts` imports it as a
+module-level Map. Never fetch `/api/v3/exchangeInfo` at runtime — its ~22MB
+response exceeds Next 16's data cache 2MB per-item limit and `cache: "no-store"`
+is ignored by Turbopack, so each call would re-download the full payload.
 
 ## References
 

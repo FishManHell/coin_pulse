@@ -112,6 +112,26 @@ Always return consistent error shape: `{ error: string }` with correct HTTP stat
 - Admin routes: double-check role on both list and mutation endpoints
 - superadmin cannot be deleted by admin — check `canChangeRole` before mutating
 
+## Binance Trading Pairs — Build-Time Snapshot
+
+Trading-pair metadata (`symbol → quoteAsset` map) is snapshotted to
+`shared/api/binance-pairs.generated.json` at build time by
+`scripts/generate-binance-pairs.mjs`, run as `prebuild` in `package.json`.
+`shared/api/binance.ts` imports the JSON and exposes a module-level Map.
+
+**Never fetch `/api/v3/exchangeInfo` at runtime.** The response is ~22MB and
+exceeds Next 16's data cache 2MB per-item limit; `cache: "no-store"` is
+ignored by Turbopack data cache, so every `/api/top-coins` and
+`/api/quote-currencies` hit would re-download the full payload (visible as
+slow page transitions).
+
+The script overwrites the JSON on every successful run and falls back to
+keeping the existing snapshot on transient fetch failures, so deploys don't
+break on Binance outages. Snapshot is committed to the repo (so `yarn dev`
+on a fresh clone works without network access).
+
+To force-refresh locally: `node scripts/generate-binance-pairs.mjs`.
+
 ## Binance WebSocket API
 
 Public stream, no authentication required.

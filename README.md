@@ -71,7 +71,12 @@ features/     add-to-watchlist, remove-from-watchlist, add-to-portfolio, search-
 entities/     coin (PriceCard), user (auth-config)
 shared/       ui, lib (cn, formatters, db), hooks, store, types, api
 models/       Mongoose schemas (server-only)
+scripts/      Prebuild snapshots (Binance trading pairs)
 ```
+
+### Build-time data
+
+`scripts/generate-binance-pairs.mjs` runs as `prebuild` and snapshots Binance's `symbol → quoteAsset` map (~1400 trading pairs) into `src/shared/api/binance-pairs.generated.json`. The runtime imports the JSON directly — no 22MB `/exchangeInfo` fetch on every `/api/top-coins` or `/api/quote-currencies` hit (Next 16 data cache rejects items > 2MB and would re-download on each revalidation). Snapshot is committed; refreshed on every deploy. Falls back to the existing snapshot if the upstream fetch fails.
 
 ---
 
