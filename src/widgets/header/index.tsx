@@ -10,9 +10,10 @@ import { styles } from "./styles";
 interface HeaderProps {
   title: string;
   actions?: ReactNode;
+  showSearch?: boolean;
 }
 
-export const Header = ({ title, actions }: HeaderProps) => {
+export const Header = ({ title, actions, showSearch = true }: HeaderProps) => {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
 
   const onOpenMobileSearch = () => setMobileSearchOpen(true);
@@ -24,7 +25,7 @@ export const Header = ({ title, actions }: HeaderProps) => {
         {title}
       </h1>
 
-      {mobileSearchOpen && (
+      {showSearch && mobileSearchOpen && (
         <div className={styles.mobileSearch}>
           <SearchCoin autoFocus className="flex-1 w-auto" />
           <button onClick={onCloseMobileSearch} className={styles.closeButton}>
@@ -34,13 +35,17 @@ export const Header = ({ title, actions }: HeaderProps) => {
       )}
 
       <div className={cn(styles.rightCluster, mobileSearchOpen && "hidden md:flex")}>
-        <button onClick={onOpenMobileSearch} className={cn("md:hidden", styles.iconButton)}>
-          <Search size={16} />
-        </button>
+        {showSearch && (
+          <>
+            <button onClick={onOpenMobileSearch} className={cn("md:hidden", styles.iconButton)}>
+              <Search size={16} />
+            </button>
 
-        <div className="hidden md:block">
-          <SearchCoin />
-        </div>
+            <div className="hidden md:block">
+              <SearchCoin />
+            </div>
+          </>
+        )}
 
         {actions}
         <ThemeToggle />

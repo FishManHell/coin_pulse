@@ -29,7 +29,7 @@ const PortfolioPage = async () => {
 
   return (
     <>
-      <Header title="Portfolio" />
+      <Header title="Portfolio" showSearch={false} />
       <div className="flex-1 p-6">
         <div className="mb-6">
           <h2 className="text-lg font-semibold text-text-primary">Your portfolio</h2>
