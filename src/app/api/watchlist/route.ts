@@ -1,15 +1,14 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/entities/user/lib/auth-config";
+import { requireApiUser } from "@/entities/user/lib/require-api-user";
 import connectDB from "@/shared/lib/db";
 import WatchlistItem from "../../../../models/WatchlistItem";
 
 export async function GET() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const auth = await requireApiUser();
+  if ("error" in auth) return auth.error;
 
   await connectDB();
-  const items = await WatchlistItem.find({ userId: (session.user as { id: string }).id })
+  const items = await WatchlistItem.find({ userId: auth.user.id })
     .sort({ addedAt: -1 })
     .lean();
 
@@ -17,8 +16,8 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const auth = await requireApiUser();
+  if ("error" in auth) return auth.error;
 
   const { symbol, name } = await req.json();
   if (!symbol || !name) return NextResponse.json({ error: "symbol and name required" }, { status: 400 });
@@ -26,8 +25,8 @@ export async function POST(req: Request) {
   await connectDB();
 
   const item = await WatchlistItem.findOneAndUpdate(
-    { userId: (session.user as { id: string }).id, symbol },
-    { userId: (session.user as { id: string }).id, symbol, name, addedAt: new Date() },
+    { userId: auth.user.id, symbol },
+    { userId: auth.user.id, symbol, name, addedAt: new Date() },
     { upsert: true, new: true }
   );
 

@@ -1,19 +1,17 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/entities/user/lib/auth-config";
+import { requireApiUser } from "@/entities/user/lib/require-api-user";
 import connectDB from "@/shared/lib/db";
 import User from "../../../../models/User";
 import bcrypt from "bcryptjs";
 
 export async function PATCH(req: Request) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const auth = await requireApiUser();
+  if ("error" in auth) return auth.error;
 
-  const userId = (session.user as { id: string }).id;
   const { name, email, currentPassword, newPassword } = await req.json();
 
   await connectDB();
-  const user = await User.findById(userId);
+  const user = await User.findById(auth.user.id);
   if (!user) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   if (name) user.name = name;

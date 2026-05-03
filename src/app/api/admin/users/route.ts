@@ -1,17 +1,12 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/entities/user/lib/auth-config";
+import { requireApiRole } from "@/entities/user/lib/require-api-user";
 import connectDB from "@/shared/lib/db";
 import User from "../../../../../models/User";
-import { ROLE_PERMISSIONS, type UserRole } from "@/shared/types/roles";
+import { ROLE_PERMISSIONS } from "@/shared/types/roles";
 
 export async function GET() {
-  const session = await getServerSession(authOptions);
-  const role = (session?.user as { role?: UserRole } | undefined)?.role;
-
-  if (!role || !ROLE_PERMISSIONS.canViewUsers(role)) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
+  const auth = await requireApiRole(ROLE_PERMISSIONS.canViewUsers);
+  if ("error" in auth) return auth.error;
 
   await connectDB();
   const users = await User.find({})

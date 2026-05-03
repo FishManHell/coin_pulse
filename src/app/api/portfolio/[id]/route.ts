@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/entities/user/lib/auth-config";
+import { requireApiUser } from "@/entities/user/lib/require-api-user";
 import connectDB from "@/shared/lib/db";
 import PortfolioPosition from "../../../../../models/PortfolioPosition";
 
@@ -8,15 +7,15 @@ export async function DELETE(
   _req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const auth = await requireApiUser();
+  if ("error" in auth) return auth.error;
 
   const { id } = await params;
   await connectDB();
 
   const result = await PortfolioPosition.deleteOne({
     _id: id,
-    userId: (session.user as { id: string }).id,
+    userId: auth.user.id,
   });
 
   if (result.deletedCount === 0) {

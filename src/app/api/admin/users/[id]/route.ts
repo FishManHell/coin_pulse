@@ -1,22 +1,16 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/entities/user/lib/auth-config";
+import { requireApiRole } from "@/entities/user/lib/require-api-user";
 import connectDB from "@/shared/lib/db";
 import User from "../../../../../../models/User";
 import { ROLE_PERMISSIONS, USER_ROLES, type UserRole } from "@/shared/types/roles";
-
-type SessionUser = { id: string; role: UserRole };
 
 export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await getServerSession(authOptions);
-  const actor = session?.user as SessionUser | undefined;
-
-  if (!actor?.role || !ROLE_PERMISSIONS.canViewUsers(actor.role)) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
+  const auth = await requireApiRole(ROLE_PERMISSIONS.canViewUsers);
+  if ("error" in auth) return auth.error;
+  const actor = auth.user;
 
   const { id } = await params;
   const body = await req.json();
@@ -57,12 +51,9 @@ export async function DELETE(
   _req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await getServerSession(authOptions);
-  const actor = session?.user as SessionUser | undefined;
-
-  if (!actor?.role || !ROLE_PERMISSIONS.canDeleteUser(actor.role)) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
+  const auth = await requireApiRole(ROLE_PERMISSIONS.canDeleteUser);
+  if ("error" in auth) return auth.error;
+  const actor = auth.user;
 
   const { id } = await params;
   if (id === actor.id) {
