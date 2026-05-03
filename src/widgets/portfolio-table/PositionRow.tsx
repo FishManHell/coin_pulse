@@ -1,24 +1,16 @@
 "use client";
 
-import { useState } from "react";
-import { ChevronDown, ChevronRight, Trash2, TrendingUp, TrendingDown } from "lucide-react";
+import { useState, KeyboardEvent } from "react";
+import { ChevronDown, ChevronRight, TrendingUp, TrendingDown } from "lucide-react";
 import { useAppStore } from "@/shared/store";
-import { useRemoveFromPortfolio } from "@/features/remove-from-portfolio";
 import { formatPrice, formatPercent, cn } from "@/shared/lib/utils";
-import { Button } from "@/shared/ui/button";
 import { styles } from "./styles";
+import { TransactionRow } from "./TransactionRow";
 import type { GroupedPosition } from "./group-positions";
 
-const dateFmt = new Intl.DateTimeFormat("en-US", {
-  month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit",
-});
-
-type Props = { group: GroupedPosition };
-
-export const PositionRow = ({ group }: Props) => {
+export const PositionRow = ({ group }: { group: GroupedPosition }) => {
   const [expanded, setExpanded] = useState(false);
   const prices = useAppStore((s) => s.prices);
-  const { remove, loading: removing } = useRemoveFromPortfolio();
 
   const currentPrice = prices[group.symbol]?.price ?? group.avgBuyPrice;
   const currentValue = currentPrice * group.totalQty;
@@ -26,19 +18,22 @@ export const PositionRow = ({ group }: Props) => {
   const pnlPct = group.totalCost > 0 ? (pnl / group.totalCost) * 100 : 0;
   const up = pnl >= 0;
 
-  const handleDelete = (e: React.MouseEvent, id: string) => {
-    e.stopPropagation();
-    remove(id);
+  const toggleExpanded = () => setExpanded((v) => !v);
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    e.preventDefault();
+    toggleExpanded();
   };
 
   return (
     <>
       <div
         className={styles.row}
-        onClick={() => setExpanded((v) => !v)}
+        onClick={toggleExpanded}
         role="button"
         tabIndex={0}
-        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setExpanded((v) => !v); } }}
+        onKeyDown={handleKeyDown}
       >
         <span className={styles.expandIcon}>
           {expanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
@@ -66,24 +61,7 @@ export const PositionRow = ({ group }: Props) => {
       {expanded && (
         <div className={styles.txWrap}>
           {group.transactions.map((tx) => (
-            <div key={tx.id} className={styles.txRow}>
-              <span />
-              <span className={styles.txDate}>{dateFmt.format(new Date(tx.createdAt))}</span>
-              <span className={styles.txValue}>{tx.quantity}</span>
-              <span className={styles.txValue}>${formatPrice(tx.buyPrice)}</span>
-              <span />
-              <span />
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                onClick={(e) => handleDelete(e, tx.id)}
-                disabled={removing}
-                aria-label="Delete transaction"
-                className="text-text-muted hover:text-price-down hover:bg-price-down/10"
-              >
-                <Trash2 />
-              </Button>
-            </div>
+            <TransactionRow key={tx.id} tx={tx} />
           ))}
         </div>
       )}
