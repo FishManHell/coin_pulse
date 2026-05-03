@@ -26,6 +26,11 @@ export async function PATCH(
   const target = await User.findById(id);
   if (!target) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
+  // Cannot change own role
+  if (role && id === actor.id) {
+    return NextResponse.json({ error: "Cannot change your own role" }, { status: 400 });
+  }
+
   // Role change permission check
   if (role && !ROLE_PERMISSIONS.canChangeRole(actor.role, target.role as UserRole)) {
     return NextResponse.json({ error: "Cannot change this role" }, { status: 403 });

@@ -9,9 +9,10 @@ import User from "../../../../models/User";
 
 export default async function SettingsPage() {
   const session = await getServerSession(authOptions);
-  const role = (session?.user as { role?: UserRole } | undefined)?.role;
+  const actor = session?.user as { id?: string; role?: UserRole } | undefined;
+  const role = actor?.role;
 
-  if (!role || !ROLE_PERMISSIONS.canAccessSettings(role)) redirect("/dashboard");
+  if (!actor?.id || !role || !ROLE_PERMISSIONS.canAccessSettings(role)) redirect("/dashboard");
 
   await connectDB();
   const rawUsers = await User.find({}).select("-password").sort({ createdAt: -1 }).lean();
@@ -25,8 +26,6 @@ export default async function SettingsPage() {
     createdAt: u.createdAt.toISOString(),
   }));
 
-  const actorRole = role;
-
   return (
     <>
       <Header title="Settings" />
@@ -35,7 +34,7 @@ export default async function SettingsPage() {
           <h2 className="text-lg font-semibold text-text-primary">User management</h2>
           <p className="text-text-muted text-sm mt-1">{users.length} registered users</p>
         </div>
-        <AdminUsersTable users={users} actorRole={actorRole} />
+        <AdminUsersTable users={users} actorId={actor.id} actorRole={role} />
       </div>
     </>
   );
