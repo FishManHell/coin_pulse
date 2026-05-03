@@ -1,10 +1,11 @@
 {
   "name": "coin_pulse",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "prebuild": "node scripts/generate-binance-pairs.mjs",
+    "dev:fresh": "npm run prebuild && npm run dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"
