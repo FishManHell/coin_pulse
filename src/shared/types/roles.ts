@@ -5,7 +5,14 @@ export const USER_ROLES = {
   USER: "user",
 } as const;
 
-export type UserRole = (typeof USER_ROLES)[keyof typeof USER_ROLES];
+export const ALL_ROLES = [
+  USER_ROLES.SUPERADMIN,
+  USER_ROLES.ADMIN,
+  USER_ROLES.DEVELOPER,
+  USER_ROLES.USER,
+] as const;
+
+export type UserRole = (typeof ALL_ROLES)[number];
 
 export const ROLE_LABELS: Record<UserRole, string> = {
   superadmin: "Super Admin",
