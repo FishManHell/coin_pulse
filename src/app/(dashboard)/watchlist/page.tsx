@@ -1,20 +1,15 @@
-import { getServerSession } from "next-auth";
-import { redirect } from "next/navigation";
-import { authOptions } from "@/entities/user/lib/auth-config";
+import { requireUser } from "@/entities/user/lib/require-user";
 import connectDB from "@/shared/lib/db";
 import WatchlistItem from "../../../../models/WatchlistItem";
 import { Header } from "@/widgets/header";
 import { WatchlistTable } from "@/widgets/watchlist-table";
 import type { WatchlistItem as WatchlistItemType } from "@/shared/types";
 
-export default async function WatchlistPage() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) redirect("/login");
+const WatchlistPage = async () =>  {
+  const user = await requireUser();
 
   await connectDB();
-  const rawItems = await WatchlistItem.find({
-    userId: (session.user as { id: string }).id,
-  })
+  const rawItems = await WatchlistItem.find({ userId: user.id })
     .sort({ addedAt: -1 })
     .lean();
 
@@ -42,3 +37,5 @@ export default async function WatchlistPage() {
     </>
   );
 }
+
+export default WatchlistPage;

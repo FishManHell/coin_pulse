@@ -1,6 +1,4 @@
-import { getServerSession } from "next-auth";
-import { redirect } from "next/navigation";
-import { authOptions } from "@/entities/user/lib/auth-config";
+import { requireUser } from "@/entities/user/lib/require-user";
 import connectDB from "@/shared/lib/db";
 import PortfolioPosition from "../../../../models/PortfolioPosition";
 import { Header } from "@/widgets/header";
@@ -8,13 +6,10 @@ import { PortfolioTable } from "@/widgets/portfolio-table";
 import type { PortfolioPosition as PortfolioPositionType } from "@/shared/types";
 
 const PortfolioPage = async () => {
-  const session = await getServerSession(authOptions);
-  if (!session?.user) redirect("/login");
+  const user = await requireUser();
 
   await connectDB();
-  const rawPositions = await PortfolioPosition.find({
-    userId: (session.user as { id: string }).id,
-  })
+  const rawPositions = await PortfolioPosition.find({ userId: user.id })
     .sort({ createdAt: -1 })
     .lean();
 
