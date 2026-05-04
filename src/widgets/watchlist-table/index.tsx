@@ -8,11 +8,11 @@ import { useRemoveFromWatchlist } from "@/features/remove-from-watchlist";
 import { formatPrice, formatPercent, cn } from "@/shared/lib/utils";
 import type { WatchlistItem } from "@/shared/types";
 
-type Props = {
+type WatchlistTableProps = Readonly<{
   initialItems: WatchlistItem[];
-};
+}>;
 
-export const WatchlistTable = ({ initialItems }: Readonly<Props>) => {
+export const WatchlistTable = ({ initialItems }: WatchlistTableProps) => {
   const setWatchlist = useAppStore((s) => s.setWatchlist);
   const watchlist = useAppStore((s) => s.watchlist);
   const prices = useAppStore((s) => s.prices);
