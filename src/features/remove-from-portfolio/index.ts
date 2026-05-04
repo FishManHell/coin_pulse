@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useAppStore } from "@/shared/store";
+import { apiFetch } from "@/shared/lib/api-fetch";
 
 export const useRemoveFromPortfolio = () => {
   const [loading, setLoading] = useState(false);
@@ -11,7 +12,7 @@ export const useRemoveFromPortfolio = () => {
   const remove = async (id: string) => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/portfolio/${id}`, { method: "DELETE" });
+      const res = await apiFetch(`/api/portfolio/${id}`, { method: "DELETE" });
       if (!res.ok) return;
       setPortfolio(portfolio.filter((p) => p.id !== id));
     } finally {

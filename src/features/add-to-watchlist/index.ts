@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useAppStore } from "@/shared/store";
+import { apiFetch } from "@/shared/lib/api-fetch";
 import type { WatchlistItem } from "@/shared/types";
 
 export const useAddToWatchlist = () => {
@@ -13,7 +14,7 @@ export const useAddToWatchlist = () => {
     if (loading) return;
     setLoading(true);
     try {
-      const res = await fetch("/api/watchlist", {
+      const res = await apiFetch("/api/watchlist", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ symbol, name }),

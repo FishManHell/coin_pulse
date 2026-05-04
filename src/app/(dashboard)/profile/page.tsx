@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { Header } from "@/widgets/header";
+import { apiFetch } from "@/shared/lib/api-fetch";
 import { cn } from "@/shared/lib/utils";
 import { ROLE_LABELS, type UserRole } from "@/shared/types/roles";
 
@@ -22,7 +23,7 @@ export default function ProfilePage() {
     setProfileLoading(true);
     setProfileMsg("");
     try {
-      const res = await fetch("/api/profile", {
+      const res = await apiFetch("/api/profile", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: profileForm.name, email: profileForm.email }),
@@ -42,7 +43,7 @@ export default function ProfilePage() {
     setPwLoading(true);
     setPwMsg("");
     try {
-      const res = await fetch("/api/profile", {
+      const res = await apiFetch("/api/profile", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ currentPassword: pwForm.currentPassword, newPassword: pwForm.newPassword }),

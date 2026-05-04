@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useAppStore } from "@/shared/store";
+import { apiFetch } from "@/shared/lib/api-fetch";
 
 export const useRemoveFromWatchlist = () => {
   const [loading, setLoading] = useState(false);
@@ -12,7 +13,7 @@ export const useRemoveFromWatchlist = () => {
     if (loading) return;
     setLoading(true);
     try {
-      const res = await fetch(`/api/watchlist/${symbol}`, { method: "DELETE" });
+      const res = await apiFetch(`/api/watchlist/${symbol}`, { method: "DELETE" });
       if (!res.ok) return;
       setWatchlist(watchlist.filter((w) => w.symbol !== symbol));
     } finally {

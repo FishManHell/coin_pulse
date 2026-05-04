@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useAppStore } from "@/shared/store";
+import { apiFetch } from "@/shared/lib/api-fetch";
 import type { PortfolioPosition } from "@/shared/types";
 
 type AddInput = {
@@ -21,7 +22,7 @@ export const useAddToPortfolio = () => {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch("/api/portfolio", {
+      const res = await apiFetch("/api/portfolio", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(input),
