@@ -13,11 +13,9 @@ import {
 import { usePositionForm } from "./use-position-form";
 import { styles } from "./styles";
 
-type Props = { onCloseAction: () => void };
-
-export const AddPositionForm = ({ onCloseAction }: Props) => {
+export const AddPositionForm = ({ onCloseAction }: { onCloseAction: () => void }) => {
   const { fields, set, submit, loading, error, noPairs, quote, setQuote, quotes, pairs } =
-    usePositionForm({ onSuccess: onCloseAction });
+    usePositionForm({ onSuccessAction: onCloseAction });
 
   return (
     <form onSubmit={submit} className={styles.formWrap}>
@@ -41,9 +39,7 @@ export const AddPositionForm = ({ onCloseAction }: Props) => {
             </SelectTrigger>
             <SelectContent className="bg-surface border-border-base">
               {quotes.map((q) => (
-                <SelectItem key={q} value={q} className="text-sm cursor-pointer">
-                  {q}
-                </SelectItem>
+                <SelectItem key={q} value={q} className="text-sm cursor-pointer">{q}</SelectItem>
               ))}
             </SelectContent>
           </Select>

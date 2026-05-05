@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, SubmitEvent } from "react";
 import { useSession } from "next-auth/react";
 import { Header } from "@/widgets/header";
 import { apiFetch } from "@/shared/lib/api-fetch";
@@ -18,7 +18,7 @@ export default function ProfilePage() {
   const [profileLoading, setProfileLoading] = useState(false);
   const [pwLoading, setPwLoading] = useState(false);
 
-  const handleProfile = async (e: React.FormEvent) => {
+  const handleProfile = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setProfileLoading(true);
     setProfileMsg("");
@@ -37,7 +37,7 @@ export default function ProfilePage() {
     }
   };
 
-  const handlePassword = async (e: React.FormEvent) => {
+  const handlePassword = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (pwForm.newPassword !== pwForm.confirm) { setPwMsg("Passwords do not match"); return; }
     setPwLoading(true);
