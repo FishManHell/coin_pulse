@@ -8,6 +8,7 @@ import type { PortfolioPosition } from "@/shared/types";
 type AddInput = {
   symbol: string;
   name: string;
+  quote: string;
   quantity: number;
   buyPrice: number;
 };
@@ -34,6 +35,7 @@ export const useAddToPortfolio = () => {
         id: data._id,
         symbol: data.symbol,
         name: data.name,
+        quote: data.quote,
         quantity: data.quantity,
         buyPrice: data.buyPrice,
         createdAt: data.createdAt,

@@ -3,13 +3,21 @@
 import { X } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import { CoinCombobox } from "@/features/coin-combobox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/shared/ui/select";
 import { usePositionForm } from "./use-position-form";
 import { styles } from "./styles";
 
 type Props = { onCloseAction: () => void };
 
 export const AddPositionForm = ({ onCloseAction }: Props) => {
-  const { fields, set, submit, loading, error, noPairs } = usePositionForm({ onSuccess: onCloseAction });
+  const { fields, set, submit, loading, error, noPairs, quote, setQuote, quotes, pairs } =
+    usePositionForm({ onSuccess: onCloseAction });
 
   return (
     <form onSubmit={submit} className={styles.formWrap}>
@@ -19,9 +27,26 @@ export const AddPositionForm = ({ onCloseAction }: Props) => {
           <CoinCombobox
             value={fields.symbol}
             onChange={(coin) => set("symbol", coin.symbol)}
+            pairs={pairs}
+            quote={quote}
             disabled={noPairs}
             placeholder={noPairs ? "Loading…" : "Select coin"}
           />
+        </div>
+        <div>
+          <label className={styles.fieldLabel}>Pair</label>
+          <Select value={quote} onValueChange={setQuote}>
+            <SelectTrigger className="w-full bg-surface border-border-base h-[38px] rounded-xl text-sm">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="bg-surface border-border-base">
+              {quotes.map((q) => (
+                <SelectItem key={q} value={q} className="text-sm cursor-pointer">
+                  {q}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <div>
           <label className={styles.fieldLabel}>Quantity</label>

@@ -3,8 +3,6 @@
 import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { Search } from "lucide-react";
-import { useAppStore } from "@/shared/store";
-import { useCoinFilter } from "@/shared/lib/use-coin-filter";
 import { useDismiss } from "@/shared/lib/use-dismiss";
 import { cn } from "@/shared/lib/utils";
 import type { CoinMeta } from "@/shared/types";
@@ -12,6 +10,8 @@ import type { CoinMeta } from "@/shared/types";
 type Props = {
   value: string;
   onChange: (coin: CoinMeta) => void;
+  pairs: CoinMeta[];
+  quote: string;
   disabled?: boolean;
   placeholder?: string;
   className?: string;
@@ -20,6 +20,8 @@ type Props = {
 export const CoinCombobox = ({
   value,
   onChange,
+  pairs,
+  quote,
   disabled,
   placeholder = "Search coin…",
   className,
@@ -31,15 +33,25 @@ export const CoinCombobox = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const tradeablePairs = useAppStore((s) => s.tradeablePairs);
-  const results = useCoinFilter(query, { limit: 8 });
-
-  const selected = useMemo(
-    () => tradeablePairs.find((c) => c.symbol === value),
-    [tradeablePairs, value],
+  const stripQuote = useCallback(
+    (sym: string) => (sym.endsWith(quote) ? sym.slice(0, -quote.length) : sym),
+    [quote],
   );
 
-  const selectedShort = selected ? selected.symbol.replace("USDT", "") : "";
+  const results = useMemo(() => {
+    const q = query.toLowerCase().trim();
+    if (!q) return [];
+    return pairs
+      .filter((c) => c.name.toLowerCase().includes(q) || c.symbol.toLowerCase().includes(q))
+      .slice(0, 8);
+  }, [query, pairs]);
+
+  const selected = useMemo(
+    () => pairs.find((c) => c.symbol === value),
+    [pairs, value],
+  );
+
+  const selectedShort = selected ? stripQuote(selected.symbol) : "";
 
   const close = useCallback(() => {
     setOpen(false);
@@ -47,9 +59,11 @@ export const CoinCombobox = ({
 
   useDismiss(containerRef, close, open);
 
-  // Sync input value with selected coin only after explicit user selection
+  // Sync input value with selected coin only after explicit user selection.
+  // Skip while selectedShort is empty — pairs may be momentarily absent during
+  // a quote-switch fetch, and we don't want to wipe the visible coin name.
   useEffect(() => {
-    if (!open && userSelected) setQuery(selectedShort);
+    if (!open && userSelected && selectedShort) setQuery(selectedShort);
   }, [open, userSelected, selectedShort]);
 
   useEffect(() => {
@@ -99,7 +113,7 @@ export const CoinCombobox = ({
             )}
           >
             <span className="font-semibold text-sm text-text-primary">
-              {coin.symbol.replace("USDT", "")}
+              {stripQuote(coin.symbol)}
             </span>
             <span className="text-xs text-text-muted truncate">{coin.name}</span>
           </button>

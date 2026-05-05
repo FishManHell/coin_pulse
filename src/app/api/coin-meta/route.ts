@@ -12,7 +12,7 @@ type CGCoin = { symbol: string; name: string };
 type Ticker = { symbol: string; price: string };
 
 const loadCoinMeta = unstable_cache(
-  async (): Promise<CoinMetaResponse | null> => {
+  async (quote: string): Promise<CoinMetaResponse | null> => {
     const [cgRes, tickerRes] = await Promise.all([
       fetch(CG_MARKETS, { cache: "no-store" }),
       fetch(BINANCE_TICKERS, { cache: "no-store" }),
@@ -26,23 +26,26 @@ const loadCoinMeta = unstable_cache(
     const names: Record<string, string> = {};
     for (const { symbol, name } of cgCoins) names[symbol.toUpperCase()] = name;
 
-    const tradingUsdtBases = new Set<string>();
+    const tradingBases = new Set<string>();
     for (const { symbol } of tickers) {
-      if (symbol.endsWith("USDT")) tradingUsdtBases.add(symbol.slice(0, -4));
+      if (symbol.endsWith(quote)) tradingBases.add(symbol.slice(0, -quote.length));
     }
 
     const pairs: CoinMeta[] = cgCoins
-      .filter((c) => tradingUsdtBases.has(c.symbol.toUpperCase()))
-      .map((c) => ({ symbol: `${c.symbol.toUpperCase()}USDT`, name: c.name }));
+      .filter((c) => tradingBases.has(c.symbol.toUpperCase()))
+      .map((c) => ({ symbol: `${c.symbol.toUpperCase()}${quote}`, name: c.name }));
 
     return { names, pairs };
   },
-  ["coin-meta-v1"],
+  ["coin-meta-v2"],
   { revalidate: 86400 },
 );
 
-export async function GET() {
-  const data = await loadCoinMeta();
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const quote = (searchParams.get("quote") ?? "USDT").toUpperCase();
+
+  const data = await loadCoinMeta(quote);
   if (!data) {
     return NextResponse.json<CoinMetaResponse>({ names: {}, pairs: [] }, { status: 502 });
   }
