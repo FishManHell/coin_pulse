@@ -24,11 +24,11 @@
 
 ## Real-Time Data Pattern
 
-Binance WebSocket connection lives in `shared/hooks/useWebSocket.ts`.
+Binance WebSocket connection lives in `shared/hooks/usePriceStream.ts`.
 It feeds data into Zustand store. Components read from the store only — never connect to WebSocket directly.
 
 ```
-Binance WS → useWebSocket hook → Zustand store → component reads state
+Binance WS → usePriceStream hook → Zustand store → component reads state
 ```
 
 WebSocket URL format for combined streams:
@@ -50,6 +50,23 @@ const setTheme = useAppStore((s) => s.setTheme); // write
 
 `useTheme` hook wraps store + applies `.light` / `.dark` class to `<html>`.
 TradingView chart: update via `chart.applyOptions()` when theme changes — don't recreate the chart.
+
+## Data-Fetch Hooks Pattern
+
+Per-endpoint data needs go through tiny shared hooks in `shared/hooks/`:
+
+- `useQuoteCurrencies()` → `string[]`. Fetches `/api/quote-currencies` with a `cancelled` flag and a defensive `Array.isArray && length` check before replacing the default `["USDT"]`.
+- `usePairsForQuote(quote)` → `CoinMeta[]`. Fetches `/api/coin-meta?quote=X`, resets pairs on quote change, has cancellation cleanup.
+
+Consumers (`QuoteSelector`, `usePositionForm`, …) read these hooks and stay free of fetch boilerplate. Don't reach for SWR / React Query for two GETs; the in-house pattern stays cheap.
+
+## Quote-Aware Form Independence
+
+`AddPositionForm` (in `features/add-to-portfolio`) is fully decoupled from the global `selectedQuote` in both directions:
+- It defaults to a hardcoded `"USDT"` on every mount — never reads `useAppStore.getState().selectedQuote`.
+- Its quote select writes to local `useState` only — never propagates back to the global store.
+
+The dashboard header `QuoteSelector` and the form's own pair select represent two different bounded contexts ("what market am I exploring" vs "what pair did I trade in") that happen to share the same string type. Do not re-bridge them.
 
 ## Tailwind v4 Notes
 

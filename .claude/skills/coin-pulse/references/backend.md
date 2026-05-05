@@ -7,11 +7,15 @@ app/api/
   auth/[...nextauth]/route.ts     — NextAuth handler (credentials + Google)
   auth/register/route.ts          — POST register new user
   watchlist/
-    route.ts                      — GET list, POST add coin (upsert)
+    route.ts                      — GET list (quote backfilled), POST add (accepts quote, upsert)
     [symbol]/route.ts             — DELETE remove coin
   portfolio/
-    route.ts                      — GET list, POST add position
+    route.ts                      — GET list (quote backfilled),
+                                     POST add (validates symbol/quote against tradingPairs)
     [id]/route.ts                 — DELETE remove position
+  coin-meta/route.ts              — GET ?quote=X — tradeable pairs + names (cached 24h, key coin-meta-v2)
+  quote-currencies/route.ts       — GET — discovered stablecoin quote currencies
+  top-coins/route.ts              — GET ?quote=X — top tradeable bases by quote volume
   admin/
     users/route.ts                — GET all users (admin+)
     users/[id]/route.ts           — PATCH update user, DELETE remove user
@@ -65,8 +69,10 @@ const connectDB = async () => {
 Models live in `models/` (server-only). Use `mongoose.models.X ?? mongoose.model(...)` pattern.
 
 - `User` — name, email, password (nullable), image, role (enum from USER_ROLES), createdAt
-- `WatchlistItem` — userId (ref User), symbol, name, addedAt. Unique index on (userId, symbol).
-- `PortfolioPosition` — userId (ref User), symbol, name, quantity, buyPrice, createdAt
+- `WatchlistItem` — userId (ref User), symbol, name, quote (optional), addedAt. Unique index on (userId, symbol).
+- `PortfolioPosition` — userId (ref User), symbol, name, quote (optional), quantity, buyPrice, createdAt
+
+`quote` is **schema-optional** because pre-migration documents don't have it. GET handlers backfill missing quote via `parseQuoteFromSymbol` from `shared/lib/parse-quote.ts` so the client always sees a populated field. POST handlers accept `quote` from the body and, for portfolio, validate `tradingPairs.get(symbol) === quote` before insert (rejecting pairs not in the build-time Binance snapshot).
 
 ## Role-Based Protection Pattern
 

@@ -67,9 +67,11 @@ app/ → widgets/ → features/ → entities/ → shared/
 ```
 app/          Next.js routing, layouts, providers
 widgets/      Sidebar, Header, CandlestickChart, MarketOverview, WatchlistTable, PortfolioTable
-features/     add-to-watchlist, remove-from-watchlist, add-to-portfolio, search-coin
+features/     add-to-watchlist, remove-from-watchlist, add-to-portfolio, remove-from-portfolio,
+              search-coin, select-quote, filter-watchlist-by-quote, coin-combobox
 entities/     coin (PriceCard), user (auth-config)
-shared/       ui, lib (cn, formatters, db), hooks, store, types, api
+shared/       ui, lib (cn, formatters, db, parse-quote, api-fetch), hooks (usePriceStream,
+              useTheme, useQuoteCurrencies, usePairsForQuote), store, types, api
 models/       Mongoose schemas (server-only)
 scripts/      Prebuild snapshots (Binance trading pairs)
 ```
@@ -131,13 +133,17 @@ Open [http://localhost:3000](http://localhost:3000)
 POST   /api/auth/register           Register with email/password
 GET    /api/auth/[...nextauth]      NextAuth handler
 
-GET    /api/watchlist               Get user watchlist
-POST   /api/watchlist               Add coin to watchlist
+GET    /api/watchlist               Get user watchlist (quote backfilled on read)
+POST   /api/watchlist               Add coin to watchlist (accepts quote)
 DELETE /api/watchlist/[symbol]      Remove coin from watchlist
 
-GET    /api/portfolio               Get portfolio positions
-POST   /api/portfolio               Add position
+GET    /api/portfolio               Get portfolio positions (quote backfilled on read)
+POST   /api/portfolio               Add position (validates symbol/quote against tradingPairs)
 DELETE /api/portfolio/[id]          Remove position
+
+GET    /api/coin-meta?quote=USDT    Tradeable pairs + CoinGecko names for the given quote
+GET    /api/quote-currencies        Stablecoin quote currencies discovered at build time
+GET    /api/top-coins?quote=USDT    Top tradeable bases by quote volume
 
 PATCH  /api/profile                 Update own profile / change password
 
@@ -145,6 +151,10 @@ GET    /api/admin/users             List all users (admin+)
 PATCH  /api/admin/users/[id]        Update user role/name/email (admin+)
 DELETE /api/admin/users/[id]        Delete user (superadmin only)
 ```
+
+### Multi-quote support
+
+Watchlist and portfolio entries store the pair quote (`USDT`, `USDC`, …) explicitly. Old entries created before the migration have `quote: undefined` in the DB and are backfilled on read via `parseQuoteFromSymbol`. The portfolio `POST` validates that `tradingPairs.get(symbol) === quote`, so the API rejects a pair the upstream Binance snapshot doesn't list.
 
 ---
 

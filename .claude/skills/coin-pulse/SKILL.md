@@ -42,9 +42,12 @@ app/           — Next.js routing, layouts, providers, API routes
 widgets/       — Sidebar, Header, CandlestickChart, MarketOverview,
                  WatchlistTable, PortfolioTable, CoinDetailsPanel, AdminUsersTable
 features/      — add-to-watchlist, remove-from-watchlist,
-                 add-to-portfolio, remove-from-portfolio, search-coin
+                 add-to-portfolio, remove-from-portfolio, search-coin,
+                 select-quote, filter-watchlist-by-quote, coin-combobox
 entities/      — coin/PriceCard, user/auth-config
-shared/        — ui, lib (utils, db), types, hooks (useWebSocket, useTheme), store, api
+shared/        — ui, lib (utils, db, parse-quote, api-fetch), types,
+                 hooks (usePriceStream, useTheme, useQuoteCurrencies, usePairsForQuote),
+                 store, api
 models/        — Mongoose schemas (server-only): User, WatchlistItem, PortfolioPosition
 scripts/       — Prebuild snapshots (Binance trading pairs)
 ```
@@ -55,9 +58,11 @@ Cross-feature imports are forbidden. If two features need shared logic, move it 
 
 **users** — name, email, password (null for Google), image, role, createdAt
 
-**watchlistItems** — userId ref, symbol, name, addedAt
+**watchlistItems** — userId ref, symbol, name, quote (optional, backfilled on read), addedAt. Unique index on (userId, symbol).
 
-**portfolioPositions** — userId ref, symbol, name, quantity, buyPrice, createdAt
+**portfolioPositions** — userId ref, symbol, name, quote (optional, backfilled on read), quantity, buyPrice, createdAt
+
+`quote` is `optional` in the schema so pre-migration documents (no quote field) keep loading. API GET handlers backfill via `parseQuoteFromSymbol(symbol)` from `shared/lib/parse-quote.ts`. Portfolio POST validates `tradingPairs.get(symbol) === quote` before insert.
 
 ## Roles
 
@@ -79,10 +84,12 @@ Permission matrix lives in `ROLE_PERMISSIONS` — always use it, never hardcode 
 
 ```
 Binance WS (wss://stream.binance.com:9443/stream?streams=...)
-  → useWebSocket hook → Zustand store → components read prices
+  → usePriceStream hook → Zustand store → components read prices
 
 Next.js client → /api/watchlist, /api/portfolio, /api/profile → MongoDB Atlas
 Next.js client → /api/admin/users → MongoDB Atlas (admin+ only)
+Next.js client → /api/coin-meta?quote=X, /api/quote-currencies, /api/top-coins?quote=X
+                 → in-memory tradingPairs Map + Binance ticker REST
 NextAuth → /api/auth/[...nextauth] → MongoDB Atlas (users)
 NextAuth → Google OAuth
 ```
