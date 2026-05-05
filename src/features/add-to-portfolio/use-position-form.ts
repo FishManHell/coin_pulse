@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { useAppStore } from "@/shared/store";
 import { useQuoteCurrencies } from "@/shared/hooks/useQuoteCurrencies";
 import { usePairsForQuote } from "@/shared/hooks/usePairsForQuote";
 import { useAddToPortfolio } from "./use-add-to-portfolio";
@@ -13,14 +12,14 @@ interface Fields {
 }
 
 const initialFields: Fields = { symbol: "", quantity: "", buyPrice: "" };
+const DEFAULT_QUOTE = "USDT";
 
 export const usePositionForm = ({ onSuccess }: { onSuccess: () => void }) => {
-  // Form is decoupled from global selectedQuote — switching Pair here must not
-  // ripple into the dashboard header or the global tradeablePairs list.
-  const initialQuote = useAppStore.getState().selectedQuote;
+  // Form is fully independent of global selectedQuote — opens always default
+  // to USDT regardless of what the dashboard header is showing.
   const { add, loading, error } = useAddToPortfolio();
   const [fields, setFields] = useState<Fields>(initialFields);
-  const [quote, setQuote] = useState<string>(initialQuote);
+  const [quote, setQuote] = useState<string>(DEFAULT_QUOTE);
   const quotes = useQuoteCurrencies();
   const pairs = usePairsForQuote(quote);
 
