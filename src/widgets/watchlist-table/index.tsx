@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAppStore } from "@/shared/store";
 import { usePriceStream } from "@/shared/hooks/usePriceStream";
+import { ALL_QUOTES, WatchlistQuoteFilter } from "@/features/filter-watchlist-by-quote";
 import { EmptyState } from "./EmptyState";
 import { TableHeader } from "./TableHeader";
 import { WatchlistRow } from "./WatchlistRow";
@@ -16,19 +17,39 @@ type WatchlistTableProps = Readonly<{
 export const WatchlistTable = ({ initialItems }: WatchlistTableProps) => {
   const setWatchlist = useAppStore((s) => s.setWatchlist);
   const watchlist = useAppStore((s) => s.watchlist);
-  const symbols = watchlist.map((w) => w.symbol);
+  const [filter, setFilter] = useState<string>(ALL_QUOTES);
+
+  const symbols = useMemo(() => watchlist.map((w) => w.symbol), [watchlist]);
   usePriceStream(symbols);
 
   useEffect(() => {
     setWatchlist(initialItems);
   }, []);
 
+  const quotes = useMemo(
+    () => [...new Set(watchlist.map((w) => w.quote))].sort(),
+    [watchlist],
+  );
+
+  const visible = filter === ALL_QUOTES
+    ? watchlist
+    : watchlist.filter((w) => w.quote === filter);
+
   if (watchlist.length === 0) return <EmptyState />;
 
   return (
-    <div className={styles.table}>
-      <TableHeader />
-      {watchlist.map((item) => <WatchlistRow key={item.symbol} item={item} />)}
-    </div>
+    <>
+      {quotes.length > 1 && (
+        <div className="flex items-center gap-3 mb-4">
+          <span className="text-xs text-text-muted uppercase tracking-wider">Quote</span>
+          <WatchlistQuoteFilter value={filter} onChange={setFilter} quotes={quotes} />
+        </div>
+      )}
+
+      <div className={styles.table}>
+        <TableHeader />
+        {visible.map((item) => <WatchlistRow key={item.symbol} item={item} />)}
+      </div>
+    </>
   );
 };
