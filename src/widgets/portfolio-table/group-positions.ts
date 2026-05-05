@@ -3,6 +3,7 @@ import type { PortfolioPosition } from "@/shared/types";
 export type GroupedPosition = {
   symbol: string;
   name: string;
+  quote: string;
   totalQty: number;
   totalCost: number;
   avgBuyPrice: number;
@@ -24,6 +25,7 @@ export const groupPositions = (positions: PortfolioPosition[]): GroupedPosition[
     return {
       symbol,
       name: sorted[0].name,
+      quote: sorted[0].quote,
       totalQty,
       totalCost,
       avgBuyPrice: totalQty > 0 ? totalCost / totalQty : 0,

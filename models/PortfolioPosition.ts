@@ -4,6 +4,7 @@ export type PortfolioPositionDocument = Document & {
   userId: Types.ObjectId;
   symbol: string;
   name: string;
+  quote?: string;
   quantity: number;
   buyPrice: number;
   createdAt: Date;
@@ -14,6 +15,7 @@ const PortfolioPositionSchema = new Schema<PortfolioPositionDocument>(
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
     symbol: { type: String, required: true },
     name: { type: String, required: true },
+    quote: { type: String },
     quantity: { type: Number, required: true, min: 0 },
     buyPrice: { type: Number, required: true, min: 0 },
   },

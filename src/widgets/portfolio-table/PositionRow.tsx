@@ -43,7 +43,7 @@ export const PositionRow = ({ group }: { group: GroupedPosition }) => {
           <div>
             <p className={styles.assetName}>{group.name}</p>
             <p className={styles.assetTicker}>
-              {group.symbol.replace("USDT", "")} · {group.transactions.length} {group.transactions.length === 1 ? "buy" : "buys"}
+              {group.symbol.slice(0, -group.quote.length)}/{group.quote} · {group.transactions.length} {group.transactions.length === 1 ? "buy" : "buys"}
             </p>
           </div>
         </div>

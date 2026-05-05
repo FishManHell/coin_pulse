@@ -1,5 +1,6 @@
 import { requireUser } from "@/entities/user/lib/require-user";
 import connectDB from "@/shared/lib/db";
+import { parseQuoteFromSymbol } from "@/shared/lib/parse-quote";
 import PortfolioPosition from "../../../../models/PortfolioPosition";
 import { Header } from "@/widgets/header";
 import { PortfolioTable } from "@/widgets/portfolio-table";
@@ -17,6 +18,7 @@ const PortfolioPage = async () => {
     id: p._id.toString(),
     symbol: p.symbol,
     name: p.name,
+    quote: p.quote ?? parseQuoteFromSymbol(p.symbol),
     quantity: p.quantity,
     buyPrice: p.buyPrice,
     createdAt: p.createdAt.toISOString(),
