@@ -20,6 +20,8 @@ app/api/
     users/route.ts                — GET all users (admin+)
     users/[id]/route.ts           — PATCH update user, DELETE remove user
   profile/route.ts                — PATCH own profile + password change
+                                    (rejects name/email and newPassword for users without
+                                     a password on file — Google-only accounts)
 ```
 
 ## Auth — NextAuth v4 Config
@@ -43,8 +45,22 @@ Fallback: if token exists but has no role (old token), fetch role from DB automa
 
 ```typescript
 if (!token.role && token.id) {
-  const dbUser = await User.findById(token.id).select("role").lean();
-  if (dbUser) token.role = dbUser.role;
+  const dbUser = await User.findById(token.id).select("role password").lean();
+  if (dbUser) {
+    token.role = dbUser.role;
+    token.hasPassword = !!dbUser.password;
+  }
+}
+```
+
+Token also carries `hasPassword: boolean` (`!!dbUser.password`) — false for Google-only accounts. The flag drives UI gating on `/profile`. The hash itself never enters the token; only the boolean does.
+
+Client-triggered session updates: the jwt callback reacts to `trigger === "update"` so that `useSession().update({ name, email })` propagates changes into the JWT cookie immediately, no relogin needed:
+
+```typescript
+if (trigger === "update" && session) {
+  if (typeof session.name === "string") token.name = session.name;
+  if (typeof session.email === "string") token.email = session.email;
 }
 ```
 

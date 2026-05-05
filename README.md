@@ -33,7 +33,7 @@ CoinPulse is a full-stack crypto dashboard that streams live prices from Binance
 | 🔐 **Auth** | Email/password + Google OAuth, JWT sessions (7 days) |
 | 👥 **Roles** | superadmin / admin / developer / user with permission matrix |
 | ⚙️ **Admin panel** | User management, role assignment, delete users |
-| 👤 **Profile** | Edit name, email, change password |
+| 👤 **Profile** | Edit name, email, change password (Google users get read-only profile + "managed by Google" notice) |
 | 🌗 **Dark / Light theme** | Persisted theme switcher |
 | 🔍 **Search** | Live coin search with price dropdown |
 | 📱 **Responsive** | Sidebar collapses to icons on mobile, expandable search |
@@ -68,10 +68,12 @@ app/ → widgets/ → features/ → entities/ → shared/
 app/          Next.js routing, layouts, providers
 widgets/      Sidebar, Header, CandlestickChart, MarketOverview, WatchlistTable, PortfolioTable
 features/     add-to-watchlist, remove-from-watchlist, add-to-portfolio, remove-from-portfolio,
-              search-coin, select-quote, filter-watchlist-by-quote, coin-combobox
-entities/     coin (PriceCard), user (auth-config)
-shared/       ui, lib (cn, formatters, db, parse-quote, api-fetch), hooks (usePriceStream,
-              useTheme, useQuoteCurrencies, usePairsForQuote), store, types, api
+              search-coin, select-quote, filter-watchlist-by-quote, coin-combobox,
+              edit-profile, change-password
+entities/     coin (PriceCard), user (auth-config, components/RoleBadge)
+shared/       ui (Button, LabeledField, Skeleton, …), lib (cn, formatters, db, parse-quote,
+              api-fetch), hooks (usePriceStream, useTheme, useQuoteCurrencies, usePairsForQuote,
+              useFormState), store, types, api
 models/       Mongoose schemas (server-only)
 scripts/      Prebuild snapshots (Binance trading pairs)
 ```
@@ -146,6 +148,8 @@ GET    /api/quote-currencies        Stablecoin quote currencies discovered at bu
 GET    /api/top-coins?quote=USDT    Top tradeable bases by quote volume
 
 PATCH  /api/profile                 Update own profile / change password
+                                    (rejects name/email/password updates for Google-only users —
+                                     no password on file)
 
 GET    /api/admin/users             List all users (admin+)
 PATCH  /api/admin/users/[id]        Update user role/name/email (admin+)

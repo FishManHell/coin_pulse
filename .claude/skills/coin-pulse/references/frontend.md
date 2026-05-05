@@ -103,6 +103,33 @@ Theme changes: call `chart.applyOptions()` — never recreate the chart.
 
 - Mobile: icon button → click → title hides, full-width input appears with X to close
 - Desktop (`md+`): `SearchCoin` component always visible with dropdown
+- The header search picks a coin and routes to `/dashboard` (`setSelectedSymbol + router.push`). Pages where that navigation is contextual noise (e.g. `/watchlist`) pass `showSearch={false}` to `<Header>` to hide it.
+
+## Loading State Pattern — Streaming Tables
+
+For rows that depend on streaming prices (Binance WS), split each row into two siblings: the real row and a skeleton row (e.g. `PositionRow` + `PositionRowSkeleton`, `WatchlistRow` + `WatchlistRowSkeleton`). The real row does an early return when its ticker is missing — keeping its main render path free of loading branches:
+
+```tsx
+const ticker = useAppStore((s) => s.prices[item.symbol]);
+if (!ticker && initialLoad) return <PositionRowSkeleton group={group} />;
+```
+
+Both components must share the same grid columns/styles, otherwise layout jumps when the row swaps in. The skeleton renders ticker-independent fields (avatar, name) immediately and uses `<Skeleton className="w-N h-4" />` for streaming columns.
+
+`initialLoad` is computed once at the table level (`Object.keys(prices).length === 0` while there are positions/items) — it latches `false` after the first ticker arrives, so adding a new entry in steady state does **not** flash skeletons over previously-loaded rows or summary cards.
+
+## Form State Pattern — `useFormState<T>`
+
+Forms that follow the recurring `values + loading + feedback` shape compose `useFormState<T>` from `shared/hooks`:
+
+```ts
+const { values, setValues, setField, loading, setLoading, feedback, setFeedback } =
+  useFormState({ name: "", email: "" });
+```
+
+It is a **state-shape primitive only** — no submit/validate/onSuccess options. Domain submit logic stays inline in each feature hook (`useEditProfile`, `useChangePassword`). Do not promote `useFormState` to a configurator (`usePatchForm({validate, buildBody, onSuccess, ...})`) — past attempt was rejected for raising cognitive cost without payoff.
+
+`feedback: { message: string; kind: "success" | "error" } | null` replaces fragile `msg.includes("updated")` substring color inference — choose the kind explicitly when setting feedback.
 
 ## Styling Rules
 

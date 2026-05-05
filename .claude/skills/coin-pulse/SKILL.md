@@ -43,10 +43,12 @@ widgets/       — Sidebar, Header, CandlestickChart, MarketOverview,
                  WatchlistTable, PortfolioTable, CoinDetailsPanel, AdminUsersTable
 features/      — add-to-watchlist, remove-from-watchlist,
                  add-to-portfolio, remove-from-portfolio, search-coin,
-                 select-quote, filter-watchlist-by-quote, coin-combobox
-entities/      — coin/PriceCard, user/auth-config
-shared/        — ui, lib (utils, db, parse-quote, api-fetch), types,
-                 hooks (usePriceStream, useTheme, useQuoteCurrencies, usePairsForQuote),
+                 select-quote, filter-watchlist-by-quote, coin-combobox,
+                 edit-profile, change-password
+entities/      — coin/PriceCard, user/auth-config, user/components/RoleBadge
+shared/        — ui (Button, LabeledField, Skeleton, …), lib (utils, db, parse-quote, api-fetch),
+                 types,
+                 hooks (usePriceStream, useTheme, useQuoteCurrencies, usePairsForQuote, useFormState),
                  store, api
 models/        — Mongoose schemas (server-only): User, WatchlistItem, PortfolioPosition
 scripts/       — Prebuild snapshots (Binance trading pairs)
@@ -110,6 +112,8 @@ GOOGLE_CLIENT_SECRET   — Google Cloud Console
 - Two providers: Credentials (email + bcrypt, 10 rounds) and Google OAuth
 - JWT callback always uses `.lean()` when querying MongoDB to avoid schema cache issues
 - Role stored in JWT token and exposed via session
+- `hasPassword: boolean` token field — UI uses it to gate the change-password form and the edit-profile form (Google-only users get read-only profile + a "managed by Google" notice instead of the change-password form)
+- JWT callback handles `trigger: "update"` so `useSession().update({ name, email })` live-refreshes the sidebar pill without a relogin
 - Session type extended in `shared/types/next-auth.d.ts`
 
 ## Theme
