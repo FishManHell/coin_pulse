@@ -29,6 +29,7 @@ export const PortfolioTable = ({ initialPositions }: Readonly<PortfolioTableProp
   const symbols = useMemo(() => grouped.map((g) => g.symbol), [grouped]);
   usePriceStream(symbols);
 
+  const initialLoad = grouped.length > 0 && Object.keys(prices).length === 0;
   const totalInvested = grouped.reduce((s, g) => s + g.totalCost, 0);
   const totalCurrent = grouped.reduce((s, g) => {
     const price = prices[g.symbol]?.price ?? g.avgBuyPrice;
@@ -47,6 +48,7 @@ export const PortfolioTable = ({ initialPositions }: Readonly<PortfolioTableProp
           current={totalCurrent}
           pnl={totalPnl}
           pnlPct={totalPnlPct}
+          loading={initialLoad}
         />
       )}
 
@@ -63,7 +65,7 @@ export const PortfolioTable = ({ initialPositions }: Readonly<PortfolioTableProp
         {portfolio.length === 0 ? <EmptyState /> : (
           <>
             <TableHeader />
-            {grouped.map((group) => <PositionRow key={group.symbol} group={group} />)}
+            {grouped.map((group) => <PositionRow key={group.symbol} group={group} initialLoad={initialLoad} />)}
           </>
         )}
       </div>

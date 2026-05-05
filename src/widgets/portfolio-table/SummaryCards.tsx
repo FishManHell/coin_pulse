@@ -1,4 +1,5 @@
 import { formatPrice, formatPercent, cn } from "@/shared/lib/utils";
+import { Skeleton } from "@/shared/ui/skeleton";
 import { styles } from "./styles";
 
 interface SummaryCardsProps {
@@ -6,9 +7,10 @@ interface SummaryCardsProps {
   current: number;
   pnl: number;
   pnlPct: number;
+  loading: boolean;
 }
 
-export const SummaryCards = ({ invested, current, pnl, pnlPct }: SummaryCardsProps) => {
+export const SummaryCards = ({ invested, current, pnl, pnlPct, loading }: SummaryCardsProps) => {
   const isUp = pnl >= 0;
   const cards = [
     { label: "Invested", value: `$${formatPrice(invested)}`, color: "text-text-primary" },
@@ -25,7 +27,11 @@ export const SummaryCards = ({ invested, current, pnl, pnlPct }: SummaryCardsPro
       {cards.map(({ label, value, color }) => (
         <div key={label} className={styles.summaryCard}>
           <p className={styles.summaryLabel}>{label}</p>
-          <p className={cn(styles.summaryValue, color)}>{value}</p>
+          {loading ? (
+            <Skeleton className="w-28 h-6" />
+          ) : (
+            <p className={cn(styles.summaryValue, color)}>{value}</p>
+          )}
         </div>
       ))}
     </div>

@@ -1,21 +1,14 @@
 "use client";
 
-import { Trash2, TrendingUp, TrendingDown } from "lucide-react";
-import { useAppStore } from "@/shared/store";
+import { Trash2 } from "lucide-react";
 import { useRemoveFromWatchlist } from "@/features/remove-from-watchlist";
-import { formatPrice, formatPercent, cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/button";
-import { WatchlistRowSkeleton } from "./WatchlistRowSkeleton";
+import { Skeleton } from "@/shared/ui/skeleton";
 import { styles } from "./styles";
 import type { WatchlistItem } from "@/shared/types";
 
-export const WatchlistRow = ({ item }: { item: WatchlistItem }) => {
-  const ticker = useAppStore((s) => s.prices[item.symbol]);
+export const WatchlistRowSkeleton = ({ item }: { item: WatchlistItem }) => {
   const { remove, loading } = useRemoveFromWatchlist();
-
-  if (!ticker) return <WatchlistRowSkeleton item={item} />;
-
-  const isUp = ticker.priceChangePercent >= 0;
   const onRemove = () => remove(item.symbol);
 
   return (
@@ -29,18 +22,15 @@ export const WatchlistRow = ({ item }: { item: WatchlistItem }) => {
           </p>
         </div>
       </div>
-
-      <span className={styles.pricePrimary}>${formatPrice(ticker.price)}</span>
-
-      <span className={cn(styles.changeCell, isUp ? "text-price-up" : "text-price-down")}>
-        {isUp ? <TrendingUp size={13} /> : <TrendingDown size={13} />}
-        {formatPercent(ticker.priceChangePercent)}
+      <span className={styles.pricePrimary}>
+        <Skeleton className="w-20 h-4" />
       </span>
-
+      <span className={styles.changeCell}>
+        <Skeleton className="w-16 h-4" />
+      </span>
       <span className={styles.volumeCell}>
-        ${(ticker.volume * ticker.price / 1_000_000).toFixed(1)}M
+        <Skeleton className="w-14 h-4" />
       </span>
-
       <Button
         variant="ghost"
         size="icon-sm"

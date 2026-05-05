@@ -6,13 +6,18 @@ import { useAppStore } from "@/shared/store";
 import { formatPrice, formatPercent, cn } from "@/shared/lib/utils";
 import { styles } from "./styles";
 import { TransactionRow } from "./TransactionRow";
+import { PositionRowSkeleton } from "./PositionRowSkeleton";
 import type { GroupedPosition } from "./group-positions";
 
-export const PositionRow = ({ group }: { group: GroupedPosition }) => {
-  const [expanded, setExpanded] = useState(false);
-  const prices = useAppStore((s) => s.prices);
+type Props = { group: GroupedPosition; initialLoad: boolean };
 
-  const currentPrice = prices[group.symbol]?.price ?? group.avgBuyPrice;
+export const PositionRow = ({ group, initialLoad }: Props) => {
+  const [expanded, setExpanded] = useState(false);
+  const ticker = useAppStore((s) => s.prices[group.symbol]);
+
+  if (!ticker && initialLoad) return <PositionRowSkeleton group={group} />;
+
+  const currentPrice = ticker?.price ?? group.avgBuyPrice;
   const currentValue = currentPrice * group.totalQty;
   const pnl = currentValue - group.totalCost;
   const pnlPct = group.totalCost > 0 ? (pnl / group.totalCost) * 100 : 0;
@@ -43,7 +48,8 @@ export const PositionRow = ({ group }: { group: GroupedPosition }) => {
           <div>
             <p className={styles.assetName}>{group.name}</p>
             <p className={styles.assetTicker}>
-              {group.symbol.slice(0, -group.quote.length)}/{group.quote} · {group.transactions.length} {group.transactions.length === 1 ? "buy" : "buys"}
+              {group.symbol.slice(0, -group.quote.length)}/{group.quote} · {group.transactions.length}{" "}
+              {group.transactions.length === 1 ? "buy" : "buys"}
             </p>
           </div>
         </div>
