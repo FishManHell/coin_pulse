@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useAppStore } from "@/shared/store";
-import type { CoinMeta, CoinMetaResponse } from "@/shared/types";
+import { useQuoteCurrencies } from "@/shared/hooks/useQuoteCurrencies";
+import { usePairsForQuote } from "@/shared/hooks/usePairsForQuote";
 import { useAddToPortfolio } from "./use-add-to-portfolio";
 
 interface Fields {
@@ -20,17 +21,8 @@ export const usePositionForm = ({ onSuccess }: { onSuccess: () => void }) => {
   const { add, loading, error } = useAddToPortfolio();
   const [fields, setFields] = useState<Fields>(initialFields);
   const [quote, setQuote] = useState<string>(initialQuote);
-  const [quotes, setQuotes] = useState<string[]>([initialQuote]);
-  const [pairs, setPairs] = useState<CoinMeta[]>([]);
-
-  useEffect(() => {
-    fetch("/api/quote-currencies")
-      .then((r) => r.json())
-      .then((data: string[]) => {
-        if (Array.isArray(data) && data.length) setQuotes(data);
-      })
-      .catch(() => {});
-  }, []);
+  const quotes = useQuoteCurrencies();
+  const pairs = usePairsForQuote(quote);
 
   // Update quote and remap the selected symbol in the same batch — otherwise
   // there's a render where quote changed but symbol still has the old suffix,
@@ -43,20 +35,6 @@ export const usePositionForm = ({ onSuccess }: { onSuccess: () => void }) => {
       return { ...f, symbol: `${base}${newQuote}` };
     });
     setQuote(newQuote);
-  }, [quote]);
-
-  useEffect(() => {
-    let cancelled = false;
-    setPairs([]);
-    fetch(`/api/coin-meta?quote=${quote}`)
-      .then((r) => r.json())
-      .then((data: CoinMetaResponse) => {
-        if (!cancelled) setPairs(data.pairs);
-      })
-      .catch(() => {});
-    return () => {
-      cancelled = true;
-    };
   }, [quote]);
 
   // When new pairs arrive, keep current selection if still valid; otherwise

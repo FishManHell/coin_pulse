@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useAppStore } from "@/shared/store";
+import { useQuoteCurrencies } from "@/shared/hooks/useQuoteCurrencies";
 import { symbolExists } from "@/shared/api/binance-client";
 import {
   Select,
@@ -12,16 +12,10 @@ import {
 } from "@/shared/ui/select";
 
 export const QuoteSelector = () => {
-  const [quotes, setQuotes] = useState<string[]>(["USDT"]);
+  const quotes = useQuoteCurrencies();
   const selectedQuote = useAppStore((s) => s.selectedQuote);
   const setSelectedQuote = useAppStore((s) => s.setSelectedQuote);
   const setSelectedSymbol = useAppStore((s) => s.setSelectedSymbol);
-
-  useEffect(() => {
-    fetch("/api/quote-currencies")
-      .then((r) => r.json())
-      .then(setQuotes);
-  }, []);
 
   const handleQuoteChange = async (newQuote: string) => {
     if (newQuote === selectedQuote) return;
