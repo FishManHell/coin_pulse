@@ -10,14 +10,14 @@ export const useAddToWatchlist = () => {
   const setWatchlist = useAppStore((s) => s.setWatchlist);
   const watchlist = useAppStore((s) => s.watchlist);
 
-  const add = async (symbol: string, name: string) => {
+  const add = async (symbol: string, name: string, quote: string) => {
     if (loading) return;
     setLoading(true);
     try {
       const res = await apiFetch("/api/watchlist", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ symbol, name }),
+        body: JSON.stringify({ symbol, name, quote }),
       });
       if (!res.ok) return;
       const item: WatchlistItem & { _id: string } = await res.json();
@@ -25,6 +25,7 @@ export const useAddToWatchlist = () => {
         id: item._id,
         symbol: item.symbol,
         name: item.name,
+        quote: item.quote,
         addedAt: item.addedAt,
       };
       setWatchlist([newItem, ...watchlist.filter((w) => w.symbol !== symbol)]);

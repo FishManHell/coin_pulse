@@ -5,6 +5,7 @@ import { useAppStore } from "@/shared/store";
 import { useRemoveFromWatchlist } from "@/features/remove-from-watchlist";
 import { formatPrice, formatPercent, cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/button";
+import { Skeleton } from "@/shared/ui/skeleton";
 import { styles } from "./styles";
 import type { WatchlistItem } from "@/shared/types";
 
@@ -22,21 +23,19 @@ export const WatchlistRow = ({ item }: { item: WatchlistItem }) => {
         <div>
           <p className={styles.assetName}>{item.name}</p>
           <p className={styles.assetTicker}>
-            {item.symbol.replace("USDT", "")}/USDT
+            {item.symbol.slice(0, -item.quote.length)}/{item.quote}
           </p>
         </div>
       </div>
 
       <span className={styles.pricePrimary}>
-        {ticker ? `$${formatPrice(ticker.price)}` : "—"}
+        {ticker ? `$${formatPrice(ticker.price)}` : <Skeleton className="w-20 h-4" />}
       </span>
 
       <span
         className={cn(
           styles.changeCell,
-          ticker
-            ? isUp ? "text-price-up" : "text-price-down"
-            : styles.changeMuted
+          ticker && (isUp ? "text-price-up" : "text-price-down"),
         )}
       >
         {ticker ? (
@@ -44,11 +43,13 @@ export const WatchlistRow = ({ item }: { item: WatchlistItem }) => {
             {isUp ? <TrendingUp size={13} /> : <TrendingDown size={13} />}
             {formatPercent(ticker.priceChangePercent)}
           </>
-        ) : "—"}
+        ) : (
+          <Skeleton className="w-16 h-4" />
+        )}
       </span>
 
       <span className={styles.volumeCell}>
-        {ticker ? `$${(ticker.volume * ticker.price / 1_000_000).toFixed(1)}M` : "—"}
+        {ticker ? `$${(ticker.volume * ticker.price / 1_000_000).toFixed(1)}M` : <Skeleton className="w-14 h-4" />}
       </span>
 
       <Button

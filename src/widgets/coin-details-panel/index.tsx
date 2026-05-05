@@ -74,7 +74,7 @@ export const CoinDetailsPanel = () => {
           <Button
             variant="ghost"
             size="icon-sm"
-            onClick={() => isWatched ? remove(selectedSymbol) : add(selectedSymbol, displayName)}
+            onClick={() => isWatched ? remove(selectedSymbol) : add(selectedSymbol, displayName, selectedQuote)}
             className={cn(
               "rounded-lg hover:bg-transparent",
               isWatched

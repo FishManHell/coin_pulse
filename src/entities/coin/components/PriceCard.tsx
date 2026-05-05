@@ -99,7 +99,7 @@ export const PriceCard = ({ ticker, onClick, selected }: Readonly<Props>) => {
             size="icon-sm"
             onClick={(e) => {
               e.stopPropagation();
-              isWatched ? remove(ticker.symbol) : add(ticker.symbol, displayName);
+              isWatched ? remove(ticker.symbol) : add(ticker.symbol, displayName, selectedQuote);
             }}
             className={cn(
               "rounded-lg hover:bg-transparent",

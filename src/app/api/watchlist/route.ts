@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireApiUser } from "@/entities/user/lib/require-api-user";
 import connectDB from "@/shared/lib/db";
+import { parseQuoteFromSymbol } from "@/shared/lib/parse-quote";
 import WatchlistItem from "../../../../models/WatchlistItem";
 
 export async function GET() {
@@ -12,21 +13,28 @@ export async function GET() {
     .sort({ addedAt: -1 })
     .lean();
 
-  return NextResponse.json(items);
+  const hydrated = items.map((item) => ({
+    ...item,
+    quote: item.quote ?? parseQuoteFromSymbol(item.symbol),
+  }));
+
+  return NextResponse.json(hydrated);
 }
 
 export async function POST(req: Request) {
   const auth = await requireApiUser();
   if ("error" in auth) return auth.error;
 
-  const { symbol, name } = await req.json();
+  const { symbol, name, quote } = await req.json();
   if (!symbol || !name) return NextResponse.json({ error: "symbol and name required" }, { status: 400 });
+
+  const resolvedQuote = quote ?? parseQuoteFromSymbol(symbol);
 
   await connectDB();
 
   const item = await WatchlistItem.findOneAndUpdate(
     { userId: auth.user.id, symbol },
-    { userId: auth.user.id, symbol, name, addedAt: new Date() },
+    { userId: auth.user.id, symbol, name, quote: resolvedQuote, addedAt: new Date() },
     { upsert: true, new: true }
   );
 
