@@ -14,6 +14,13 @@ export async function PATCH(req: Request) {
   const user = await User.findById(auth.user.id);
   if (!user) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
+  if (!user.password && (name !== undefined || email !== undefined)) {
+    return NextResponse.json(
+      { error: "Name and email are managed by your Google account" },
+      { status: 400 }
+    );
+  }
+
   if (name) user.name = name;
   if (email) user.email = email.toLowerCase();
 

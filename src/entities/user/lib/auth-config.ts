@@ -59,7 +59,7 @@ export const authOptions: NextAuthOptions = {
       return true;
     },
 
-    async jwt({ token, user, account }) {
+    async jwt({ token, user, account, trigger, session }) {
       // On sign-in — fetch id + role from DB
       if (user) {
         await connectDB();
@@ -71,14 +71,24 @@ export const authOptions: NextAuthOptions = {
         if (dbUser) {
           token.id = (dbUser._id as { toString(): string }).toString();
           token.role = dbUser.role as UserRole;
+          token.hasPassword = !!dbUser.password;
         }
+      }
+
+      // Client-triggered update via useSession().update({ name, email })
+      if (trigger === "update" && session) {
+        if (typeof session.name === "string") token.name = session.name;
+        if (typeof session.email === "string") token.email = session.email;
       }
 
       // Fallback: token exists but role missing (old token before role was added)
       if (!token.role && token.id) {
         await connectDB();
-        const dbUser = await User.findById(token.id).select("role").lean();
-        if (dbUser) token.role = dbUser.role as UserRole;
+        const dbUser = await User.findById(token.id).select("role password").lean();
+        if (dbUser) {
+          token.role = dbUser.role as UserRole;
+          token.hasPassword = !!dbUser.password;
+        }
       }
 
       return token;
@@ -86,10 +96,9 @@ export const authOptions: NextAuthOptions = {
 
     async session({ session, token }) {
       if (session.user) {
-        (session.user as typeof session.user & { id: string; role: UserRole }).id =
-          token.id as string;
-        (session.user as typeof session.user & { id: string; role: UserRole }).role =
-          token.role as UserRole;
+        session.user.id = token.id as string;
+        session.user.role = token.role as UserRole;
+        session.user.hasPassword = !!token.hasPassword;
       }
       return session;
     },
