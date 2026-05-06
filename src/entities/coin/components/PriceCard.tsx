@@ -68,22 +68,22 @@ export const PriceCard = ({ ticker, onClick, selected }: Readonly<Props>) => {
       )}
     >
       {/* Top row */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2.5">
+      <div className="flex items-center justify-between gap-2 mb-4">
+        <div className="flex items-center gap-2.5 min-w-0 flex-1">
           <div className="w-9 h-9 rounded-full gradient-accent flex items-center justify-center text-white text-sm font-bold shrink-0">
             {COIN_ICONS[base] ?? base[0]}
           </div>
-          <div>
-            <p className="text-sm font-semibold text-text-primary leading-none mb-0.5">
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-text-primary leading-none mb-0.5 truncate">
               {displayName}
             </p>
-            <p className="text-xs text-text-muted">
+            <p className="text-xs text-text-muted truncate">
               {base}/{selectedQuote}
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 shrink-0">
           {/* % badge */}
           <span className={cn(
             "flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-lg",

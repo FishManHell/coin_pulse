@@ -54,7 +54,7 @@ export const MarketOverview = ({ initialSymbols }: Props) => {
         </span>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 max-h-[460px] overflow-y-auto pr-1 sm:max-h-none sm:overflow-visible sm:pr-0">
         {renderContent()}
       </div>
     </section>
