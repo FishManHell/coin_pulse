@@ -1,0 +1,30 @@
+export const styles = {
+  aside: "hidden xl:flex flex-col w-80 shrink-0 border-l border-border-base bg-surface overflow-y-auto",
+  headerSection: "p-5 border-b border-border-base",
+  statsSection: "p-5",
+  statsTitle: "text-xs font-medium text-text-muted uppercase tracking-wider mb-2",
+  liveFooter: "px-5 pb-5 mt-auto",
+  liveRow: "flex items-center gap-2 text-xs text-text-muted",
+  liveDot: "w-1.5 h-1.5 rounded-full bg-price-up animate-pulse",
+
+  coinHeaderRow: "flex items-center justify-between mb-4",
+  coinHeaderInfo: "flex items-center gap-3",
+  avatar: "w-10 h-10 rounded-full bg-gradient-to-br flex items-center justify-center text-white font-bold text-sm shrink-0",
+  coinName: "text-sm font-semibold text-text-primary",
+  coinTicker: "text-xs text-text-muted",
+  starButton: "rounded-lg hover:bg-transparent",
+  starButtonActive: "text-accent-cyan",
+  starButtonInactive: "text-text-muted hover:text-accent-cyan",
+
+  priceWrap: "transition-colors rounded-lg",
+  priceText: "text-3xl font-bold text-text-primary",
+  trendRow: "flex items-center gap-2 mt-1.5",
+  trendBadgeBase: "flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-lg",
+  trendBadgeUp: "text-price-up bg-price-up/10",
+  trendBadgeDown: "text-price-down bg-price-down/10",
+  trendChange: "text-xs",
+
+  statRow: "flex items-center justify-between py-3 border-b border-border-base last:border-0",
+  statLabel: "text-xs text-text-muted",
+  statValue: "text-sm font-medium text-text-primary",
+};
