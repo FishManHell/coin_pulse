@@ -35,21 +35,25 @@ export const WatchlistTable = ({ initialItems }: WatchlistTableProps) => {
     ? watchlist
     : watchlist.filter((w) => w.quote === filter);
 
-  if (watchlist.length === 0) return <EmptyState />;
-
   return (
-    <>
+    <div className={styles.wrap}>
       {quotes.length > 1 && (
-        <div className="flex items-center gap-3 mb-4">
+        <div className="flex items-center gap-3">
           <span className="text-xs text-text-muted uppercase tracking-wider">Quote</span>
           <WatchlistQuoteFilter value={filter} onChange={setFilter} quotes={quotes} />
         </div>
       )}
 
-      <div className={styles.table}>
-        <TableHeader />
-        {visible.map((item) => <WatchlistRow key={item.symbol} item={item} />)}
-      </div>
-    </>
+      {watchlist.length === 0 ? <EmptyState /> : (
+        <div className={styles.table}>
+          <div className={styles.tableScroll}>
+            <div className={styles.tableInner}>
+              <TableHeader />
+              {visible.map((item) => <WatchlistRow key={item.symbol} item={item} />)}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };

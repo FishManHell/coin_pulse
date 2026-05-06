@@ -63,10 +63,12 @@ export const PortfolioTable = ({ initialPositions }: Readonly<PortfolioTableProp
         {showForm && <AddPositionForm onCloseAction={onCloseForm} />}
 
         {portfolio.length === 0 ? <EmptyState /> : (
-          <>
-            <TableHeader />
-            {grouped.map((group) => <PositionRow key={group.symbol} group={group} initialLoad={initialLoad} />)}
-          </>
+          <div className={styles.tableScroll}>
+            <div className={styles.tableInner}>
+              <TableHeader />
+              {grouped.map((group) => <PositionRow key={group.symbol} group={group} initialLoad={initialLoad} />)}
+            </div>
+          </div>
         )}
       </div>
     </div>

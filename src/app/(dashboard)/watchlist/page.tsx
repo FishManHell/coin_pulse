@@ -25,7 +25,7 @@ const WatchlistPage = async () =>  {
   return (
     <>
       <Header title="Watchlist" showSearch={false}/>
-      <div className="flex-1 p-6">
+      <div className="flex-1 p-6 flex flex-col min-h-0">
         <div className="mb-6">
           <h2 className="text-lg font-semibold text-text-primary">
             Your watchlist
