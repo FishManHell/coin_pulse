@@ -6,6 +6,7 @@ import { Search, TrendingUp, TrendingDown } from "lucide-react";
 import { useAppStore } from "@/shared/store";
 import { useCoinFilter } from "@/shared/lib/use-coin-filter";
 import { useDismiss } from "@/shared/lib/use-dismiss";
+import { CoinIcon } from "@/shared/ui/coin-icon";
 import type { CoinMeta } from "@/shared/types";
 import { formatPrice, cn } from "@/shared/lib/utils";
 
@@ -60,6 +61,7 @@ export const SearchCoin = ({ className, autoFocus }: Props) => {
           {results.map((coin) => {
             const ticker = prices[coin.symbol];
             const isUp = (ticker?.priceChangePercent ?? 0) >= 0;
+            const base = coin.symbol.replace("USDT", "");
 
             return (
               <button
@@ -68,13 +70,11 @@ export const SearchCoin = ({ className, autoFocus }: Props) => {
                 className="w-full flex items-center justify-between px-4 py-3 hover:bg-surface-hover transition-colors text-left border-b border-border-base last:border-0"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full gradient-accent flex items-center justify-center text-white text-xs font-bold shrink-0">
-                    {coin.name[0]}
-                  </div>
+                  <CoinIcon base={base} size="sm" />
                   <div>
                     <p className="text-sm font-medium text-text-primary">{coin.name}</p>
                     <p className="text-xs text-text-muted">
-                      {coin.symbol.replace("USDT", "")}/USDT
+                      {base}/USDT
                     </p>
                   </div>
                 </div>

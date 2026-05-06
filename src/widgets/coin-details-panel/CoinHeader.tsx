@@ -2,8 +2,8 @@
 
 import { Star, StarOff } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
-import { getCoinGradient } from "@/shared/lib/coin-gradient";
 import { Button } from "@/shared/ui/button";
+import { CoinIcon } from "@/shared/ui/coin-icon";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { styles } from "./styles";
 
@@ -18,9 +18,7 @@ interface CoinHeaderProps {
 export const CoinHeader = ({ base, quote, displayName, isWatched, onToggleWatch }: CoinHeaderProps) => (
   <div className={styles.coinHeaderRow}>
     <div className={styles.coinHeaderInfo}>
-      <div className={cn(styles.avatar, getCoinGradient(base))}>
-        {base[0]}
-      </div>
+      <CoinIcon base={base} size="md" />
       <div>
         {displayName ? (
           <p className={styles.coinName}>{displayName}</p>

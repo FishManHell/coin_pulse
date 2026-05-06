@@ -7,20 +7,8 @@ import { useAppStore } from "@/shared/store";
 import { useAddToWatchlist } from "@/features/add-to-watchlist";
 import { useRemoveFromWatchlist } from "@/features/remove-from-watchlist";
 import { Button } from "@/shared/ui/button";
+import { CoinIcon } from "@/shared/ui/coin-icon";
 import type { CoinTicker } from "@/shared/types";
-
-const COIN_ICONS: Record<string, string> = {
-  BTC: "₿",
-  ETH: "Ξ",
-  BNB: "B",
-  SOL: "◎",
-  XRP: "✕",
-  ADA: "₳",
-  DOGE: "Ð",
-  AVAX: "A",
-  DOT: "●",
-  MATIC: "M",
-};
 
 type Props = {
   ticker: CoinTicker;
@@ -70,9 +58,7 @@ export const PriceCard = ({ ticker, onClick, selected }: Readonly<Props>) => {
       {/* Top row */}
       <div className="flex items-center justify-between gap-2 mb-4">
         <div className="flex items-center gap-2.5 min-w-0 flex-1">
-          <div className="w-9 h-9 rounded-full gradient-accent flex items-center justify-center text-white text-sm font-bold shrink-0">
-            {COIN_ICONS[base] ?? base[0]}
-          </div>
+          <CoinIcon base={base} size="md" />
           <div className="min-w-0">
             <p className="text-sm font-semibold text-text-primary leading-none mb-0.5 truncate">
               {displayName}

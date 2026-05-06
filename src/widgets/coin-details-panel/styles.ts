@@ -9,7 +9,6 @@ export const styles = {
 
   coinHeaderRow: "flex items-center justify-between mb-4",
   coinHeaderInfo: "flex items-center gap-3",
-  avatar: "w-10 h-10 rounded-full bg-gradient-to-br flex items-center justify-center text-white font-bold text-sm shrink-0",
   coinName: "text-sm font-semibold text-text-primary",
   coinTicker: "text-xs text-text-muted",
   starButton: "rounded-lg hover:bg-transparent",
