@@ -23,10 +23,9 @@ export const CoinDetailsPanel = () => {
   const displayName = useAppStore((s) => s.coinNames[base]);
   const isWatched   = watchlist.some((w) => w.symbol === selectedSymbol);
 
-  const onToggleWatch = () =>
-    isWatched
-      ? remove(selectedSymbol)
-      : add(selectedSymbol, displayName ?? base, selectedQuote);
+  const onToggleWatch = () => {
+      return isWatched ? remove(selectedSymbol) : add(selectedSymbol, displayName ?? base, selectedQuote);
+  }
 
   return (
     <aside className={styles.aside}>

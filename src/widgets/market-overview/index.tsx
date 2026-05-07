@@ -2,17 +2,16 @@
 
 import { useAppStore } from "@/shared/store";
 import { usePriceStream } from "@/shared/hooks/usePriceStream";
-import { PriceCard } from "@/entities/coin/components/PriceCard";
+import { PriceCard } from "@/entities/coin/components/price-card";
 import { SkeletonCard } from "./SkeletonCard";
 import { EmptyState } from "./EmptyState";
 import { NoDataCard } from "./NoDataCard";
 import { useTopCoins } from "./use-top-coins";
+import { styles } from "./styles";
 
 const SKELETON_COUNT = 6;
 
-type Props = { initialSymbols: string[] };
-
-export const MarketOverview = ({ initialSymbols }: Props) => {
+export const MarketOverview = ({ initialSymbols }: { initialSymbols: string[] }) => {
   const prices = useAppStore((s) => s.prices);
   const selectedSymbol = useAppStore((s) => s.selectedSymbol);
   const setSelectedSymbol = useAppStore((s) => s.setSelectedSymbol);
@@ -20,43 +19,43 @@ export const MarketOverview = ({ initialSymbols }: Props) => {
   const { symbols, fetching, timedOut } = useTopCoins(initialSymbols);
   usePriceStream(symbols);
 
+  const renderSkeletons = () => {
+    return Array.from({ length: SKELETON_COUNT }, (_, i) => <SkeletonCard key={i} />)
+  };
+
+  const renderTicker = (symbol: string) => {
+    const ticker = prices[symbol];
+    if (!ticker) return timedOut ? <NoDataCard key={symbol} /> : <SkeletonCard key={symbol} />;
+    return (
+      <PriceCard
+        key={symbol}
+        ticker={ticker}
+        selected={selectedSymbol === symbol}
+        onClick={() => setSelectedSymbol(symbol)}
+      />
+    );
+  };
+
   const renderContent = () => {
-    if (fetching) return Array.from({ length: SKELETON_COUNT }, (_, i) => {
-      return <SkeletonCard key={i} />
-    });
-
+    if (fetching) return renderSkeletons();
     if (symbols.length === 0) return <EmptyState />;
-
-    return symbols.map((symbol) => {
-      const ticker = prices[symbol];
-      if (!ticker) return timedOut ? <NoDataCard key={symbol} /> : <SkeletonCard key={symbol} />;
-      return (
-        <PriceCard
-          key={symbol}
-          ticker={ticker}
-          selected={selectedSymbol === symbol}
-          onClick={() => setSelectedSymbol(symbol)}
-        />
-      );
-    });
+    return symbols.map(renderTicker);
   };
 
   return (
     <section>
-      <div className="flex items-center justify-between mb-4">
+      <div className={styles.headerRow}>
         <div>
-          <p className="text-xs text-text-muted uppercase tracking-wider mb-1">Live prices</p>
-          <h2 className="text-lg font-semibold text-text-primary">Top Assets</h2>
+          <p className={styles.eyebrow}>Live prices</p>
+          <h2 className={styles.title}>Top Assets</h2>
         </div>
-        <span className="flex items-center gap-1.5 text-xs text-price-up">
-          <span className="w-1.5 h-1.5 rounded-full bg-price-up animate-pulse" />
+        <span className={styles.liveRow}>
+          <span className={styles.liveDot} />
           Live
         </span>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 max-h-[460px] overflow-y-auto pr-1 sm:max-h-none sm:overflow-visible sm:pr-0">
-        {renderContent()}
-      </div>
+      <div className={styles.grid}>{renderContent()}</div>
     </section>
   );
 };
