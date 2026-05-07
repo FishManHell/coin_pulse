@@ -11,9 +11,6 @@ export const styles = {
   coinHeaderInfo: "flex items-center gap-3",
   coinName: "text-sm font-semibold text-text-primary",
   coinTicker: "text-xs text-text-muted",
-  starButton: "rounded-lg hover:bg-transparent",
-  starButtonActive: "text-accent-cyan",
-  starButtonInactive: "text-text-muted hover:text-accent-cyan",
 
   priceWrap: "transition-colors rounded-lg",
   priceText: "text-3xl font-bold text-text-primary",

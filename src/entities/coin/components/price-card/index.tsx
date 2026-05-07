@@ -6,10 +6,10 @@ import { useAppStore } from "@/shared/store";
 import { useAddToWatchlist } from "@/features/add-to-watchlist";
 import { useRemoveFromWatchlist } from "@/features/remove-from-watchlist";
 import type { CoinTicker } from "@/shared/types";
+import { WatchlistStarButton } from "@/shared/ui/watchlist-star-button";
 import { PriceBody } from "./PriceBody";
 import { PriceCardHeader } from "./PriceCardHeader";
 import { PriceChangeBadge } from "./PriceChangeBadge";
-import { WatchlistStarButton } from "./WatchlistStarButton";
 import { usePriceFlash } from "./use-price-flash";
 import { styles } from "./styles";
 
@@ -62,7 +62,7 @@ export const PriceCard = ({ ticker, onClick, selected }: Readonly<Props>) => {
         <PriceCardHeader base={base} quote={selectedQuote} displayName={displayName} />
         <div className={styles.topRight}>
           <PriceChangeBadge changePercent={ticker.priceChangePercent} />
-          <WatchlistStarButton isWatched={isWatched} onToggle={handleToggleWatch} />
+          <WatchlistStarButton isWatched={isWatched} onToggle={handleToggleWatch} stopPropagation />
         </div>
       </div>
 

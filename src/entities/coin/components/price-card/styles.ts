@@ -17,10 +17,6 @@ export const styles = {
   badgeUp: "text-price-up bg-price-up/10",
   badgeDown: "text-price-down bg-price-down/10",
 
-  starButton: "rounded-lg hover:bg-transparent",
-  starButtonActive: "text-accent-cyan",
-  starButtonInactive: "text-text-muted hover:text-accent-cyan",
-
   priceText: "text-2xl font-bold text-text-primary",
   changeText: "text-xs mt-1",
   changeUp: "text-price-up",

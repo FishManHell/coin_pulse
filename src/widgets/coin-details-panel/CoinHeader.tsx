@@ -1,10 +1,8 @@
 "use client";
 
-import { Star, StarOff } from "lucide-react";
-import { cn } from "@/shared/lib/utils";
-import { Button } from "@/shared/ui/button";
 import { CoinIcon } from "@/shared/ui/coin-icon";
 import { Skeleton } from "@/shared/ui/skeleton";
+import { WatchlistStarButton } from "@/shared/ui/watchlist-star-button";
 import { styles } from "./styles";
 
 interface CoinHeaderProps {
@@ -29,13 +27,6 @@ export const CoinHeader = ({ base, quote, displayName, isWatched, onToggleWatch 
       </div>
     </div>
 
-    <Button
-      variant="ghost"
-      size="icon-sm"
-      onClick={onToggleWatch}
-      className={cn(styles.starButton, isWatched ? styles.starButtonActive : styles.starButtonInactive)}
-    >
-      {isWatched ? <Star size={15} fill="currentColor" /> : <StarOff size={15} />}
-    </Button>
+    <WatchlistStarButton isWatched={isWatched} onToggle={onToggleWatch} size={15} />
   </div>
 );
