@@ -3,22 +3,24 @@
 import { Trash2 } from "lucide-react";
 import { useRemoveFromWatchlist } from "@/features/remove-from-watchlist";
 import { Button } from "@/shared/ui/button";
+import { CoinIcon } from "@/shared/ui/coin-icon";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { styles } from "./styles";
 import type { WatchlistItem } from "@/shared/types";
 
 export const WatchlistRowSkeleton = ({ item }: { item: WatchlistItem }) => {
   const { remove, loading } = useRemoveFromWatchlist();
+  const base = item.symbol.slice(0, -item.quote.length);
   const onRemove = () => remove(item.symbol);
 
   return (
     <div className={styles.row}>
       <div className={styles.asset}>
-        <div className={styles.avatar}>{item.name[0]}</div>
+        <CoinIcon base={base} size="sm" />
         <div>
           <p className={styles.assetName}>{item.name}</p>
           <p className={styles.assetTicker}>
-            {item.symbol.slice(0, -item.quote.length)}/{item.quote}
+            {base}/{item.quote}
           </p>
         </div>
       </div>

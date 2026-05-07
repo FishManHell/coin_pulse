@@ -4,6 +4,7 @@ import { useState, KeyboardEvent } from "react";
 import { ChevronDown, ChevronRight, TrendingUp, TrendingDown } from "lucide-react";
 import { useAppStore } from "@/shared/store";
 import { formatPrice, formatPercent, cn } from "@/shared/lib/utils";
+import { CoinIcon } from "@/shared/ui/coin-icon";
 import { styles } from "./styles";
 import { TransactionRow } from "./TransactionRow";
 import { PositionRowSkeleton } from "./PositionRowSkeleton";
@@ -17,6 +18,7 @@ export const PositionRow = ({ group, initialLoad }: Props) => {
 
   if (!ticker && initialLoad) return <PositionRowSkeleton group={group} />;
 
+  const base = group.symbol.slice(0, -group.quote.length);
   const currentPrice = ticker?.price ?? group.avgBuyPrice;
   const currentValue = currentPrice * group.totalQty;
   const pnl = currentValue - group.totalCost;
@@ -44,11 +46,11 @@ export const PositionRow = ({ group, initialLoad }: Props) => {
           {expanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
         </span>
         <div className="flex items-center gap-3">
-          <div className={styles.avatar}>{group.name[0]}</div>
+          <CoinIcon base={base} size="sm" />
           <div>
             <p className={styles.assetName}>{group.name}</p>
             <p className={styles.assetTicker}>
-              {group.symbol.slice(0, -group.quote.length)}/{group.quote} · {group.transactions.length}{" "}
+              {base}/{group.quote} · {group.transactions.length}{" "}
               {group.transactions.length === 1 ? "buy" : "buys"}
             </p>
           </div>

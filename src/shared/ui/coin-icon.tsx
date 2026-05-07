@@ -20,34 +20,37 @@ interface CoinIconProps {
 }
 
 export const CoinIcon = ({ base, size = "md", className }: Readonly<CoinIconProps>) => {
+  const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
+    setLoaded(false);
     setFailed(false);
   }, [base]);
 
-  if (failed) {
-    return (
+  return (
+    <div className={cn("relative rounded-full shrink-0", sizeClasses[size], className)}>
       <div
         className={cn(
-          "rounded-full flex items-center justify-center text-white font-bold shrink-0",
-          sizeClasses[size],
+          "absolute inset-0 rounded-full flex items-center justify-center text-white font-bold",
           getCoinGradient(base),
-          className
         )}
       >
         {base[0]}
       </div>
-    );
-  }
-
-  return (
-    <img
-      src={getCoinIconUrl(base)}
-      alt={base}
-      loading="lazy"
-      onError={() => setFailed(true)}
-      className={cn("rounded-full shrink-0 bg-white", sizeClasses[size], className)}
-    />
+      {!failed && (
+        <img
+          src={getCoinIconUrl(base)}
+          alt={base}
+          loading="lazy"
+          onLoad={() => setLoaded(true)}
+          onError={() => setFailed(true)}
+          className={cn(
+            "absolute inset-0 w-full h-full rounded-full bg-white transition-opacity duration-200",
+            loaded ? "opacity-100" : "opacity-0",
+          )}
+        />
+      )}
+    </div>
   );
 };

@@ -17,7 +17,6 @@ export const styles = {
 
   row: `grid ${ROW_GRID} items-center px-5 py-4 border-b border-border-base last:border-0 hover:bg-surface-hover transition-colors`,
   asset: "flex items-center gap-3",
-  avatar: "w-9 h-9 rounded-full gradient-accent flex items-center justify-center text-white text-sm font-bold shrink-0",
   assetName: "text-sm font-semibold text-text-primary",
   assetTicker: "text-xs text-text-muted",
 

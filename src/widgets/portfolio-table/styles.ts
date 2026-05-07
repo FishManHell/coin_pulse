@@ -23,7 +23,6 @@ export const styles = {
 
   row: `grid ${ROW_GRID} items-center px-5 py-4 border-b border-border-base last:border-0 hover:bg-surface-hover transition-colors cursor-pointer`,
   expandIcon: "flex items-center justify-center text-text-muted",
-  avatar: "w-8 h-8 rounded-full gradient-accent flex items-center justify-center text-white text-xs font-bold shrink-0",
   assetName: "text-sm font-semibold text-text-primary",
   assetTicker: "text-xs text-text-muted",
   cellSecondary: "text-sm text-text-secondary",

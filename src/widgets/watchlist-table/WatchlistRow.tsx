@@ -5,6 +5,7 @@ import { useAppStore } from "@/shared/store";
 import { useRemoveFromWatchlist } from "@/features/remove-from-watchlist";
 import { formatPrice, formatPercent, cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/button";
+import { CoinIcon } from "@/shared/ui/coin-icon";
 import { WatchlistRowSkeleton } from "./WatchlistRowSkeleton";
 import { styles } from "./styles";
 import type { WatchlistItem } from "@/shared/types";
@@ -15,17 +16,18 @@ export const WatchlistRow = ({ item }: { item: WatchlistItem }) => {
 
   if (!ticker) return <WatchlistRowSkeleton item={item} />;
 
+  const base = item.symbol.slice(0, -item.quote.length);
   const isUp = ticker.priceChangePercent >= 0;
   const onRemove = () => remove(item.symbol);
 
   return (
     <div className={styles.row}>
       <div className={styles.asset}>
-        <div className={styles.avatar}>{item.name[0]}</div>
+        <CoinIcon base={base} size="sm" />
         <div>
           <p className={styles.assetName}>{item.name}</p>
           <p className={styles.assetTicker}>
-            {item.symbol.slice(0, -item.quote.length)}/{item.quote}
+            {base}/{item.quote}
           </p>
         </div>
       </div>
