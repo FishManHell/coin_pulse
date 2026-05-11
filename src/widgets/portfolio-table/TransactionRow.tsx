@@ -6,7 +6,7 @@ import { useRemoveFromPortfolio } from "@/features/remove-from-portfolio";
 import { formatPrice } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/button";
 import { styles } from "./styles";
-import type { PortfolioPosition } from "@/shared/types";
+import type { PortfolioPosition } from "@/entities/portfolio";
 
 const dateFmt = new Intl.DateTimeFormat("en-US", {
   month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit",

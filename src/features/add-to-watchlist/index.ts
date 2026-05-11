@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useAppStore } from "@/shared/store";
 import { apiFetch } from "@/shared/lib/api-fetch";
-import type { WatchlistItem } from "@/shared/types";
+import type { WatchlistItem } from "@/entities/watchlist";
 
 export const useAddToWatchlist = () => {
   const [loading, setLoading] = useState(false);
@@ -20,15 +20,8 @@ export const useAddToWatchlist = () => {
         body: JSON.stringify({ symbol, name, quote }),
       });
       if (!res.ok) return;
-      const item: WatchlistItem & { _id: string } = await res.json();
-      const newItem: WatchlistItem = {
-        id: item._id,
-        symbol: item.symbol,
-        name: item.name,
-        quote: item.quote,
-        addedAt: item.addedAt,
-      };
-      setWatchlist([newItem, ...watchlist.filter((w) => w.symbol !== symbol)]);
+      const item: WatchlistItem = await res.json();
+      setWatchlist([item, ...watchlist.filter((w) => w.symbol !== symbol)]);
     } finally {
       setLoading(false);
     }

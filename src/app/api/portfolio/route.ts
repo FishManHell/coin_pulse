@@ -4,6 +4,7 @@ import connectDB from "@/shared/lib/db";
 import { parseQuoteFromSymbol } from "@/shared/lib/parse-quote";
 import { tradingPairs } from "@/shared/api/binance";
 import PortfolioPosition from "@/models/PortfolioPosition";
+import { toPortfolioDTO } from "@/entities/portfolio";
 import { apiError, ERRORS } from "@/shared/lib/api-response";
 import { requireString } from "@/shared/lib/validate";
 
@@ -16,12 +17,7 @@ export async function GET() {
     .sort({ createdAt: -1 })
     .lean();
 
-  const hydrated = items.map((p) => ({
-    ...p,
-    quote: p.quote ?? parseQuoteFromSymbol(p.symbol),
-  }));
-
-  return NextResponse.json(hydrated);
+  return NextResponse.json(items.map(toPortfolioDTO));
 }
 
 export async function POST(req: Request) {
@@ -60,7 +56,7 @@ export async function POST(req: Request) {
       buyPrice: price,
     });
 
-    return NextResponse.json(position, { status: 201 });
+    return NextResponse.json(toPortfolioDTO(position.toObject()), { status: 201 });
   } catch (err) {
     console.error("portfolio POST error:", err);
     return ERRORS.serverError();

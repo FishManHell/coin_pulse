@@ -6,7 +6,7 @@ import { Button } from "@/shared/ui/button";
 import { CoinIcon } from "@/shared/ui/coin-icon";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { styles } from "./styles";
-import type { WatchlistItem } from "@/shared/types";
+import type { WatchlistItem } from "@/entities/watchlist";
 
 export const WatchlistRowSkeleton = ({ item }: { item: WatchlistItem }) => {
   const { remove, loading } = useRemoveFromWatchlist();

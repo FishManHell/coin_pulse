@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useAppStore } from "@/shared/store";
 import { apiFetch } from "@/shared/lib/api-fetch";
-import type { PortfolioPosition } from "@/shared/types";
+import type { PortfolioPosition } from "@/entities/portfolio";
 
 type AddInput = {
   symbol: string;
@@ -31,16 +31,7 @@ export const useAddToPortfolio = () => {
       const data = await res.json();
       if (!res.ok) { setError(data.error ?? "Failed"); return false; }
 
-      const position: PortfolioPosition = {
-        id: data._id,
-        symbol: data.symbol,
-        name: data.name,
-        quote: data.quote,
-        quantity: data.quantity,
-        buyPrice: data.buyPrice,
-        createdAt: data.createdAt,
-      };
-      setPortfolio([position, ...portfolio]);
+      setPortfolio([data as PortfolioPosition, ...portfolio]);
       return true;
     } finally {
       setLoading(false);

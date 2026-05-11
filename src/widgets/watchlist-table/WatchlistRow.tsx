@@ -8,7 +8,7 @@ import { Button } from "@/shared/ui/button";
 import { CoinIcon } from "@/shared/ui/coin-icon";
 import { WatchlistRowSkeleton } from "./WatchlistRowSkeleton";
 import { styles } from "./styles";
-import type { WatchlistItem } from "@/shared/types";
+import type { WatchlistItem } from "@/entities/watchlist";
 
 export const WatchlistRow = ({ item }: { item: WatchlistItem }) => {
   const ticker = useAppStore((s) => s.prices[item.symbol]);

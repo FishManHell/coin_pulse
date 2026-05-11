@@ -8,7 +8,7 @@ import { EmptyState } from "./EmptyState";
 import { TableHeader } from "./TableHeader";
 import { WatchlistRow } from "./WatchlistRow";
 import { styles } from "./styles";
-import type { WatchlistItem } from "@/shared/types";
+import type { WatchlistItem } from "@/entities/watchlist";
 
 type WatchlistTableProps = Readonly<{
   initialItems: WatchlistItem[];

@@ -1,10 +1,9 @@
 import { requireUser } from "@/entities/user/lib/require-user";
 import connectDB from "@/shared/lib/db";
-import { parseQuoteFromSymbol } from "@/shared/lib/parse-quote";
 import WatchlistItem from "@/models/WatchlistItem";
+import { toWatchlistDTO } from "@/entities/watchlist";
 import { Header } from "@/widgets/header";
 import { WatchlistTable } from "@/widgets/watchlist-table";
-import type { WatchlistItem as WatchlistItemType } from "@/shared/types";
 
 const WatchlistPage = async () =>  {
   const user = await requireUser();
@@ -14,13 +13,7 @@ const WatchlistPage = async () =>  {
     .sort({ addedAt: -1 })
     .lean();
 
-  const items: WatchlistItemType[] = rawItems.map((item) => ({
-    id: item._id.toString(),
-    symbol: item.symbol,
-    name: item.name,
-    quote: item.quote ?? parseQuoteFromSymbol(item.symbol),
-    addedAt: item.addedAt.toISOString(),
-  }));
+  const items = rawItems.map(toWatchlistDTO);
 
   return (
     <>

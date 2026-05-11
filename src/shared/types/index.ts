@@ -20,24 +20,6 @@ export type Kline = {
   volume: number;
 };
 
-export type WatchlistItem = {
-  id: string;
-  symbol: string;
-  name: string;
-  quote: string;
-  addedAt: string;
-};
-
-export type PortfolioPosition = {
-  id: string;
-  symbol: string;
-  name: string;
-  quote: string;
-  quantity: number;
-  buyPrice: number;
-  createdAt: string;
-};
-
 export type User = {
   id: string;
   name: string;

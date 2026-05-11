@@ -1,10 +1,9 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/entities/user/lib/auth-config";
 import connectDB from "@/shared/lib/db";
-import { parseQuoteFromSymbol } from "@/shared/lib/parse-quote";
 import WatchlistItem from "@/models/WatchlistItem";
+import { toWatchlistDTO } from "@/entities/watchlist";
 import { WatchlistInitializer } from "./watchlist-initializer";
-import type { WatchlistItem as WatchlistItemType } from "@/shared/types";
 
 export const WatchlistProvider = async () => {
   const session = await getServerSession(authOptions);
@@ -17,13 +16,7 @@ export const WatchlistProvider = async () => {
     .sort({ addedAt: -1 })
     .lean();
 
-  const items: WatchlistItemType[] = rawItems.map((item) => ({
-    id: item._id.toString(),
-    symbol: item.symbol,
-    name: item.name,
-    quote: item.quote ?? parseQuoteFromSymbol(item.symbol),
-    addedAt: item.addedAt.toISOString(),
-  }));
+  const items = rawItems.map(toWatchlistDTO);
 
   return <WatchlistInitializer items={items} />;
 };

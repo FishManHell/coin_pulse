@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useAppStore } from "@/shared/store";
-import type { WatchlistItem } from "@/shared/types";
+import type { WatchlistItem } from "@/entities/watchlist";
 
 type Props = { items: WatchlistItem[] };
 

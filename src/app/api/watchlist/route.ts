@@ -3,6 +3,7 @@ import { requireApiUser } from "@/entities/user/lib/require-api-user";
 import connectDB from "@/shared/lib/db";
 import { parseQuoteFromSymbol } from "@/shared/lib/parse-quote";
 import WatchlistItem from "@/models/WatchlistItem";
+import { toWatchlistDTO } from "@/entities/watchlist";
 import { apiError } from "@/shared/lib/api-response";
 
 export async function GET() {
@@ -14,12 +15,7 @@ export async function GET() {
     .sort({ addedAt: -1 })
     .lean();
 
-  const hydrated = items.map((item) => ({
-    ...item,
-    quote: item.quote ?? parseQuoteFromSymbol(item.symbol),
-  }));
-
-  return NextResponse.json(hydrated);
+  return NextResponse.json(items.map(toWatchlistDTO));
 }
 
 export async function POST(req: Request) {
@@ -37,7 +33,7 @@ export async function POST(req: Request) {
     { userId: auth.user.id, symbol },
     { userId: auth.user.id, symbol, name, quote: resolvedQuote, addedAt: new Date() },
     { upsert: true, new: true }
-  );
+  ).lean();
 
-  return NextResponse.json(item, { status: 201 });
+  return NextResponse.json(toWatchlistDTO(item!), { status: 201 });
 }

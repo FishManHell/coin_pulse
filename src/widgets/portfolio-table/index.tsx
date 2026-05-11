@@ -5,7 +5,7 @@ import { Plus } from "lucide-react";
 import { useAppStore } from "@/shared/store";
 import { usePriceStream } from "@/shared/hooks/usePriceStream";
 import { Button } from "@/shared/ui/button";
-import type { PortfolioPosition } from "@/shared/types";
+import type { PortfolioPosition } from "@/entities/portfolio";
 import { AddPositionForm } from "@/features/add-to-portfolio";
 import { groupPositions } from "./group-positions";
 import { SummaryCards } from "./SummaryCards";

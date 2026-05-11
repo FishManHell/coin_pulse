@@ -1,4 +1,4 @@
-import type { PortfolioPosition } from "@/shared/types";
+import type { PortfolioPosition } from "@/entities/portfolio";
 
 export type GroupedPosition = {
   symbol: string;

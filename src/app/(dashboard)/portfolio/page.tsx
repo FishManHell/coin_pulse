@@ -1,10 +1,9 @@
 import { requireUser } from "@/entities/user/lib/require-user";
 import connectDB from "@/shared/lib/db";
-import { parseQuoteFromSymbol } from "@/shared/lib/parse-quote";
 import PortfolioPosition from "@/models/PortfolioPosition";
+import { toPortfolioDTO } from "@/entities/portfolio";
 import { Header } from "@/widgets/header";
 import { PortfolioTable } from "@/widgets/portfolio-table";
-import type { PortfolioPosition as PortfolioPositionType } from "@/shared/types";
 
 const PortfolioPage = async () => {
   const user = await requireUser();
@@ -14,15 +13,7 @@ const PortfolioPage = async () => {
     .sort({ createdAt: -1 })
     .lean();
 
-  const positions: PortfolioPositionType[] = rawPositions.map((p) => ({
-    id: p._id.toString(),
-    symbol: p.symbol,
-    name: p.name,
-    quote: p.quote ?? parseQuoteFromSymbol(p.symbol),
-    quantity: p.quantity,
-    buyPrice: p.buyPrice,
-    createdAt: p.createdAt.toISOString(),
-  }));
+  const positions = rawPositions.map(toPortfolioDTO);
 
   return (
     <>
