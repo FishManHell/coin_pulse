@@ -2,10 +2,11 @@ import { NextResponse } from "next/server";
 import { requireApiUser } from "@/entities/user/lib/require-api-user";
 import connectDB from "@/shared/lib/db";
 import WatchlistItem from "@/models/WatchlistItem";
+import { ERRORS } from "@/shared/lib/api-response";
 
 export async function DELETE(
   _req: Request,
-  { params }: { params: Promise<{ symbol: string }> }
+  { params }: { params: Promise<{ symbol: string }> },
 ) {
   const auth = await requireApiUser();
   if ("error" in auth) return auth.error;
@@ -18,9 +19,7 @@ export async function DELETE(
     symbol,
   });
 
-  if (result.deletedCount === 0) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
-  }
+  if (result.deletedCount === 0) return ERRORS.notFound();
 
   return NextResponse.json({ message: "Removed" });
 }

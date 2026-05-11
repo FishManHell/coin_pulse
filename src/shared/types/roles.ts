@@ -14,6 +14,9 @@ export const ALL_ROLES = [
 
 export type UserRole = (typeof ALL_ROLES)[number];
 
+export const isValidRole = (value: unknown): value is UserRole =>
+  typeof value === "string" && (ALL_ROLES as readonly string[]).includes(value);
+
 export const ROLE_LABELS: Record<UserRole, string> = {
   superadmin: "Super Admin",
   admin: "Admin",

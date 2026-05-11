@@ -1,12 +1,6 @@
 import type { Kline, TimeRange } from "@/shared/types";
 import binancePairs from "./binance-pairs.generated.json";
-
-// data-api.binance.vision is the public CDN mirror for market data —
-// avoids geo-blocks that hit api.binance.com from US-based serverless regions.
-const BASE = "https://data-api.binance.vision/api/v3";
-
-const CG_MARKETS =
-  "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=1";
+import { BINANCE_BASE as BASE, CG_MARKETS } from "./endpoints";
 
 const MIN_PAIR_VOLUME = 500_000;
 const STABLE_PRICE_MIN = 0.99;

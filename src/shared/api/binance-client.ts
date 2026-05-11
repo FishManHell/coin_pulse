@@ -1,4 +1,4 @@
-const BASE = "https://data-api.binance.vision/api/v3";
+import { BINANCE_BASE as BASE } from "./endpoints";
 
 /**
  * Check whether a symbol pair is currently tradeable on Binance.

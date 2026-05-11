@@ -1,15 +1,20 @@
 import { NextResponse } from "next/server";
 import { unstable_cache } from "next/cache";
 import type { CoinMeta, CoinMetaResponse } from "@/shared/types";
+import { BINANCE_BASE, CG_MARKETS } from "@/shared/api/endpoints";
 
-const CG_MARKETS =
-  "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=1";
 // ticker/price (~135KB) lists every currently-traded symbol;
 // exchangeInfo (~22MB) blows past Next data cache's 2MB per-item limit.
-const BINANCE_TICKERS = "https://data-api.binance.vision/api/v3/ticker/price";
+const BINANCE_TICKERS = `${BINANCE_BASE}/ticker/price`;
 
-type CGCoin = { symbol: string; name: string };
-type Ticker = { symbol: string; price: string };
+interface CGCoin {
+  symbol: string;
+  name: string;
+}
+interface Ticker {
+  symbol: string;
+  price: string;
+}
 
 const loadCoinMeta = unstable_cache(
   async (quote: string): Promise<CoinMetaResponse | null> => {

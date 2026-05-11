@@ -28,3 +28,7 @@ const connectDB = async (): Promise<typeof mongoose> => {
 };
 
 export default connectDB;
+
+// MongoDB duplicate-key error code (e.g. unique-index violation).
+export const isDuplicateKeyError = (err: unknown): boolean =>
+  !!err && typeof err === "object" && "code" in err && (err as { code?: number }).code === 11000;

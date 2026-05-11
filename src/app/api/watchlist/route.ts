@@ -3,6 +3,7 @@ import { requireApiUser } from "@/entities/user/lib/require-api-user";
 import connectDB from "@/shared/lib/db";
 import { parseQuoteFromSymbol } from "@/shared/lib/parse-quote";
 import WatchlistItem from "@/models/WatchlistItem";
+import { apiError } from "@/shared/lib/api-response";
 
 export async function GET() {
   const auth = await requireApiUser();
@@ -26,7 +27,7 @@ export async function POST(req: Request) {
   if ("error" in auth) return auth.error;
 
   const { symbol, name, quote } = await req.json();
-  if (!symbol || !name) return NextResponse.json({ error: "symbol and name required" }, { status: 400 });
+  if (!symbol || !name) return apiError("symbol and name required", 400);
 
   const resolvedQuote = quote ?? parseQuoteFromSymbol(symbol);
 
