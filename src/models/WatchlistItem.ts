@@ -1,12 +1,13 @@
-import mongoose, { Schema, type Document, type Model, type Types } from "mongoose";
+import mongoose, { Schema } from "mongoose";
+import type { Document, Model, Types } from "mongoose"
 
-export type WatchlistItemDocument = Document & {
+export interface WatchlistItemDocument extends Document {
   userId: Types.ObjectId;
   symbol: string;
   name: string;
   quote?: string;
   addedAt: Date;
-};
+}
 
 const WatchlistItemSchema = new Schema<WatchlistItemDocument>({
   userId: { type: Schema.Types.ObjectId, ref: "User", required: true },

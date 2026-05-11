@@ -13,13 +13,13 @@ import { PriceChangeBadge } from "./PriceChangeBadge";
 import { usePriceFlash } from "./use-price-flash";
 import { styles } from "./styles";
 
-type Props = {
+interface PriceCardProps {
   ticker: CoinTicker;
   onClick?: () => void;
   selected?: boolean;
-};
+}
 
-export const PriceCard = ({ ticker, onClick, selected }: Readonly<Props>) => {
+export const PriceCard = ({ ticker, onClick, selected }: Readonly<PriceCardProps>) => {
   const selectedQuote = useAppStore((s) => s.selectedQuote);
   const coinNames = useAppStore((s) => s.coinNames);
   const watchlist = useAppStore((s) => s.watchlist);

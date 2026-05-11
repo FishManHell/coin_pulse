@@ -1,13 +1,13 @@
 import { CoinIcon } from "@/shared/ui/coin-icon";
 import { styles } from "./styles";
 
-type Props = {
+interface PriceCardHeaderProps {
   base: string;
   quote: string;
   displayName: string;
-};
+}
 
-export const PriceCardHeader = ({ base, quote, displayName }: Readonly<Props>) => (
+export const PriceCardHeader = ({ base, quote, displayName }: Readonly<PriceCardHeaderProps>) => (
   <div className={styles.headerInfo}>
     <CoinIcon base={base} size="md" />
     <div className={styles.headerText}>

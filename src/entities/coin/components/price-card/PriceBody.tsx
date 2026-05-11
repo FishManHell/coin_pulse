@@ -1,12 +1,12 @@
 import { cn, formatPrice } from "@/shared/lib/utils";
 import { styles } from "./styles";
 
-type Props = {
+interface PriceBodyProps {
   price: number;
   change: number;
-};
+}
 
-export const PriceBody = ({ price, change }: Readonly<Props>) => {
+export const PriceBody = ({ price, change }: Readonly<PriceBodyProps>) => {
   const isUp = change >= 0;
 
   return (

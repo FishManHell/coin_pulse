@@ -1,7 +1,7 @@
 import mongoose, { Schema, type Document, type Model } from "mongoose";
 import { USER_ROLES, type UserRole } from "@/shared/types/roles";
 
-export type UserDocument = Document & {
+export interface UserDocument extends Document {
   name: string;
   email: string;
   password: string | null;
@@ -9,7 +9,7 @@ export type UserDocument = Document & {
   role: UserRole;
   createdAt: Date;
   updatedAt: Date;
-};
+}
 
 const UserSchema = new Schema<UserDocument>(
   {

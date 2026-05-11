@@ -1,6 +1,6 @@
 import mongoose, { Schema, type Document, type Model, type Types } from "mongoose";
 
-export type PortfolioPositionDocument = Document & {
+export interface PortfolioPositionDocument extends Document {
   userId: Types.ObjectId;
   symbol: string;
   name: string;
@@ -8,7 +8,7 @@ export type PortfolioPositionDocument = Document & {
   quantity: number;
   buyPrice: number;
   createdAt: Date;
-};
+}
 
 const PortfolioPositionSchema = new Schema<PortfolioPositionDocument>(
   {
