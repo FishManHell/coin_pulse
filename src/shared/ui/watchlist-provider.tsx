@@ -2,7 +2,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/entities/user/lib/auth-config";
 import connectDB from "@/shared/lib/db";
 import { parseQuoteFromSymbol } from "@/shared/lib/parse-quote";
-import WatchlistItem from "../../../models/WatchlistItem";
+import WatchlistItem from "@/models/WatchlistItem";
 import { WatchlistInitializer } from "./watchlist-initializer";
 import type { WatchlistItem as WatchlistItemType } from "@/shared/types";
 

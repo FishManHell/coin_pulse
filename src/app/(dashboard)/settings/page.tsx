@@ -4,7 +4,7 @@ import { ROLE_PERMISSIONS, type UserRole } from "@/shared/types/roles";
 import { Header } from "@/widgets/header";
 import { AdminUsersTable } from "@/widgets/admin-users-table";
 import connectDB from "@/shared/lib/db";
-import User from "../../../../models/User";
+import User from "@/models/User";
 
 const SettingsPage = async () => {
   const actor = await requireUser();

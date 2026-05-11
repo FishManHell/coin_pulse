@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireApiUser } from "@/entities/user/lib/require-api-user";
 import connectDB from "@/shared/lib/db";
-import PortfolioPosition from "../../../../../models/PortfolioPosition";
+import PortfolioPosition from "@/models/PortfolioPosition";
 
 export async function DELETE(
   _req: Request,

@@ -1,5 +1,5 @@
 import mongoose, { Schema, type Document, type Model } from "mongoose";
-import { USER_ROLES, type UserRole } from "../src/shared/types/roles";
+import { USER_ROLES, type UserRole } from "@/shared/types/roles";
 
 export type UserDocument = Document & {
   name: string;

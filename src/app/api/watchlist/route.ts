@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { requireApiUser } from "@/entities/user/lib/require-api-user";
 import connectDB from "@/shared/lib/db";
 import { parseQuoteFromSymbol } from "@/shared/lib/parse-quote";
-import WatchlistItem from "../../../../models/WatchlistItem";
+import WatchlistItem from "@/models/WatchlistItem";
 
 export async function GET() {
   const auth = await requireApiUser();

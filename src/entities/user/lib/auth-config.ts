@@ -3,7 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
 import connectDB from "@/shared/lib/db";
-import User from "../../../../models/User";
+import User from "@/models/User";
 import type { UserRole } from "@/shared/types/roles";
 
 export const authOptions: NextAuthOptions = {
@@ -98,7 +98,7 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         session.user.id = token.id as string;
         session.user.role = token.role as UserRole;
-        session.user.hasPassword = !!token.hasPassword;
+        session.user.hasPassword = token.hasPassword;
       }
       return session;
     },

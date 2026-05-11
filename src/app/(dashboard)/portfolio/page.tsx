@@ -1,7 +1,7 @@
 import { requireUser } from "@/entities/user/lib/require-user";
 import connectDB from "@/shared/lib/db";
 import { parseQuoteFromSymbol } from "@/shared/lib/parse-quote";
-import PortfolioPosition from "../../../../models/PortfolioPosition";
+import PortfolioPosition from "@/models/PortfolioPosition";
 import { Header } from "@/widgets/header";
 import { PortfolioTable } from "@/widgets/portfolio-table";
 import type { PortfolioPosition as PortfolioPositionType } from "@/shared/types";

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireApiUser } from "@/entities/user/lib/require-api-user";
 import connectDB from "@/shared/lib/db";
-import User from "../../../../models/User";
+import User from "@/models/User";
 import bcrypt from "bcryptjs";
 
 export async function PATCH(req: Request) {
