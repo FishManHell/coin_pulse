@@ -41,19 +41,21 @@ Use `cancelled` flag in useEffect cleanup to handle React StrictMode double-invo
 
 ## Theme System
 
-Theme lives in **Zustand store** (not local useState) so all components react to one change:
+Theme is owned by **`next-themes`** — `ThemeProvider` lives in `app/layout.tsx` with `attribute="class"` and `defaultTheme="light"`. The library writes the `.dark` class onto `<html>`; no Zustand theme slice, no vanilla `<script>` bootstrap.
+
+`shared/hooks/useTheme.ts` is a thin wrapper that exposes `{ theme, toggle }`:
 
 ```typescript
-const theme = useAppStore((s) => s.theme);      // read
-const setTheme = useAppStore((s) => s.setTheme); // write
+const { theme, toggle } = useTheme(); // theme: "light" | "dark"
 ```
 
-`useTheme` hook wraps store + applies `.light` / `.dark` class to `<html>`.
+Internally it reads `resolvedTheme` from `next-themes` and falls back to `"light"`. Any client component that needs the theme value before paint should use the `mounted` guard pattern (set `mounted=true` in `useEffect`, render a neutral fallback until then) — see `ThemeToggle` — to avoid hydration mismatch.
+
 TradingView chart: update via `chart.applyOptions()` when theme changes — don't recreate the chart.
 
 ## Data-Fetch Hooks Pattern
 
-Per-endpoint data needs go through tiny shared hooks in `shared/hooks/`:
+Per-endpoint data needs to go through tiny shared hooks in `shared/hooks/`:
 
 - `useQuoteCurrencies()` → `string[]`. Fetches `/api/quote-currencies` with a `cancelled` flag and a defensive `Array.isArray && length` check before replacing the default `["USDT"]`.
 - `usePairsForQuote(quote)` → `CoinMeta[]`. Fetches `/api/coin-meta?quote=X`, resets pairs on quote change, has cancellation cleanup.
@@ -83,10 +85,10 @@ v5 API changed from v4 — use the new API:
 ```typescript
 // v5 (correct)
 import { CandlestickSeries, LineSeries, AreaSeries, BarSeries } from "lightweight-charts";
-const series = chart.addSeries(CandlestickSeries, { upColor: "#10B981", ... });
+const series = chart.addSeries(CandlestickSeries, { upColor: "#10B981" /* ...other options */ });
 
 // v4 (wrong — method removed)
-chart.addCandlestickSeries(...)
+// chart.addCandlestickSeries({ ... })
 ```
 
 When chart type changes: use `key={chartType}` on the canvas component to force remount.
@@ -104,6 +106,35 @@ Theme changes: call `chart.applyOptions()` — never recreate the chart.
 - Mobile: icon button → click → title hides, full-width input appears with X to close
 - Desktop (`md+`): `SearchCoin` component always visible with dropdown
 - The header search picks a coin and routes to `/dashboard` (`setSelectedSymbol + router.push`). Pages where that navigation is contextual noise (e.g. `/watchlist`) pass `showSearch={false}` to `<Header>` to hide it.
+
+## Coin Avatars — `<CoinIcon base="BTC" />`
+
+`shared/ui/coin-icon.tsx` is the single source of truth for coin avatars (used by `PriceCard`, `WatchlistRow`, `PositionRow`, `MarketOverview`, `CoinDetailsPanel`, etc.). It renders a gradient placeholder with the first letter immediately, then crossfades the real SVG on top once it loads:
+
+- Real SVG comes from the **cryptocurrency-icons CDN** (`https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530b/svg/color/<base>.svg`) — see `shared/lib/coin-icon.ts` for the URL helper.
+- Placeholder gradient is deterministic per base via a small string-hash → palette lookup in `shared/lib/coin-gradient.ts` (`getCoinGradient(base)`). Same base always picks the same gradient so the avatar feels stable across renders.
+- On `onError` the `<img>` is unmounted and only the gradient stays — never falls through to a broken icon.
+
+Never re-introduce hardcoded `COIN_ICONS` or `COIN_COLORS` maps. New coins are discovered dynamically, so any static table immediately falls behind.
+
+## Watchlist Toggle — `<WatchlistStarButton />`
+
+`shared/ui/watchlist-star-button.tsx` is the unified star-toggle for adding/removing a symbol from the watchlist. Both the dashboard `PriceCard` and the watchlist table reuse it — do not re-implement the toggle inline in a feature. It reads watchlist state from the store, owns its own optimistic update, and wires through the `add-to-watchlist` / `remove-from-watchlist` features.
+
+## PriceCard Decomposition
+
+`entities/coin/components/price-card/` is split into small components rather than one monolith:
+
+```
+index.tsx              — composition + early-return for "no ticker yet"
+PriceCardHeader.tsx    — avatar + base/quote + name
+PriceBody.tsx          — large price number + flash class
+PriceChangeBadge.tsx   — 24h % badge (color + arrow)
+use-price-flash.ts     — hook: returns "flash-up"/"flash-down"/"" based on last tick
+styles.ts              — Tailwind class strings
+```
+
+The same shape (header / body / change / styles + a per-concern hook) is the default when a card-shaped widget grows past ~80 lines — see `CoinDetailsPanel` (`CoinHeader`, `PriceBlock`, `StatRow`, `get-stat-rows.ts`) for the same template.
 
 ## Loading State Pattern — Streaming Tables
 

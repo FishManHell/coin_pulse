@@ -163,8 +163,10 @@ Base URL: `wss://stream.binance.com:9443`
 - Single stream: `/ws/btcusdt@ticker`
 - Combined stream response: `{ stream: "btcusdt@ticker", data: { s, c, P, p, v, h, l } }`
 
-Kline (candlestick) REST: `GET https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1h&limit=168`
+Kline (candlestick) REST: `GET https://data-api.binance.vision/api/v3/klines?symbol=BTCUSDT&interval=1h&limit=168`
 Max limit per request: 1000 candles.
+
+**Always use `data-api.binance.vision`, not `api.binance.com`.** The latter is geo-blocked from Vercel's `us-east-1` region (and several other serverless regions), so any call from a production route handler will fail. `data-api.binance.vision` is Binance's public CDN mirror for market data and works from every region we deploy to. The constant `BASE` in both `shared/api/binance.ts` and `shared/api/binance-client.ts` points here — keep it that way.
 
 ## External Docs
 

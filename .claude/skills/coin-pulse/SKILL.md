@@ -46,7 +46,8 @@ features/      — add-to-watchlist, remove-from-watchlist,
                  select-quote, filter-watchlist-by-quote, coin-combobox,
                  edit-profile, change-password
 entities/      — coin/PriceCard, user/auth-config, user/components/RoleBadge
-shared/        — ui (Button, LabeledField, Skeleton, …), lib (utils, db, parse-quote, api-fetch),
+shared/        — ui (Button, LabeledField, Skeleton, CoinIcon, WatchlistStarButton, ThemeToggle, …),
+                 lib (utils, db, parse-quote, api-fetch, coin-icon, coin-gradient),
                  types,
                  hooks (usePriceStream, useTheme, useQuoteCurrencies, usePairsForQuote, useFormState),
                  store, api
@@ -118,10 +119,11 @@ GOOGLE_CLIENT_SECRET   — Google Cloud Console
 
 ## Theme
 
-- Dark (default) and Light — CSS variables in `:root` and `.light` class
-- Theme stored in Zustand store (not local state!) so all components react to changes
-- `useTheme` hook reads/writes from Zustand + applies class to `<html>`
-- TradingView chart colors updated via `chart.applyOptions()` on theme change
+- Light (default) and Dark — CSS variables in `:root` and `.dark` class
+- Powered by `next-themes` — `ThemeProvider` in root layout with `attribute="class"`, `defaultTheme="light"`. No vanilla `<script>` injection, no Zustand theme slice
+- `useTheme` in `shared/hooks/useTheme.ts` is a thin wrapper around `next-themes` `useTheme` — exposes `{ theme, toggle }`
+- `ThemeToggle` uses a `mounted` guard to avoid hydration mismatch
+- TradingView chart colors updated via `chart.applyOptions()` on theme change — never recreate the chart
 
 ## Binance WebSocket
 
