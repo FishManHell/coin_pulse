@@ -10,7 +10,13 @@ export const useTopCoins = (initialSymbols: string[]) => {
   const [symbols, setSymbols] = useState(initialSymbols);
   const [fetching, setFetching] = useState(false);
   const [timedOut, setTimedOut] = useState(false);
+  const [prevSymbols, setPrevSymbols] = useState(symbols);
   const isFirstRender = useRef(true);
+
+  if (prevSymbols !== symbols) {
+    setPrevSymbols(symbols);
+    setTimedOut(false);
+  }
 
   useEffect(() => {
     if (isFirstRender.current) {
@@ -34,7 +40,6 @@ export const useTopCoins = (initialSymbols: string[]) => {
   }, [selectedQuote, setSelectedSymbol]);
 
   useEffect(() => {
-    setTimedOut(false);
     const t = setTimeout(() => setTimedOut(true), 10_000);
     return () => clearTimeout(t);
   }, [symbols]);
