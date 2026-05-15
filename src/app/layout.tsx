@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { ThemeProvider } from "next-themes";
+import { Toaster } from "sonner";
 import { SessionProvider } from "@/shared/ui/session-provider";
 import { QueryProvider } from "@/shared/ui/query-provider";
 import "./globals.css";
@@ -25,6 +26,7 @@ const RootLayout = ({children,}: Readonly<{ children: ReactNode }>) =>  {
           <SessionProvider>
             <QueryProvider>
               {children}
+              <Toaster richColors closeButton position="bottom-right" />
             </QueryProvider>
           </SessionProvider>
         </ThemeProvider>
