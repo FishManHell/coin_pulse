@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Button } from "@/shared/ui/button";
-import { AuthInput } from "@/shared/ui/auth-input";
+import { LabeledField } from "@/shared/ui/labeled-field";
 import { useAuthForm } from "../_hooks/use-auth-form";
 import { loginWithCredentials } from "../_api";
 import { GoogleSignInButton } from "../_components/google-sign-in-button";
@@ -34,21 +34,23 @@ const LoginPage = () => {
       <AuthDivider />
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        <AuthInput
+        <LabeledField
           label="Email"
           type="email"
           placeholder="you@example.com"
           required
           value={form.email}
           onChange={handleChange("email")}
+          labelClassName="text-sm text-text-secondary"
         />
-        <AuthInput
+        <LabeledField
           label="Password"
           type="password"
           placeholder="••••••••"
           required
           value={form.password}
           onChange={handleChange("password")}
+          labelClassName="text-sm text-text-secondary"
         />
 
         {error && <p className="text-price-down text-sm">{error}</p>}

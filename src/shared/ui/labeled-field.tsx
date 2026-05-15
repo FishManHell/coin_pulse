@@ -1,16 +1,17 @@
 import * as React from "react";
 import { cn } from "@/shared/lib/utils";
 
-type Props = React.ComponentProps<"input"> & {
+interface Props extends React.ComponentProps<"input"> {
   label: string;
-};
+  labelClassName?: string;
+}
 
-export const LabeledField = ({ label, className, id, ...rest }: Props) => {
+export const LabeledField = ({ label, className, labelClassName, id, ...rest }: Props) => {
   const reactId = React.useId();
   const inputId = id ?? reactId;
   return (
     <div>
-      <label htmlFor={inputId} className="block text-xs text-text-muted mb-1.5">
+      <label htmlFor={inputId} className={cn("block text-xs text-text-muted mb-1.5", labelClassName)}>
         {label}
       </label>
       <input

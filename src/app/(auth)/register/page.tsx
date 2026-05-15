@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Button } from "@/shared/ui/button";
-import { AuthInput } from "@/shared/ui/auth-input";
+import { LabeledField } from "@/shared/ui/labeled-field";
 import { useAuthForm } from "../_hooks/use-auth-form";
 import { REGISTER_FIELDS } from "../_fields";
 import { registerAndSignIn } from "../_api";
@@ -33,7 +33,7 @@ const RegisterPage = () => {
       <AuthDivider />
       <form onSubmit={handleSubmit} className="space-y-4">
         {REGISTER_FIELDS.map(({ key, label, type, placeholder }) => (
-          <AuthInput
+          <LabeledField
             key={key}
             label={label}
             type={type}
@@ -41,6 +41,7 @@ const RegisterPage = () => {
             required
             value={form[key]}
             onChange={handleChange(key)}
+            labelClassName="text-sm text-text-secondary"
           />
         ))}
 
