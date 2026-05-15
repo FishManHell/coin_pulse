@@ -1,12 +1,27 @@
 /**
- * Binance WebSocket protocol types.
+ * Binance API protocol types — both WebSocket streams and REST responses.
  *
- * Field names (single letters) are dictated by the Binance API and cannot be
- * renamed at this layer — they mirror the on-the-wire format. Mapping to
- * friendly domain types (e.g. CoinTicker) happens in dedicated parsers.
+ * Field names (single letters in WS payloads, positional in REST kline arrays)
+ * are dictated by the Binance API and cannot be renamed at this layer — they
+ * mirror the on-the-wire format. Mapping to friendly domain types (e.g.
+ * CoinTicker, Kline) happens in dedicated parsers.
  *
  * @see https://github.com/binance/binance-spot-api-docs/blob/master/web-socket-streams.md
+ * @see https://github.com/binance/binance-spot-api-docs/blob/master/rest-api.md
  */
+
+// ── REST ─────────────────────────────────────────────────────────────────────
+
+/**
+ * Trimmed payload of `/ticker/24hr?type=MINI` — the subset of fields we read.
+ */
+export interface MiniTicker {
+  symbol: string;
+  lastPrice: string;
+  quoteVolume: string;
+}
+
+// ── WebSocket ────────────────────────────────────────────────────────────────
 
 /**
  * Payload of the "Individual Symbol Ticker" stream (`<symbol>@ticker`).
