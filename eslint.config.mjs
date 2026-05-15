@@ -11,6 +11,10 @@ const eslintConfig = defineConfig([
       // (one-time store hydration, intentional effect separation, fetch effects).
       // Keep as a warning for visibility; refactor real anti-patterns case-by-case.
       "react-hooks/set-state-in-effect": "warn",
+      // The only image use in this app is small (32–40px) SVG coin icons served
+      // from a CDN. next/image passes SVGs through unoptimized and would only
+      // add remotePatterns ceremony without any LCP/bandwidth benefit.
+      "@next/next/no-img-element": "off",
     },
   },
   // Override default ignores of eslint-config-next.
