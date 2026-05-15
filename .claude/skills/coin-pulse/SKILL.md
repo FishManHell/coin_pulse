@@ -45,11 +45,15 @@ features/      — add-to-watchlist, remove-from-watchlist,
                  add-to-portfolio, remove-from-portfolio, search-coin,
                  select-quote, filter-watchlist-by-quote, coin-combobox,
                  edit-profile, change-password
-entities/      — coin/PriceCard, user/auth-config, user/components/RoleBadge
-shared/        — ui (Button, LabeledField, Skeleton, CoinIcon, WatchlistStarButton, ThemeToggle, …),
-                 lib (utils, db, parse-quote, api-fetch, coin-icon, coin-gradient),
+entities/      — coin/PriceCard, user/auth-config (decomposed into auth/ subfolder:
+                 providers, callbacks, helpers), user/components/RoleBadge
+shared/        — ui (Button, LabeledField, Skeleton, CoinIcon, WatchlistStarButton,
+                 ThemeToggle, SearchInput, …),
+                 lib (utils, db, parse-quote, api-fetch, coin-icon, coin-gradient, symbol),
                  types,
-                 hooks (usePriceStream, useTheme, useQuoteCurrencies, usePairsForQuote, useFormState),
+                 hooks (usePriceStream, useTheme, useQuoteCurrencies, usePairsForQuote,
+                 useFormState, useFloatingRect),
+                 config (routes — internal route constants),
                  store, api
 models/        — Mongoose schemas (server-only): User, WatchlistItem, PortfolioPosition
 scripts/       — Prebuild snapshots (Binance trading pairs)

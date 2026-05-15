@@ -70,10 +70,12 @@ widgets/      Sidebar, Header, CandlestickChart, MarketOverview, WatchlistTable,
 features/     add-to-watchlist, remove-from-watchlist, add-to-portfolio, remove-from-portfolio,
               search-coin, select-quote, filter-watchlist-by-quote, coin-combobox,
               edit-profile, change-password
-entities/     coin (PriceCard), user (auth-config, components/RoleBadge)
-shared/       ui (Button, LabeledField, Skeleton, …), lib (cn, formatters, db, parse-quote,
-              api-fetch), hooks (usePriceStream, useTheme, useQuoteCurrencies, usePairsForQuote,
-              useFormState), store, types, api
+entities/     coin (PriceCard), user (auth-config decomposed into auth/ subfolder, components/RoleBadge)
+shared/       ui (Button, LabeledField, Skeleton, SearchInput, …),
+              lib (cn, formatters, db, parse-quote, api-fetch, symbol),
+              hooks (usePriceStream, useTheme, useQuoteCurrencies, usePairsForQuote,
+              useFormState, useFloatingRect),
+              config (routes), store, types, api
 models/       Mongoose schemas (server-only)
 scripts/      Prebuild snapshots (Binance trading pairs)
 ```

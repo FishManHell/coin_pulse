@@ -30,7 +30,7 @@ app/api/
 - Credentials provider: email + password verified against bcrypt hash (10 rounds)
 - Google provider: OAuth, no password stored
 - Same email from both providers → linked to one User document
-- Config lives in `entities/user/lib/auth-config.ts`
+- Config in `entities/user/lib/auth-config.ts` is a thin compose; providers, callbacks, and DB helpers (`loadUserClaimsByEmail`/`loadUserClaimsById`, `ensureGoogleUser`, `SESSION_MAX_AGE`) live in `entities/user/lib/auth/`
 
 ### JWT Callback — Critical Notes
 

@@ -134,7 +134,7 @@ use-price-flash.ts     — hook: returns "flash-up"/"flash-down"/"" based on las
 styles.ts              — Tailwind class strings
 ```
 
-The same shape (header / body / change / styles + a per-concern hook) is the default when a card-shaped widget grows past ~80 lines — see `CoinDetailsPanel` (`CoinHeader`, `PriceBlock`, `StatRow`, `get-stat-rows.ts`) for the same template.
+The same shape (header / body / change / styles + a per-concern hook) is the default when a card-shaped widget grows past ~80 lines — see `CoinDetailsPanel` (`CoinHeader`, `PriceBlock`, `StatRow`, `get-stat-rows.ts`) for the same template. Combobox/dropdown variant: `coin-combobox` and `search-coin` follow the same split (`index.tsx` + `Dropdown.tsx` + per-row component + `styles.ts`); pass per-item `ticker` directly to the row, never the global `prices` map.
 
 ## Loading State Pattern — Streaming Tables
 
@@ -151,7 +151,7 @@ Both components must share the same grid columns/styles, otherwise layout jumps 
 
 ## Form State Pattern — `useFormState<T>`
 
-Forms that follow the recurring `values + loading + feedback` shape compose `useFormState<T>` from `shared/hooks`:
+Forms that follow the recurring `values + loading + feedback` shape compose `useFormState<T>` from `shared/hooks`. Generic is `<T extends object>` — accepts any interface (interfaces don't satisfy `Record<string, unknown>` because they don't auto-extend index signatures).
 
 ```ts
 const { values, setValues, setField, loading, setLoading, feedback, setFeedback } =
@@ -161,6 +161,43 @@ const { values, setValues, setField, loading, setLoading, feedback, setFeedback 
 It is a **state-shape primitive only** — no submit/validate/onSuccess options. Domain submit logic stays inline in each feature hook (`useEditProfile`, `useChangePassword`). Do not promote `useFormState` to a configurator (`usePatchForm({validate, buildBody, onSuccess, ...})`) — past attempt was rejected for raising cognitive cost without payoff.
 
 `feedback: { message: string; kind: "success" | "error" } | null` replaces fragile `msg.includes("updated")` substring color inference — choose the kind explicitly when setting feedback.
+
+## Init Form State From Server — Anti-Pattern Warning
+
+When a form needs initial values from the session/user, **pass them as props from the server component**. Never bootstrap inside the client hook with `useEffect` + `useRef` once `useSession()` hydrates — that's the React anti-pattern *You Might Not Need an Effect* (extra render, brief flash of empty inputs, confusing ref flag).
+
+```tsx
+// ProfilePage (server) — already has session
+<EditProfileForm initial={{ name: session.user.name ?? "", email: session.user.email ?? "" }} />
+
+// useEditProfile(initial) — first-render values are correct:
+const { values, setField, ... } = useFormState(initial);
+```
+
+`useSession()` may still live inside the hook for `update()` after a successful PATCH — that's a different concern (sync session cache after mutation).
+
+## Internal Routes — `ROUTES` Const
+
+All app routes live in `shared/config/routes.ts` as a `const`-asserted object. Never inline route literals — `import { ROUTES } from "@/shared/config/routes"` and use `ROUTES.dashboard`, `ROUTES.login`, etc. for `router.push`, `redirect`, `Link href`, `signOut callbackUrl`, NextAuth `pages`. API paths (`/api/*`) stay inline — they're a different domain.
+
+## Symbol Helpers — `shared/lib/symbol.ts`
+
+`stripQuote(symbol, quote)` / `swapQuote(symbol, oldQuote, newQuote)`. Use them anywhere `symbol.endsWith(quote) ? symbol.slice(0, -quote.length) : symbol` would appear (currently: `add-to-portfolio`, `coin-combobox`, `search-coin`, `select-quote`).
+
+## Domain SearchInput vs shadcn Input
+
+Two input flavors deliberately, both rendering on the same color tokens (shadcn aliases mapped to project-native variables in `globals.css` `@theme inline`). Visual style differs:
+
+| Pattern | Component | Used by | Style |
+|---|---|---|---|
+| Form input | `shared/ui/input.tsx` (shadcn `Input`) | login, register, change-password, edit-profile | Transparent, `focus-visible:ring` |
+| Search/filter | `shared/ui/search-input.tsx` (`SearchInput`) | `search-coin`, `coin-combobox` | Solid `bg-surface`, `focus:border-accent-indigo`, built-in left icon |
+
+`SearchInput` is `forwardRef` + spreads `ComponentProps<"input">`. Override fill via `className="bg-bg"`, override icon via the `icon` prop. Don't reach for shadcn `Input` for domain UI — its tokens read as a form field, not a search.
+
+## `useFloatingRect` — Portal-Positioned UI
+
+For dropdowns/popovers rendered via `createPortal`, position relative to a referenced element via `shared/hooks/useFloatingRect(ref, active)`. Re-measures on `scroll` (capture phase) and `resize` while active. Use `rect` as a render gate (`{open && rect && <Dropdown rect={rect} />}`) so the portal never renders before position is known. Inside portal-rendered children, **don't add `typeof document === "undefined"` SSR guards** when the parent already gates on client-only state — the guard becomes dead code.
 
 ## Styling Rules
 
