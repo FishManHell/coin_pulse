@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState, SubmitEvent } from "react";
+import { useCallback, useState, SubmitEvent } from "react";
 import { useQuoteCurrencies } from "@/shared/hooks/useQuoteCurrencies";
 import { usePairsForQuote } from "@/shared/hooks/usePairsForQuote";
 import { useAddToPortfolio } from "./use-add-to-portfolio";
@@ -22,19 +22,23 @@ export const usePositionForm = ({ onSuccessAction }: { onSuccessAction: () => vo
   const quotes = useQuoteCurrencies();
   const pairs = usePairsForQuote(quote);
 
+  // Effective symbol: user's choice if still valid for current pairs, otherwise the first pair.
+  // Derived in render — no effect needed.
+  const effectiveSymbol = pairs.length === 0
+    ? ""
+    : (fields.symbol && pairs.some((p) => p.symbol === fields.symbol))
+      ? fields.symbol
+      : pairs[0].symbol;
+
   const handleSetQuote = useCallback((newQuote: string) => {
     if (newQuote === quote) return;
-    setFields((f) => f.symbol ? { ...f, symbol: swapQuote(f.symbol, quote, newQuote) } : f);
+    if (effectiveSymbol) {
+      setFields((f) => (
+          { ...f, symbol: swapQuote(effectiveSymbol, quote, newQuote) }
+      ));
+    }
     setQuote(newQuote);
-  }, [quote]);
-
-  useEffect(() => {
-    if (pairs.length === 0) return;
-    setFields((f) => {
-      if (f.symbol && pairs.some((p) => p.symbol === f.symbol)) return f;
-      return { ...f, symbol: pairs[0].symbol };
-    });
-  }, [pairs]);
+  }, [quote, effectiveSymbol]);
 
   const set = <K extends keyof Fields>(key: K, value: Fields[K]) => {
     setFields((f) => ({ ...f, [key]: value }));
@@ -42,7 +46,7 @@ export const usePositionForm = ({ onSuccessAction }: { onSuccessAction: () => vo
 
   const submit = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const coin = pairs.find((c) => c.symbol === fields.symbol);
+    const coin = pairs.find((c) => c.symbol === effectiveSymbol);
     if (!coin) return;
     const ok = await add({
       symbol: coin.symbol,
@@ -58,7 +62,7 @@ export const usePositionForm = ({ onSuccessAction }: { onSuccessAction: () => vo
   };
 
   return {
-    fields,
+    fields: { ...fields, symbol: effectiveSymbol },
     set,
     submit,
     loading,
