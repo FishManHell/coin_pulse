@@ -2,17 +2,34 @@ import { useAppStore } from "@/shared/store";
 import type { BinanceStreamEnvelope, BinanceTickerEvent } from "./binance-types";
 import { buildStreamUrl, parseTicker } from "./binance-stream-parse";
 
+const RECONNECT_DELAY_MS = 5000;
+
 // ─── Connection lifecycle ────────────────────────────────────────────────────
 
 let activeSocket: WebSocket | null = null;
 let activeSymbols: string[] = [];
+let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+
+const clearReconnectTimer = () => {
+  if (reconnectTimer === null) return;
+  clearTimeout(reconnectTimer);
+  reconnectTimer = null;
+};
+
+const scheduleReconnect = () => {
+  if (reconnectTimer !== null) return;
+  reconnectTimer = setTimeout(() => {
+    reconnectTimer = null;
+    if (refCounts.size > 0) scheduleReconcile();
+  }, RECONNECT_DELAY_MS);
+};
 
 const closeActiveSocket = () => {
+  clearReconnectTimer();
   if (!activeSocket) return;
   const closing = activeSocket;
   activeSocket = null;
   closing.onmessage = null;
-  closing.onerror = null;
   closing.onclose = null;
 
   if (closing.readyState === WebSocket.CONNECTING) {
@@ -39,8 +56,16 @@ const openSocket = (symbols: string[]) => {
     if (ticker?.s) useAppStore.getState().updatePrice(parseTicker(ticker));
   };
 
-  nextSocket.onerror = () => {
-    if (nextSocket === activeSocket) closeActiveSocket();
+  // Recovery path. Intentional closes null this handler first, so it only fires
+  // for genuine drops (network blip, Binance restart, etc.). `error` is followed
+  // by `close` per the WebSocket spec — routing all recovery through `close`
+  // keeps a single path. Clearing activeSymbols forces the next reconcile to
+  // detect a delta and reopen.
+  nextSocket.onclose = () => {
+    if (nextSocket !== activeSocket) return;
+    activeSocket = null;
+    activeSymbols = [];
+    scheduleReconnect();
   };
 
   activeSocket = nextSocket;
