@@ -10,13 +10,13 @@ import {
 
 export const ALL_QUOTES = "all";
 
-type Props = Readonly<{
+interface WatchlistQuoteFilterProps {
   value: string;
   onChange: (value: string) => void;
   quotes: string[];
-}>;
+}
 
-export const WatchlistQuoteFilter = ({ value, onChange, quotes }: Props) => (
+export const WatchlistQuoteFilter = ({ value, onChange, quotes }: Readonly<WatchlistQuoteFilterProps>) => (
   <Select value={value} onValueChange={onChange}>
     <SelectTrigger className="w-28 h-9 rounded-xl text-xs border-border-base bg-bg">
       <SelectValue />
