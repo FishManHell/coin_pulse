@@ -40,20 +40,28 @@ export const fetchTopSymbols = async (limit = 6, quote = "USDT"): Promise<string
 
   const tickers: MiniTicker[] = await tickersRes.json();
   const stables = buildStablecoinSet(tickers);
+
+  // CoinGecko provides a crypto allowlist that filters out exotic Binance pairs.
+  // When CG is unreachable, skip the filter rather than returning an empty dashboard.
   const cgCoins: { symbol: string }[] = cgRes.ok ? await cgRes.json() : [];
   const cryptoSet = new Set(cgCoins.map((c) => c.symbol.toUpperCase()));
+  const useCryptoFilter = cryptoSet.size > 0;
 
-  return tickers
-    .filter(
-      (t) =>
-        t.symbol.endsWith(quote) &&
-        !stables.has(t.symbol.slice(0, -quote.length)) &&
-        cryptoSet.has(t.symbol.slice(0, -quote.length)) &&
-        parseFloat(t.quoteVolume) >= MIN_PAIR_VOLUME
-    )
-    .sort((a, b) => parseFloat(b.quoteVolume) - parseFloat(a.quoteVolume))
-    .slice(0, limit)
-    .map((t) => t.symbol);
+  // Single pass with precomputed base & volume — the previous filter→sort chain
+  // re-parsed quoteVolume on every sort comparison and sliced symbol twice per row.
+  const candidates: { symbol: string; volume: number }[] = [];
+  for (const t of tickers) {
+    if (!t.symbol.endsWith(quote)) continue;
+    const base = t.symbol.slice(0, -quote.length);
+    if (stables.has(base)) continue;
+    if (useCryptoFilter && !cryptoSet.has(base)) continue;
+    const volume = parseFloat(t.quoteVolume);
+    if (volume < MIN_PAIR_VOLUME) continue;
+    candidates.push({ symbol: t.symbol, volume });
+  }
+
+  candidates.sort((a, b) => b.volume - a.volume);
+  return candidates.slice(0, limit).map((c) => c.symbol);
 };
 
 const RANGE_CONFIG: Record<TimeRange, { interval: string; limit: number }> = {
