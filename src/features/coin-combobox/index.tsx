@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useMemo, type ChangeEvent } from "react";
+import { useState, useRef, useMemo, type ChangeEvent } from "react";
 import { useDismiss } from "@/shared/lib/use-dismiss";
 import { stripQuote } from "@/shared/lib/symbol";
 import { cn } from "@/shared/lib/utils";
@@ -31,6 +31,8 @@ export const CoinCombobox = ({
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const [userSelected, setUserSelected] = useState(false);
+  const [wasOpen, setWasOpen] = useState(false);
+  const [syncedShort, setSyncedShort] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -48,9 +50,15 @@ export const CoinCombobox = ({
   const selected = pairs.find((c) => c.symbol === value);
   const selectedShort = selected ? stripQuote(selected.symbol, quote) : "";
 
-  useEffect(() => {
-    if (!open && userSelected && selectedShort) setQuery(selectedShort);
-  }, [open, userSelected, selectedShort]);
+  // Sync input to selection on close-transition or when selectedShort changes externally
+  // (e.g. parent swaps quote) while closed. Canonical "adjust state on prop change" pattern.
+  const justClosed = wasOpen && !open;
+  const externalChange = !open && selectedShort !== "" && selectedShort !== syncedShort;
+  if (userSelected && (justClosed || externalChange)) {
+    setSyncedShort(selectedShort);
+    setQuery(selectedShort);
+  }
+  if (wasOpen !== open) setWasOpen(open);
 
   const handleSelect = (coin: CoinMeta) => {
     onChange(coin);
