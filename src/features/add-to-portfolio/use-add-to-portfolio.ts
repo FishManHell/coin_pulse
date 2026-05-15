@@ -1,42 +1,33 @@
 "use client";
 
-import { useState } from "react";
+import { toast } from "sonner";
+import { useMutation } from "@tanstack/react-query";
 import { useAppStore } from "@/shared/store";
-import { apiFetch } from "@/shared/lib/api-fetch";
-import type { PortfolioPosition } from "@/entities/portfolio";
-
-interface AddInput {
-  symbol: string;
-  name: string;
-  quote: string;
-  quantity: number;
-  buyPrice: number;
-}
+import { createPortfolioPosition, type CreatePortfolioInput } from "@/entities/portfolio";
 
 export const useAddToPortfolio = () => {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const setPortfolio = useAppStore((s) => s.setPortfolio);
   const portfolio = useAppStore((s) => s.portfolio);
 
-  const add = async (input: AddInput) => {
-    setLoading(true);
-    setError("");
-    try {
-      const res = await apiFetch("/api/portfolio", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(input),
-      });
-      const data = await res.json();
-      if (!res.ok) { setError(data.error ?? "Failed"); return false; }
+  const mutation = useMutation({
+    mutationFn: createPortfolioPosition,
+    onSuccess: (position, input) => {
+      setPortfolio([position, ...portfolio]);
+      toast.success(`${input.name} added to portfolio`);
+    },
+    onError: (err) => {
+      toast.error("Couldn't add position", { description: err.message });
+    },
+  });
 
-      setPortfolio([data as PortfolioPosition, ...portfolio]);
+  const add = async (input: CreatePortfolioInput): Promise<boolean> => {
+    try {
+      await mutation.mutateAsync(input);
       return true;
-    } finally {
-      setLoading(false);
+    } catch {
+      return false;
     }
   };
 
-  return { add, loading, error };
+  return { add, loading: mutation.isPending };
 };

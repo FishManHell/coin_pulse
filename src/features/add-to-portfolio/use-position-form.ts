@@ -16,7 +16,7 @@ const initialFields: Fields = { symbol: "", quantity: "", buyPrice: "" };
 const DEFAULT_QUOTE = "USDT";
 
 export const usePositionForm = ({ onSuccessAction }: { onSuccessAction: () => void }) => {
-  const { add, loading, error } = useAddToPortfolio();
+  const { add, loading } = useAddToPortfolio();
   const [fields, setFields] = useState<Fields>(initialFields);
   const [quote, setQuote] = useState<string>(DEFAULT_QUOTE);
   const quotes = useQuoteCurrencies();
@@ -66,7 +66,6 @@ export const usePositionForm = ({ onSuccessAction }: { onSuccessAction: () => vo
     set,
     submit,
     loading,
-    error,
     noPairs: pairs.length === 0,
     quote,
     setQuote: handleSetQuote,

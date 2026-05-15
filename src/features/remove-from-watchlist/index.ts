@@ -3,20 +3,14 @@
 import { toast } from "sonner";
 import { useMutation } from "@tanstack/react-query";
 import { useAppStore } from "@/shared/store";
-import { apiFetch } from "@/shared/lib/api-fetch";
+import { deleteWatchlistItem } from "@/entities/watchlist";
 
 export const useRemoveFromWatchlist = () => {
   const setWatchlist = useAppStore((s) => s.setWatchlist);
   const watchlist = useAppStore((s) => s.watchlist);
 
   const { mutate, isPending: loading } = useMutation({
-    mutationFn: async (symbol: string): Promise<void> => {
-      const res = await apiFetch(`/api/watchlist/${symbol}`, { method: "DELETE" });
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body.error ?? "Failed to remove from watchlist");
-      }
-    },
+    mutationFn: deleteWatchlistItem,
     onSuccess: (_, symbol) => {
       setWatchlist(watchlist.filter((w) => w.symbol !== symbol));
       toast.success("Removed from watchlist");

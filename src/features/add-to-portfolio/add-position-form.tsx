@@ -19,7 +19,6 @@ export const AddPositionForm = ({ onCloseAction }: { onCloseAction: () => void }
     set,
     submit,
     loading,
-    error,
     noPairs,
     quote,
     setQuote,
@@ -83,7 +82,6 @@ export const AddPositionForm = ({ onCloseAction }: { onCloseAction: () => void }
           </Button>
         </div>
       </div>
-      {error && <p className={styles.formError}>{error}</p>}
     </form>
   );
 };
