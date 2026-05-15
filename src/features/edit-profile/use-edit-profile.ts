@@ -1,18 +1,18 @@
 "use client";
 
-import { useEffect, useRef, type SubmitEvent } from "react";
+import { type SubmitEvent } from "react";
 import { useSession } from "next-auth/react";
 import { apiFetch } from "@/shared/lib/api-fetch";
 import { useFormState } from "@/shared/hooks/useFormState";
 
-export const useEditProfile = () => {
-  const bootstrappedRef = useRef(false);
-  const { data, update } = useSession();
-  const user = data?.user;
-  const { values, setValues, setField, loading, setLoading, feedback, setFeedback } = useFormState({
-    name: user?.name ?? "",
-    email: user?.email ?? "",
-  });
+interface EditProfileInitial {
+  name: string;
+  email: string;
+}
+
+export const useEditProfile = (initial: EditProfileInitial) => {
+  const { update } = useSession();
+  const { values, setField, loading, setLoading, feedback, setFeedback } = useFormState(initial);
 
   const submit = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -35,15 +35,6 @@ export const useEditProfile = () => {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    if (!user || bootstrappedRef.current) return;
-    setValues({
-      name: user.name ?? "",
-      email: user.email ?? "",
-    });
-    bootstrappedRef.current = true;
-  }, [user, setValues]);
 
   return { values, setField, submit, loading, feedback };
 };

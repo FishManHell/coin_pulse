@@ -13,7 +13,13 @@ const ProfilePage = async () => {
       <Header title="Profile" />
       <div className="flex-1 p-6 max-w-2xl space-y-6">
         <RoleBadge />
-        <EditProfileForm readOnly={!session?.user.hasPassword} />
+        <EditProfileForm
+          readOnly={!session?.user.hasPassword}
+          initial={{
+            name: session?.user.name ?? "",
+            email: session?.user.email ?? "",
+          }}
+        />
         {session?.user.hasPassword ? <ChangePasswordForm /> : <GoogleAccountNotice />}
       </div>
     </>

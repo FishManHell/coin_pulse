@@ -4,8 +4,13 @@ import { Button } from "@/shared/ui/button";
 import { LabeledField } from "@/shared/ui/labeled-field";
 import { useEditProfile } from "./use-edit-profile";
 
-export const EditProfileForm = ({ readOnly = false }: {readOnly?: boolean}) => {
-  const { values, setField, submit, loading, feedback } = useEditProfile();
+interface EditProfileFormProps {
+  readOnly?: boolean;
+  initial: { name: string; email: string };
+}
+
+export const EditProfileForm = ({ readOnly = false, initial }: EditProfileFormProps) => {
+  const { values, setField, submit, loading, feedback } = useEditProfile(initial);
 
   return (
     <div className="bg-surface border border-border-base rounded-2xl p-6">
