@@ -11,7 +11,7 @@ const PALETTE = [
   "from-indigo-500 to-purple-400",
   "from-fuchsia-500 to-pink-400",
   "from-green-500 to-emerald-400",
-] as const;
+];
 
 const hash = (input: string): number => {
   let h = 0;
@@ -21,5 +21,4 @@ const hash = (input: string): number => {
   return Math.abs(h);
 };
 
-export const getCoinGradient = (base: string): string =>
-  PALETTE[hash(base) % PALETTE.length];
+export const getCoinGradient = (base: string): string => PALETTE[hash(base) % PALETTE.length];

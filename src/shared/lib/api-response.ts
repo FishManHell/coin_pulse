@@ -9,4 +9,4 @@ export const ERRORS = {
   forbidden: () => apiError("Forbidden", 403),
   notFound: () => apiError("Not found", 404),
   serverError: () => apiError("Server error", 500),
-} as const;
+};

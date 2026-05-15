@@ -45,4 +45,4 @@ export const ROLE_PERMISSIONS = {
 
   canEditOtherProfile: (role: UserRole) =>
     role === USER_ROLES.SUPERADMIN || role === USER_ROLES.ADMIN,
-} as const;
+};
