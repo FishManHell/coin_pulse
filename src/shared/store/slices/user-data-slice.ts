@@ -3,12 +3,12 @@ import type { WatchlistItem } from "@/entities/watchlist";
 import type { PortfolioPosition } from "@/entities/portfolio";
 import type { AppStore, StoreMutators } from "../types";
 
-export type UserDataSlice = {
+export interface UserDataSlice {
   watchlist: WatchlistItem[];
   portfolio: PortfolioPosition[];
   setWatchlist: (items: WatchlistItem[]) => void;
   setPortfolio: (positions: PortfolioPosition[]) => void;
-};
+}
 
 export const createUserDataSlice: StateCreator<
   AppStore,

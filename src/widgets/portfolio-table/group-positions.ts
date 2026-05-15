@@ -1,6 +1,6 @@
 import type { PortfolioPosition } from "@/entities/portfolio";
 
-export type GroupedPosition = {
+export interface GroupedPosition {
   symbol: string;
   name: string;
   quote: string;
@@ -8,7 +8,7 @@ export type GroupedPosition = {
   totalCost: number;
   avgBuyPrice: number;
   transactions: PortfolioPosition[];
-};
+}
 
 export const groupPositions = (positions: PortfolioPosition[]): GroupedPosition[] => {
   const map = new Map<string, PortfolioPosition[]>();

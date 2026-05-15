@@ -1,12 +1,12 @@
 import type { StateCreator } from "zustand";
 import type { AppStore, StoreMutators } from "../types";
 
-export type SelectionSlice = {
+export interface SelectionSlice {
   selectedSymbol: string;
   selectedQuote: string;
   setSelectedSymbol: (symbol: string) => void;
   setSelectedQuote: (quote: string) => void;
-};
+}
 
 export const createSelectionSlice: StateCreator<
   AppStore,

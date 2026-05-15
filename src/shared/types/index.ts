@@ -1,4 +1,4 @@
-export type CoinTicker = {
+export interface CoinTicker {
   symbol: string;
   price: number;
   priceChange: number;
@@ -7,38 +7,29 @@ export type CoinTicker = {
   high24h: number;
   low24h: number;
   iconUrl?: string;
-};
+}
 
-export type KlineInterval = "1m" | "5m" | "15m" | "1h" | "4h" | "1d" | "1w";
-
-export type Kline = {
+export interface Kline {
   time: number;
   open: number;
   high: number;
   low: number;
   close: number;
   volume: number;
-};
+}
 
-export type User = {
+export interface User {
   id: string;
   name: string;
   email: string;
   image?: string;
-};
-
-export type PriceDirection = "up" | "down" | "neutral";
+}
 
 export type TimeRange = "1H" | "24H" | "1W" | "1M" | "1Y";
 
-export type ApiResponse<T> = {
-  data?: T;
-  error?: string;
-};
+export interface CoinMeta { symbol: string; name: string };
 
-export type CoinMeta = { symbol: string; name: string };
-
-export type CoinMetaResponse = {
+export interface CoinMetaResponse {
   names: Record<string, string>;
   pairs: CoinMeta[];
-};
+}

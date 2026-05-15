@@ -3,13 +3,13 @@ import { redirect } from "next/navigation";
 import { authOptions } from "./auth-config";
 import type { UserRole } from "@/shared/types/roles";
 
-export type SessionUser = {
+export interface SessionUser {
   id: string;
   role: UserRole;
   name?: string;
   email?: string;
   image?: string;
-};
+}
 
 export async function requireUser(): Promise<SessionUser> {
   const session = await getServerSession(authOptions);

@@ -1,14 +1,14 @@
-export type PasswordValues = {
+export interface PasswordValues {
   currentPassword: string;
   newPassword: string;
   confirm: string;
-};
+}
 
-type FieldConfig = {
+interface FieldConfig {
   key: keyof PasswordValues;
   label: string;
   placeholder: string;
-};
+}
 
 export const PASSWORD_FIELDS: ReadonlyArray<FieldConfig> = [
   { key: "currentPassword", label: "Current password", placeholder: "••••••••" },

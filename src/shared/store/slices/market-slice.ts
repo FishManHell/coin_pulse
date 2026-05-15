@@ -2,13 +2,13 @@ import type { StateCreator } from "zustand";
 import type { CoinTicker, CoinMeta, CoinMetaResponse } from "@/shared/types";
 import type { AppStore, StoreMutators } from "../types";
 
-export type MarketSlice = {
+export interface MarketSlice {
   prices: Record<string, CoinTicker>;
   coinNames: Record<string, string>;
   tradeablePairs: CoinMeta[];
   updatePrice: (ticker: CoinTicker) => void;
   setCoinMeta: (data: CoinMetaResponse) => void;
-};
+}
 
 export const createMarketSlice: StateCreator<
   AppStore,
