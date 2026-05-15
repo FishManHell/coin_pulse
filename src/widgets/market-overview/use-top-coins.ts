@@ -31,7 +31,7 @@ export const useTopCoins = (initialSymbols: string[]) => {
           setSelectedSymbol(data[0]);
         }
       });
-  }, [selectedQuote]);
+  }, [selectedQuote, setSelectedSymbol]);
 
   useEffect(() => {
     setTimedOut(false);
