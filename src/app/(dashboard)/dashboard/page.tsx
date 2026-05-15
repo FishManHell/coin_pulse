@@ -4,7 +4,7 @@ import { CandlestickChart } from "@/widgets/candlestick-chart";
 import { CoinDetailsPanel } from "@/widgets/coin-details-panel";
 import { fetchTopSymbols } from "@/shared/api/binance";
 import { QuoteSelector } from "@/features/select-quote";
-import { SelectedSymbolStream } from "@/shared/ui/selected-symbol-stream";
+import { SelectedSymbolStream } from "@/entities/coin/components/selected-symbol-stream";
 
 const DashboardPage = async () => {
   const initialSymbols = await fetchTopSymbols(6, "USDT");
