@@ -3,6 +3,7 @@
 import { useAppStore } from "@/shared/store";
 import { useQuoteCurrencies } from "@/shared/hooks/useQuoteCurrencies";
 import { symbolExists } from "@/shared/api/binance-client";
+import { swapQuote } from "@/shared/lib/symbol";
 import {
   Select,
   SelectContent,
@@ -24,16 +25,14 @@ export const QuoteSelector = () => {
     let candidate: string | null = null;
 
     if (oldSymbol.endsWith(selectedQuote)) {
-      const base = oldSymbol.slice(0, -selectedQuote.length);
-      const candidateSymbol = `${base}${newQuote}`;
+      const candidateSymbol = swapQuote(oldSymbol, selectedQuote, newQuote);
       const valid = await symbolExists(candidateSymbol).catch(() => false);
       if (valid) candidate = candidateSymbol;
     }
 
     if (candidate) setSelectedSymbol(candidate);
     setSelectedQuote(newQuote);
-    // If candidate is null/invalid, useTopCoins will set selectedSymbol = top[0]
-    // once its fetch resolves (it only falls back when current symbol is stale).
+    // useTopCoins handles fallback when candidate is null (avoids double-set race).
   };
 
   return (
