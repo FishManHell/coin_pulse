@@ -2,7 +2,7 @@ import type { Kline, TimeRange } from "@/shared/types";
 import { BINANCE_BASE as BASE, CG_MARKETS } from "./endpoints";
 import { tradingPairs } from "./binance-pairs";
 import { buildStablecoinSet } from "./binance-stables";
-import type { MiniTicker } from "./binance-types";
+import type { BinanceKline, MiniTicker } from "./binance-types";
 
 export { tradingPairs } from "./binance-pairs";
 
@@ -80,13 +80,13 @@ export const fetchKlines = async (symbol: string, range: TimeRange): Promise<Kli
   );
   if (!res.ok) throw new Error(`Binance klines error: ${res.status}`);
 
-  const raw: number[][] = await res.json();
-  return raw.map((k) => ({
-    time:   Math.floor(k[0] / 1000),
-    open:   parseFloat(k[1] as unknown as string),
-    high:   parseFloat(k[2] as unknown as string),
-    low:    parseFloat(k[3] as unknown as string),
-    close:  parseFloat(k[4] as unknown as string),
-    volume: parseFloat(k[5] as unknown as string),
+  const raw: BinanceKline[] = await res.json();
+  return raw.map(([openTime, open, high, low, close, volume]) => ({
+    time:   Math.floor(openTime / 1000),
+    open:   parseFloat(open),
+    high:   parseFloat(high),
+    low:    parseFloat(low),
+    close:  parseFloat(close),
+    volume: parseFloat(volume),
   }));
 };

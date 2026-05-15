@@ -21,6 +21,26 @@ export interface MiniTicker {
   quoteVolume: string;
 }
 
+/**
+ * One row of `/klines?…` — Binance returns positional tuples with mixed
+ * primitive types. Timestamps are numeric (ms epoch), prices and volumes
+ * are stringified decimals to preserve precision over the wire.
+ */
+export type BinanceKline = [
+  openTime: number,
+  open: string,
+  high: string,
+  low: string,
+  close: string,
+  volume: string,
+  closeTime: number,
+  quoteAssetVolume: string,
+  trades: number,
+  takerBuyBaseVolume: string,
+  takerBuyQuoteVolume: string,
+  ignore: string,
+];
+
 // ── WebSocket ────────────────────────────────────────────────────────────────
 
 /**
