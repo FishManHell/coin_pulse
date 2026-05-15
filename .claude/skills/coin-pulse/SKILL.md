@@ -3,8 +3,9 @@ name: coin-pulse
 description: >
   Build a crypto dashboard with real-time prices, candlestick charts, watchlist,
   and portfolio tracker. Stack: Next.js 16 App Router, TypeScript, Tailwind CSS v4,
-  TradingView Lightweight Charts v5, Binance WebSocket API, Zustand,
-  MongoDB Atlas, NextAuth v4, role-based access control. Feature-Sliced Design architecture.
+  TradingView Lightweight Charts v5, Binance WebSocket API, Zustand, TanStack Query,
+  sonner toasts, MongoDB Atlas, NextAuth v4, role-based access control.
+  Feature-Sliced Design architecture.
   Use this skill when working on CoinPulse — creating pages, components, API routes,
   WebSocket integration, authentication, charts, watchlist, portfolio, or admin features.
 ---
@@ -24,7 +25,8 @@ Role-based access: superadmin / admin / developer / user.
 | Styling   | Tailwind CSS v4 (CSS variables, no config file)      |
 | Charts    | TradingView Lightweight Charts v5                    |
 | Real-time | Binance WebSocket API (native WebSocket, no socket.io)|
-| State     | Zustand                                              |
+| State     | Zustand (client state) + TanStack Query (server cache)|
+| Toasts    | sonner                                               |
 | Auth      | NextAuth v4 — JWT, Credentials + Google OAuth        |
 | Database  | MongoDB Atlas + Mongoose                             |
 | Deploy    | Vercel — https://coin-pulse-kappa.vercel.app         |
@@ -38,22 +40,27 @@ app → widgets → features → entities → shared
 ```
 
 ```
-app/           — Next.js routing, layouts, providers, API routes
+app/           — Next.js routing, layouts, API routes
+                 _providers/ — SessionProvider, QueryProvider (app-shell, opted out of routing)
 widgets/       — Sidebar, Header, CandlestickChart, MarketOverview,
                  WatchlistTable, PortfolioTable, CoinDetailsPanel, AdminUsersTable
 features/      — add-to-watchlist, remove-from-watchlist,
                  add-to-portfolio, remove-from-portfolio, search-coin,
                  select-quote, filter-watchlist-by-quote, coin-combobox,
-                 edit-profile, change-password
-entities/      — coin/PriceCard, user/auth-config (decomposed into auth/ subfolder:
-                 providers, callbacks, helpers), user/components/RoleBadge
-shared/        — ui (Button, LabeledField, Skeleton, CoinIcon, WatchlistStarButton,
-                 ThemeToggle, SearchInput, …),
-                 lib (utils, db, parse-quote, api-fetch, coin-icon, coin-gradient, symbol),
-                 types,
-                 hooks (usePriceStream, useTheme, useQuoteCurrencies, usePairsForQuote,
-                 useFormState, useFloatingRect),
-                 config (routes — internal route constants),
+                 edit-profile, change-password, admin-manage-users
+entities/      — coin/components/{price-card, selected-symbol-stream},
+                 watchlist/{api.ts, components/{watchlist-initializer, watchlist-provider}},
+                 portfolio/api.ts,
+                 user/{lib/auth, components/RoleBadge}
+shared/        — ui — only generic primitives (Button, SearchInput, Select, Skeleton,
+                      CoinIcon, WatchlistStarButton, ThemeToggle, LabeledField,
+                      GoogleIcon, Input); no domain-coupled or app-shell components
+                 lib (utils, db, parse-quote, api-fetch, coin-icon, coin-gradient, symbol,
+                      use-coin-filter, use-dismiss)
+                 types
+                 hooks (usePriceStream, useTheme, useQuoteCurrencies, useCoinMeta,
+                      useFormState, useFloatingRect, useStaleAfter)
+                 config (routes — internal route constants)
                  store, api
 models/        — Mongoose schemas (server-only): User, WatchlistItem, PortfolioPosition
 scripts/       — Prebuild snapshots (Binance trading pairs)
@@ -91,7 +98,14 @@ Permission matrix lives in `ROLE_PERMISSIONS` — always use it, never hardcode 
 
 ```
 Binance WS (wss://stream.binance.com:9443/stream?streams=...)
-  → usePriceStream hook → Zustand store → components read prices
+  → shared/api/price-stream (ref-counted singleton, auto-reconnect)
+  → Zustand prices slice → components read prices
+
+Server data (GET) → TanStack Query cache (useCoinMeta, useTopCoins, useChartData,
+                    useQuoteCurrencies) → components
+Mutations (POST/PATCH/DELETE) → entities/<X>/api.ts function → useMutation
+                                → onSuccess: Zustand write + toast.success
+                                → onError: toast.error with server message
 
 Next.js client → /api/watchlist, /api/portfolio, /api/profile → MongoDB Atlas
 Next.js client → /api/admin/users → MongoDB Atlas (admin+ only)
@@ -133,16 +147,43 @@ GOOGLE_CLIENT_SECRET   — Google Cloud Console
 
 - Combined streams: `wss://stream.binance.com:9443/stream?streams=btcusdt@ticker/ethusdt@ticker`
 - Single symbol ticker fields: `s`=symbol, `c`=price, `P`=% change, `p`=change, `v`=volume, `h`=high, `l`=low
-- Hook uses `cancelled` flag to handle React StrictMode double-invoke without console errors
+- Connection lives in `shared/api/price-stream.ts` as a module-level singleton.
+  Ref-counted subscriptions coalesce mount/unmount cycles via `queueMicrotask` —
+  StrictMode doesn't churn the socket. Reconnect on unexpected drops: `onclose`
+  resets activeSymbols and schedules a single delayed reconcile after 5s.
+- Pure parsing helpers (`parseTicker`, `buildStreamUrl`) live in
+  `shared/api/binance-stream-parse.ts`; the state machine stays in price-stream.ts.
 
 ## Binance Trading Pairs — Build-Time Snapshot
 
 The `symbol → quoteAsset` map is snapshotted at build time into
 `shared/api/binance-pairs.generated.json` by `scripts/generate-binance-pairs.mjs`
-(runs as `prebuild` in `package.json`). `shared/api/binance.ts` imports it as a
-module-level Map. Never fetch `/api/v3/exchangeInfo` at runtime — its ~22MB
-response exceeds Next 16's data cache 2MB per-item limit and `cache: "no-store"`
-is ignored by Turbopack, so each call would re-download the full payload.
+(runs as `prebuild` in `package.json`). `shared/api/binance-pairs.ts` imports it as a
+module-level Map (re-exported by `binance.ts` for compatibility). Never fetch
+`/api/v3/exchangeInfo` at runtime — its ~22MB response exceeds Next 16's data
+cache 2MB per-item limit and `cache: "no-store"` is ignored by Turbopack, so
+each call would re-download the full payload.
+
+## shared/api Module Layout
+
+The Binance integration is split by concern, not by function-per-file:
+
+- `binance.ts` — public REST fetchers: `fetchQuoteCurrencies`, `fetchTopSymbols`,
+  `fetchKlines`. `fetchTopSymbols` runs a single-pass loop (precomputed base +
+  parsed volume; sort uses cached numbers) and degrades gracefully when
+  CoinGecko returns non-OK (skips the crypto allowlist filter instead of
+  returning empty).
+- `binance-pairs.ts` — `tradingPairs` Map from the build-time snapshot.
+- `binance-stables.ts` — `buildStablecoinSet(tickers)` helper (USD-stablecoin
+  detection by ≈$1 USDT price). Shared by both top-coins and quote-currencies
+  fetchers.
+- `binance-types.ts` — on-the-wire shapes for both REST (`MiniTicker`,
+  `BinanceKline` tuple) and WS (`BinanceTickerEvent`, `BinanceStreamEnvelope`).
+- `binance-client.ts` — `symbolExists` (REST `ticker/price` probe).
+- `binance-stream-parse.ts` — pure WS helpers (parseTicker, buildStreamUrl).
+- `price-stream.ts` — singleton WS state machine (lifecycle + ref-count +
+  reconcile + subscribe + auto-reconnect).
+- `endpoints.ts` — base URLs (`BINANCE_BASE`, `CG_MARKETS`).
 
 ## References
 

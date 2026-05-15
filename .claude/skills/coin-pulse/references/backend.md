@@ -134,6 +134,36 @@ Always return consistent error shape: `{ error: string }` with correct HTTP stat
 - Admin routes: double-check role on both list and mutation endpoints
 - superadmin cannot be deleted by admin — check `canChangeRole` before mutating
 
+## apiFetch — Client Wrapper for Auth-Sensitive Calls
+
+`shared/lib/api-fetch.ts` wraps `fetch` with global handling for 401/403:
+
+- `401`: shows a "Session expired" toast, then calls `signOut({ callbackUrl: ROUTES.login })`,
+  then throws `Error("Unauthorized")` so the caller's `mutationFn` routes to `onError`.
+- `403`: shows a "Permission denied" toast and returns the response so the caller
+  can decide.
+
+All mutation API functions (`entities/<X>/api.ts`, `features/admin-manage-users/api.ts`)
+use `apiFetch` instead of raw `fetch`. Read-only Query hooks use plain `fetch` since
+the endpoints they hit don't require auth gating beyond session presence.
+
+## shared/api Module Layout
+
+The Binance integration is split by concern:
+
+- `binance.ts` — public REST fetchers (`fetchQuoteCurrencies`, `fetchTopSymbols`,
+  `fetchKlines`). `fetchTopSymbols` is a single-pass loop with precomputed base +
+  volume; degrades gracefully when CoinGecko returns non-OK.
+- `binance-pairs.ts` — `tradingPairs` Map from the build-time snapshot.
+- `binance-stables.ts` — `buildStablecoinSet` helper used by both quote-currencies
+  and top-symbols fetchers.
+- `binance-types.ts` — REST (`MiniTicker`, `BinanceKline` tuple) and WS shapes.
+- `binance-stream-parse.ts` — pure WS parsing helpers (parseTicker, buildStreamUrl).
+- `price-stream.ts` — singleton WS state machine with ref-counted subscriptions
+  and auto-reconnect on unexpected drops.
+- `binance-client.ts` — `symbolExists` REST probe.
+- `endpoints.ts` — base URLs.
+
 ## Binance Trading Pairs — Build-Time Snapshot
 
 Trading-pair metadata (`symbol → quoteAsset` map) is snapshotted to

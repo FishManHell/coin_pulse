@@ -24,20 +24,26 @@
 
 ## Real-Time Data Pattern
 
-Binance WebSocket connection lives in `shared/hooks/usePriceStream.ts`.
-It feeds data into Zustand store. Components read from the store only — never connect to WebSocket directly.
+Binance WS connection is a **module-level singleton** in `shared/api/price-stream.ts`.
+The `subscribe(symbols)` API is ref-counted: many components can subscribe to overlapping
+symbol sets — internally it coalesces into one WS via `queueMicrotask` reconcile. The
+`usePriceStream(symbols)` hook in `shared/hooks/` is a thin React adapter around it.
+Components read prices from the Zustand `prices` slice — never connect to WS directly.
 
 ```
-Binance WS → usePriceStream hook → Zustand store → component reads state
+Binance WS → price-stream singleton → Zustand prices slice → component reads state
 ```
 
-WebSocket URL format for combined streams:
-```
-wss://stream.binance.com:9443/stream?streams=btcusdt@ticker/ethusdt@ticker
-```
+Recovery: unexpected drops route through `onclose` (which fires after `onerror` per
+the WS spec) — it clears `activeSymbols` and schedules a single reconnect after 5s.
+The intentional-close path nulls handlers first, so it doesn't re-trigger reconnect.
+Don't add SSR guards inside the module — the public `subscribe()` already early-returns
+when `window` is undefined.
+
+Pure helpers (`parseTicker`, `buildStreamUrl`) live in `shared/api/binance-stream-parse.ts` —
+the state machine in price-stream.ts only orchestrates I/O.
 
 Price change: flash green if up, red if down — animate via `flash-up` / `flash-down` CSS classes.
-Use `cancelled` flag in useEffect cleanup to handle React StrictMode double-invoke.
 
 ## Theme System
 
@@ -53,14 +59,64 @@ Internally it reads `resolvedTheme` from `next-themes` and falls back to `"light
 
 TradingView chart: update via `chart.applyOptions()` when theme changes — don't recreate the chart.
 
-## Data-Fetch Hooks Pattern
+## Data-Fetch Pattern — TanStack Query
 
-Per-endpoint data needs to go through tiny shared hooks in `shared/hooks/`:
+All server data goes through TanStack Query. `QueryProvider` lives in `app/_providers/`
+with global defaults: `staleTime: 30_000`, `refetchOnWindowFocus: false`, `retry: 1`.
+Per-hook overrides for stable reference data (e.g. `useCoinMeta` sets `staleTime: 30min`
+matching the 24h server `unstable_cache`).
 
-- `useQuoteCurrencies()` → `string[]`. Fetches `/api/quote-currencies` with a `cancelled` flag and a defensive `Array.isArray && length` check before replacing the default `["USDT"]`.
-- `usePairsForQuote(quote)` → `CoinMeta[]`. Fetches `/api/coin-meta?quote=X`, resets pairs on quote change, has cancellation cleanup.
+| Hook | Returns | Endpoint |
+|---|---|---|
+| `useCoinMeta(quote)` | `{ names, pairs }` | `/api/coin-meta?quote=X` |
+| `useTopCoins(initial)` | `{ symbols, fetching, timedOut }` | `/api/top-coins?quote=…` |
+| `useChartData()` | `{ klines, loading, range, setRange, chartType, setChartType }` | Binance `/klines` direct |
+| `useQuoteCurrencies()` | `string[]` (fallback `["USDT"]`) | `/api/quote-currencies` |
 
-Consumers (`QuoteSelector`, `usePositionForm`, …) read these hooks and stay free of fetch boilerplate. Don't reach for SWR / React Query for two GETs; the in-house pattern stays cheap.
+**Single source of truth**: server data lives in the Query cache only, never duplicated
+into Zustand. The Zustand market slice holds streaming prices and `selectedSymbol`/
+`selectedQuote` (genuine client state); coin names and tradeable pairs are read via
+`useCoinMeta` everywhere they're needed. Multiple consumers (PriceCard ×N, combobox,
+filter) share one fetch via the `["coin-meta", quote]` queryKey.
+
+## Mutation + Toast Pattern
+
+All mutations use `useMutation` + `sonner` toasts. The wire call lives in an
+entity/feature API file that **throws on `!res.ok`** with the server-provided
+error message:
+
+```ts
+// entities/portfolio/api.ts
+export const createPortfolioPosition = async (input) => {
+  const res = await apiFetch("/api/portfolio", { method: "POST", … });
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(body.error ?? "Failed to add position");
+  return body;
+};
+```
+
+The hook stays pure orchestration:
+
+```ts
+const mutation = useMutation({
+  mutationFn: createPortfolioPosition,
+  onSuccess: (position, input) => { setPortfolio([position, ...]); toast.success(`${input.name} added`); },
+  onError: (err) => { toast.error("Couldn't add position", { description: err.message }); },
+});
+```
+
+`isPending` becomes the loading flag; no manual `useState(loading)` + try/finally.
+Mutual-exclusion within a hook (e.g. admin role/delete) derives `loadingId` from
+each mutation's `variables` while `isPending`.
+
+## Entity API Layer (FSD)
+
+Domain-scoped REST calls live in `entities/<entity>/api.ts` (`createPortfolioPosition`,
+`deletePortfolioPosition`, `createWatchlistItem`, `deleteWatchlistItem`).
+Feature-scoped calls live in `features/<feature>/api.ts` (admin actions). Functions
+return parsed bodies on success, throw `Error(serverMessage)` on `!ok`. Consumer
+hooks (in `features/`) compose these via `useMutation` + toasts — no inline `fetch`
+inside `mutationFn`.
 
 ## Quote-Aware Form Independence
 
@@ -175,6 +231,33 @@ const { values, setField, ... } = useFormState(initial);
 ```
 
 `useSession()` may still live inside the hook for `update()` after a successful PATCH — that's a different concern (sync session cache after mutation).
+
+## React Effects — Senior Discipline
+
+`useEffect` is for syncing with **external systems** only (DOM, WebSocket, chart lib,
+browser APIs). For state that depends on props/state, prefer:
+- **Derived in render** — compute on the fly, no state at all
+- **Adjusting state on prop change** — canonical React pattern with prev-state slots
+  (see `coin-icon.tsx` resetting load state on `base` change, `coin-combobox` syncing
+  query to selectedShort on dropdown close)
+- **`useSyncExternalStore`** — for "is this client?" guards (`theme-toggle.tsx`)
+
+Never use `useEffect` to fetch — that's TanStack Query's job. The `react-hooks/
+set-state-in-effect` ESLint rule is `warn` (not error) — evaluate per case rather
+than blindly silencing.
+
+## shared/ui — Generic Primitives Only
+
+`shared/ui/` holds **reusable UI primitives** with no domain knowledge: Button, Input,
+SearchInput, Select, Skeleton, CoinIcon, WatchlistStarButton, ThemeToggle, LabeledField,
+GoogleIcon. As soon as a component reads from a domain slice (e.g. `selectedSymbol`,
+`watchlist`) or wraps an app-shell concern (next-auth, TanStack Query), it belongs
+elsewhere:
+
+- Domain-coupled components → `entities/<entity>/components/`
+  (selected-symbol-stream, watchlist-initializer, watchlist-provider, price-card)
+- App-shell providers → `app/_providers/` (session-provider, query-provider).
+  Underscore prefix opts the directory out of Next App Router routing.
 
 ## Internal Routes — `ROUTES` Const
 

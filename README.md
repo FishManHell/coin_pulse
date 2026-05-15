@@ -48,8 +48,9 @@ CoinPulse is a full-stack crypto dashboard that streams live prices from Binance
 | Language | TypeScript (strict) |
 | Styling | Tailwind CSS v4 |
 | Charts | TradingView Lightweight Charts v5 |
-| Real-time | Binance WebSocket API |
-| State | Zustand |
+| Real-time | Binance WebSocket API (singleton, ref-counted, auto-reconnect) |
+| State | Zustand (client) + TanStack Query (server cache) |
+| Toasts | sonner |
 | Auth | NextAuth v4 — JWT, Credentials + Google OAuth |
 | Database | MongoDB Atlas + Mongoose |
 | Deploy | Vercel |
@@ -65,20 +66,31 @@ app/ → widgets/ → features/ → entities/ → shared/
 ```
 
 ```
-app/          Next.js routing, layouts, providers
-widgets/      Sidebar, Header, CandlestickChart, MarketOverview, WatchlistTable, PortfolioTable
-features/     add-to-watchlist, remove-from-watchlist, add-to-portfolio, remove-from-portfolio,
-              search-coin, select-quote, filter-watchlist-by-quote, coin-combobox,
-              edit-profile, change-password
-entities/     coin (PriceCard), user (auth-config decomposed into auth/ subfolder, components/RoleBadge)
-shared/       ui (Button, LabeledField, Skeleton, SearchInput, …),
-              lib (cn, formatters, db, parse-quote, api-fetch, symbol),
-              hooks (usePriceStream, useTheme, useQuoteCurrencies, usePairsForQuote,
-              useFormState, useFloatingRect),
+app/          Next.js routing, layouts, API routes
+              _providers/   SessionProvider, QueryProvider (app-shell)
+widgets/      Sidebar, Header, CandlestickChart, MarketOverview, WatchlistTable,
+              PortfolioTable, CoinDetailsPanel, AdminUsersTable
+features/     add-to-watchlist, remove-from-watchlist, add-to-portfolio,
+              remove-from-portfolio, admin-manage-users, search-coin, select-quote,
+              filter-watchlist-by-quote, coin-combobox, edit-profile, change-password
+entities/     coin/components/{price-card, selected-symbol-stream},
+              watchlist/{api.ts, components/{watchlist-initializer, watchlist-provider}},
+              portfolio/api.ts,
+              user/{lib/auth, components/RoleBadge}
+shared/       ui (generic primitives only — Button, SearchInput, Select, Skeleton, …),
+              lib (cn, formatters, db, parse-quote, api-fetch with 401/403 toasts, symbol),
+              hooks (usePriceStream, useTheme, useCoinMeta, useQuoteCurrencies,
+                     useFormState, useFloatingRect, useStaleAfter),
               config (routes), store, types, api
 models/       Mongoose schemas (server-only)
 scripts/      Prebuild snapshots (Binance trading pairs)
 ```
+
+### Data flow
+
+- **Streaming prices**: Binance WS → `shared/api/price-stream.ts` (ref-counted singleton with auto-reconnect on `onclose`) → Zustand `prices` slice → components.
+- **Server data**: TanStack Query is the single source of truth (e.g. `useCoinMeta(quote)` for coin names + tradeable pairs). Multiple consumers share one fetch via queryKey dedup.
+- **Mutations**: entity-scoped API functions in `entities/<X>/api.ts` throw on `!res.ok`; hooks compose them via `useMutation` + sonner toasts. The `apiFetch` wrapper handles 401 (signOut) and 403 (toast) globally.
 
 ### Build-time data
 
