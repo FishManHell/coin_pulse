@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { SessionProvider } from "@/shared/ui/session-provider";
+import { QueryProvider } from "@/shared/ui/query-provider";
 import "./globals.css";
 import {ReactNode} from "react";
 
@@ -22,7 +23,9 @@ const RootLayout = ({children,}: Readonly<{ children: ReactNode }>) =>  {
       <body className="min-h-full bg-bg text-text-primary antialiased" suppressHydrationWarning>
         <ThemeProvider attribute="class" defaultTheme="light" disableTransitionOnChange>
           <SessionProvider>
-            {children}
+            <QueryProvider>
+              {children}
+            </QueryProvider>
           </SessionProvider>
         </ThemeProvider>
       </body>
