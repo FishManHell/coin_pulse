@@ -1,25 +1,6 @@
 import { useAppStore } from "@/shared/store";
-import type { CoinTicker } from "@/shared/types";
-import type { BinanceTickerEvent, BinanceStreamEnvelope } from "./binance-types";
-
-const BINANCE_WS_BASE = "wss://stream.binance.com:9443";
-
-// ─── Parsing ─────────────────────────────────────────────────────────────────
-
-const parseTicker = (event: BinanceTickerEvent): CoinTicker => ({
-  symbol: event.s,
-  price: parseFloat(event.c),
-  priceChange: parseFloat(event.p),
-  priceChangePercent: parseFloat(event.P),
-  volume: parseFloat(event.v),
-  high24h: parseFloat(event.h),
-  low24h: parseFloat(event.l),
-});
-
-const buildStreamUrl = (symbols: string[]): string => {
-  const streams = symbols.map((s) => `${s.toLowerCase()}@ticker`).join("/");
-  return `${BINANCE_WS_BASE}/stream?streams=${streams}`;
-};
+import type { BinanceStreamEnvelope, BinanceTickerEvent } from "./binance-types";
+import { buildStreamUrl, parseTicker } from "./binance-stream-parse";
 
 // ─── Connection lifecycle ────────────────────────────────────────────────────
 
@@ -52,8 +33,9 @@ const openSocket = (symbols: string[]) => {
   nextSocket.onmessage = (event) => {
     // Ignore late messages from a socket that's already been replaced.
     if (nextSocket !== activeSocket) return;
-    const payload = JSON.parse(event.data) as BinanceStreamEnvelope<BinanceTickerEvent> | BinanceTickerEvent;
-    const ticker = "data" in payload ? payload.data : payload;
+    // Combined-stream endpoint always wraps payloads in the envelope shape.
+    const payload = JSON.parse(event.data) as BinanceStreamEnvelope<BinanceTickerEvent>;
+    const ticker = payload.data;
     if (ticker?.s) useAppStore.getState().updatePrice(parseTicker(ticker));
   };
 
