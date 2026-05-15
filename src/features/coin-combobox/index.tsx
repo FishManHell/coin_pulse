@@ -1,13 +1,15 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect, useMemo } from "react";
-import { createPortal } from "react-dom";
-import { Search } from "lucide-react";
+import { useState, useRef, useEffect, useMemo, type ChangeEvent } from "react";
 import { useDismiss } from "@/shared/lib/use-dismiss";
+import { stripQuote } from "@/shared/lib/symbol";
 import { cn } from "@/shared/lib/utils";
+import { SearchInput } from "@/shared/ui/search-input";
+import { useFloatingRect } from "@/shared/hooks/useFloatingRect";
 import type { CoinMeta } from "@/shared/types";
+import { CoinDropdown } from "./CoinDropdown";
 
-type Props = {
+interface CoinComboboxProps {
   value: string;
   onChange: (coin: CoinMeta) => void;
   pairs: CoinMeta[];
@@ -15,7 +17,7 @@ type Props = {
   disabled?: boolean;
   placeholder?: string;
   className?: string;
-};
+}
 
 export const CoinCombobox = ({
   value,
@@ -25,18 +27,15 @@ export const CoinCombobox = ({
   disabled,
   placeholder = "Search coin…",
   className,
-}: Props) => {
+}: CoinComboboxProps) => {
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
-  const [rect, setRect] = useState<DOMRect | null>(null);
   const [userSelected, setUserSelected] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const stripQuote = useCallback(
-    (sym: string) => (sym.endsWith(quote) ? sym.slice(0, -quote.length) : sym),
-    [quote],
-  );
+  useDismiss(containerRef, () => setOpen(false), open);
+  const rect = useFloatingRect(containerRef, open);
 
   const results = useMemo(() => {
     const q = query.toLowerCase().trim();
@@ -46,39 +45,12 @@ export const CoinCombobox = ({
       .slice(0, 8);
   }, [query, pairs]);
 
-  const selected = useMemo(
-    () => pairs.find((c) => c.symbol === value),
-    [pairs, value],
-  );
+  const selected = pairs.find((c) => c.symbol === value);
+  const selectedShort = selected ? stripQuote(selected.symbol, quote) : "";
 
-  const selectedShort = selected ? stripQuote(selected.symbol) : "";
-
-  const close = useCallback(() => {
-    setOpen(false);
-  }, []);
-
-  useDismiss(containerRef, close, open);
-
-  // Sync input value with selected coin only after explicit user selection.
-  // Skip while selectedShort is empty — pairs may be momentarily absent during
-  // a quote-switch fetch, and we don't want to wipe the visible coin name.
   useEffect(() => {
     if (!open && userSelected && selectedShort) setQuery(selectedShort);
   }, [open, userSelected, selectedShort]);
-
-  useEffect(() => {
-    if (!open) return;
-    const update = () => {
-      if (containerRef.current) setRect(containerRef.current.getBoundingClientRect());
-    };
-    update();
-    window.addEventListener("scroll", update, true);
-    window.addEventListener("resize", update);
-    return () => {
-      window.removeEventListener("scroll", update, true);
-      window.removeEventListener("resize", update);
-    };
-  }, [open]);
 
   const handleSelect = (coin: CoinMeta) => {
     onChange(coin);
@@ -87,62 +59,32 @@ export const CoinCombobox = ({
     inputRef.current?.blur();
   };
 
-  const showDropdown = open && rect && query.length > 0;
+  const handleQueryChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setQuery(e.target.value);
+    setOpen(true);
+  };
 
-  const dropdown = showDropdown && (
-    <div
-      style={{
-        position: "fixed",
-        top: rect.bottom + 8,
-        left: rect.left,
-        width: rect.width,
-        zIndex: 60,
-      }}
-      className="bg-surface border border-border-base rounded-2xl shadow-xl max-h-72 overflow-y-auto"
-    >
-      {results.length > 0 ? (
-        results.map((coin) => (
-          <button
-            key={coin.symbol}
-            type="button"
-            onMouseDown={(e) => { e.preventDefault(); handleSelect(coin); }}
-            className={cn(
-              "w-full flex items-center gap-2 px-3 py-2 text-left hover:bg-surface-hover transition-colors",
-              "border-b border-border-base last:border-0",
-              coin.symbol === value && "bg-surface-hover",
-            )}
-          >
-            <span className="font-semibold text-sm text-text-primary">
-              {stripQuote(coin.symbol)}
-            </span>
-            <span className="text-xs text-text-muted truncate">{coin.name}</span>
-          </button>
-        ))
-      ) : (
-        <p className="text-sm text-text-muted px-3 py-2">No coins found</p>
-      )}
-    </div>
-  );
+  const handleFocus = () => setOpen(true);
 
   return (
     <div ref={containerRef} className={cn("relative", className)}>
-      <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none z-10" />
-      <input
+      <SearchInput
         ref={inputRef}
-        type="text"
         value={query}
-        onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
-        onFocus={() => setOpen(true)}
+        onChange={handleQueryChange}
+        onFocus={handleFocus}
         disabled={disabled}
         placeholder={selectedShort || placeholder}
-        className={cn(
-          "w-full bg-surface border border-border-base rounded-xl pl-9 pr-3 py-2 text-sm",
-          "text-text-primary placeholder:text-text-muted outline-none",
-          "focus:border-accent-indigo transition-colors",
-          "disabled:opacity-50 disabled:cursor-not-allowed",
-        )}
       />
-      {typeof document !== "undefined" && dropdown && createPortal(dropdown, document.body)}
+      {open && rect && query.length > 0 && (
+        <CoinDropdown
+          results={results}
+          selectedSymbol={value}
+          quote={quote}
+          rect={rect}
+          onSelect={handleSelect}
+        />
+      )}
     </div>
   );
 };
