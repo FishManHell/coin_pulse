@@ -1,6 +1,7 @@
 "use client";
 
 import { useAppStore } from "@/shared/store";
+import { useCoinMeta } from "@/shared/hooks/useCoinMeta";
 import { useAddToWatchlist } from "@/features/add-to-watchlist";
 import { useRemoveFromWatchlist } from "@/features/remove-from-watchlist";
 import { CoinHeader } from "./CoinHeader";
@@ -19,8 +20,9 @@ export const CoinDetailsPanel = () => {
   const { add }    = useAddToWatchlist();
   const { remove } = useRemoveFromWatchlist();
 
+  const { names }   = useCoinMeta(selectedQuote);
   const base        = selectedSymbol.slice(0, -selectedQuote.length);
-  const displayName = useAppStore((s) => s.coinNames[base]);
+  const displayName = names[base];
   const isWatched   = watchlist.some((w) => w.symbol === selectedSymbol);
 
   const onToggleWatch = () => {

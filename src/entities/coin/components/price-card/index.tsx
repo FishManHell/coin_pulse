@@ -3,6 +3,7 @@
 import { KeyboardEvent } from "react";
 import { cn } from "@/shared/lib/utils";
 import { useAppStore } from "@/shared/store";
+import { useCoinMeta } from "@/shared/hooks/useCoinMeta";
 import { useAddToWatchlist } from "@/features/add-to-watchlist";
 import { useRemoveFromWatchlist } from "@/features/remove-from-watchlist";
 import type { CoinTicker } from "@/shared/types";
@@ -21,13 +22,13 @@ interface PriceCardProps {
 
 export const PriceCard = ({ ticker, onClick, selected }: Readonly<PriceCardProps>) => {
   const selectedQuote = useAppStore((s) => s.selectedQuote);
-  const coinNames = useAppStore((s) => s.coinNames);
+  const { names } = useCoinMeta(selectedQuote);
   const watchlist = useAppStore((s) => s.watchlist);
   const { add } = useAddToWatchlist();
   const { remove } = useRemoveFromWatchlist();
 
   const base = ticker.symbol.slice(0, -selectedQuote.length);
-  const displayName = coinNames[base] ?? base;
+  const displayName = names[base] ?? base;
   const isWatched = watchlist.some((w) => w.symbol === ticker.symbol);
   const flash = usePriceFlash(ticker.price);
 

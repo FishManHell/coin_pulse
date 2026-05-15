@@ -2,7 +2,7 @@
 
 import { useCallback, useState, SubmitEvent } from "react";
 import { useQuoteCurrencies } from "@/shared/hooks/useQuoteCurrencies";
-import { usePairsForQuote } from "@/shared/hooks/usePairsForQuote";
+import { useCoinMeta } from "@/shared/hooks/useCoinMeta";
 import { useAddToPortfolio } from "./use-add-to-portfolio";
 import { swapQuote } from "@/shared/lib/symbol";
 
@@ -20,7 +20,7 @@ export const usePositionForm = ({ onSuccessAction }: { onSuccessAction: () => vo
   const [fields, setFields] = useState<Fields>(initialFields);
   const [quote, setQuote] = useState<string>(DEFAULT_QUOTE);
   const quotes = useQuoteCurrencies();
-  const pairs = usePairsForQuote(quote);
+  const { pairs } = useCoinMeta(quote);
 
   // Effective symbol: user's choice if still valid for current pairs, otherwise the first pair.
   // Derived in render — no effect needed.
