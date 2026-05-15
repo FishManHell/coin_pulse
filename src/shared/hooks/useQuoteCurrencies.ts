@@ -1,23 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 
-export const useQuoteCurrencies = () => {
-  const [quotes, setQuotes] = useState<string[]>(["USDT"]);
+const FALLBACK_QUOTES = ["USDT"];
 
-  useEffect(() => {
-    let cancelled = false;
-    fetch("/api/quote-currencies")
-      .then((r) => r.json())
-      .then((data: string[]) => {
-        if (cancelled) return;
-        if (Array.isArray(data) && data.length) setQuotes(data);
-      })
-      .catch(() => {});
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  return quotes;
+export const useQuoteCurrencies = (): string[] => {
+  const { data } = useQuery({
+    queryKey: ["quote-currencies"],
+    queryFn: async (): Promise<string[]> => {
+      const res = await fetch("/api/quote-currencies");
+      if (!res.ok) return FALLBACK_QUOTES;
+      const data = await res.json();
+      return Array.isArray(data) && data.length ? data : FALLBACK_QUOTES;
+    },
+  });
+  return data ?? FALLBACK_QUOTES;
 };
