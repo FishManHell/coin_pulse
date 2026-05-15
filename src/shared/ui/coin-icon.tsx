@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { cn } from "@/shared/lib/utils";
 import { getCoinIconUrl } from "@/shared/lib/coin-icon";
 import { getCoinGradient } from "@/shared/lib/coin-gradient";
@@ -22,11 +22,14 @@ interface CoinIconProps {
 export const CoinIcon = ({ base, size = "md", className }: Readonly<CoinIconProps>) => {
   const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [prevBase, setPrevBase] = useState(base);
 
-  useEffect(() => {
+  // Reset load state when base changes — canonical "adjusting state on prop change" pattern.
+  if (prevBase !== base) {
+    setPrevBase(base);
     setLoaded(false);
     setFailed(false);
-  }, [base]);
+  }
 
   return (
     <div className={cn("relative rounded-full shrink-0", sizeClasses[size], className)}>
