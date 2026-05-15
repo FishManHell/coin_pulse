@@ -14,8 +14,18 @@ import { usePositionForm } from "./use-position-form";
 import { styles } from "./styles";
 
 export const AddPositionForm = ({ onCloseAction }: { onCloseAction: () => void }) => {
-  const { fields, set, submit, loading, error, noPairs, quote, setQuote, quotes, pairs } =
-    usePositionForm({ onSuccessAction: onCloseAction });
+  const {
+    fields,
+    set,
+    submit,
+    loading,
+    error,
+    noPairs,
+    quote,
+    setQuote,
+    quotes,
+    pairs
+  } = usePositionForm({ onSuccessAction: onCloseAction });
 
   return (
     <form onSubmit={submit} className={styles.formWrap}>

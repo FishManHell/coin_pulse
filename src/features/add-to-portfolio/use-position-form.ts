@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState, SubmitEvent } from "react";
 import { useQuoteCurrencies } from "@/shared/hooks/useQuoteCurrencies";
 import { usePairsForQuote } from "@/shared/hooks/usePairsForQuote";
 import { useAddToPortfolio } from "./use-add-to-portfolio";
+import { swapQuote } from "@/shared/lib/symbol";
 
 interface Fields {
   symbol: string;
@@ -23,11 +24,7 @@ export const usePositionForm = ({ onSuccessAction }: { onSuccessAction: () => vo
 
   const handleSetQuote = useCallback((newQuote: string) => {
     if (newQuote === quote) return;
-    setFields((f) => {
-      if (!f.symbol) return f;
-      const base = f.symbol.endsWith(quote) ? f.symbol.slice(0, -quote.length) : f.symbol;
-      return { ...f, symbol: `${base}${newQuote}` };
-    });
+    setFields((f) => f.symbol ? { ...f, symbol: swapQuote(f.symbol, quote, newQuote) } : f);
     setQuote(newQuote);
   }, [quote]);
 

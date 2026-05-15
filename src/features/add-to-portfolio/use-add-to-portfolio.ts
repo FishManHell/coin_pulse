@@ -5,13 +5,13 @@ import { useAppStore } from "@/shared/store";
 import { apiFetch } from "@/shared/lib/api-fetch";
 import type { PortfolioPosition } from "@/entities/portfolio";
 
-type AddInput = {
+interface AddInput {
   symbol: string;
   name: string;
   quote: string;
   quantity: number;
   buyPrice: number;
-};
+}
 
 export const useAddToPortfolio = () => {
   const [loading, setLoading] = useState(false);
