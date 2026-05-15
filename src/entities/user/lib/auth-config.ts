@@ -1,4 +1,5 @@
 import type { NextAuthOptions } from "next-auth";
+import { ROUTES } from "@/shared/config/routes";
 import { providers } from "./auth/providers";
 import { callbacks } from "./auth/callbacks";
 import { SESSION_MAX_AGE } from "./auth/helpers";
@@ -9,7 +10,7 @@ export const authOptions: NextAuthOptions = {
   providers,
   callbacks,
   pages: {
-    signIn: "/login",
-    error: "/login",
+    signIn: ROUTES.login,
+    error: ROUTES.login,
   },
 };

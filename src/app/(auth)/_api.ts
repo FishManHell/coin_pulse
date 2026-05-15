@@ -1,4 +1,5 @@
 import { signIn } from "next-auth/react";
+import { ROUTES } from "@/shared/config/routes";
 
 export const loginWithCredentials = async (email: string, password: string) => {
   const result = await signIn("credentials", { email, password, redirect: false });
@@ -13,5 +14,5 @@ export const registerAndSignIn = async (name: string, email: string, password: s
   });
   const data = await res.json();
   if (!res.ok) return { error: data.error ?? "Registration failed" };
-  await signIn("credentials", { email, password, callbackUrl: "/dashboard" });
+  await signIn("credentials", { email, password, callbackUrl: ROUTES.dashboard });
 };

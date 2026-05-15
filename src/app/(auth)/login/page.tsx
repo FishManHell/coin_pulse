@@ -8,6 +8,7 @@ import { loginWithCredentials } from "../_api";
 import { GoogleSignInButton } from "../_components/google-sign-in-button";
 import { AuthRedirectLink } from "../_components/auth-redirect-link";
 import { AuthDivider } from "../_components/auth-divider";
+import { ROUTES } from "@/shared/config/routes";
 
 const LoginPage = () => {
   const router = useRouter();
@@ -17,7 +18,7 @@ const LoginPage = () => {
     async (values) => {
       const result = await loginWithCredentials(values.email, values.password);
       if (result?.error) return result;
-      router.push("/dashboard");
+      router.push(ROUTES.dashboard);
     }
   );
 
@@ -28,7 +29,7 @@ const LoginPage = () => {
         <p className="text-text-secondary text-sm mt-1">Sign in to your account</p>
       </div>
 
-      <GoogleSignInButton callbackUrl="/dashboard" />
+      <GoogleSignInButton callbackUrl={ROUTES.dashboard} />
 
       <AuthDivider />
 
@@ -56,7 +57,7 @@ const LoginPage = () => {
           {loading ? "Signing in…" : "Sign in"}
         </Button>
       </form>
-      <AuthRedirectLink text="No account?" linkText="Create one" href="/register" />
+      <AuthRedirectLink text="No account?" linkText="Create one" href={ROUTES.register} />
     </div>
   );
 }

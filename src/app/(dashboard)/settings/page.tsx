@@ -5,10 +5,11 @@ import { Header } from "@/widgets/header";
 import { AdminUsersTable } from "@/widgets/admin-users-table";
 import connectDB from "@/shared/lib/db";
 import User from "@/models/User";
+import { ROUTES } from "@/shared/config/routes";
 
 const SettingsPage = async () => {
   const actor = await requireUser();
-  if (!ROLE_PERMISSIONS.canAccessSettings(actor.role)) redirect("/dashboard");
+  if (!ROLE_PERMISSIONS.canAccessSettings(actor.role)) redirect(ROUTES.dashboard);
 
   await connectDB();
   const rawUsers = await User.find({}).select("-password").sort({ createdAt: -1 }).lean();

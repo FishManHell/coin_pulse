@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { TrendingUp, MoveLeft } from "lucide-react";
+import { ROUTES } from "@/shared/config/routes";
 
 export default function NotFound() {
   return (
     <div className="min-h-screen bg-bg flex flex-col items-center justify-center p-6 text-center">
       {/* Logo */}
-      <Link href="/dashboard" className="flex items-center gap-2.5 mb-12">
+      <Link href={ROUTES.dashboard} className="flex items-center gap-2.5 mb-12">
         <div className="w-9 h-9 rounded-xl gradient-accent flex items-center justify-center">
           <TrendingUp size={18} className="text-white" />
         </div>
@@ -30,7 +31,7 @@ export default function NotFound() {
       </p>
 
       <Link
-        href="/dashboard"
+        href={ROUTES.dashboard}
         className="flex items-center gap-2 gradient-accent text-white font-medium px-6 py-3 rounded-xl hover:opacity-90 transition-opacity"
       >
         <MoveLeft size={16} />

@@ -9,6 +9,7 @@ import { registerAndSignIn } from "../_api";
 import { GoogleSignInButton } from "../_components/google-sign-in-button";
 import { AuthRedirectLink } from "../_components/auth-redirect-link";
 import { AuthDivider } from "../_components/auth-divider";
+import { ROUTES } from "@/shared/config/routes";
 
 const RegisterPage = () => {
   const router = useRouter();
@@ -18,7 +19,7 @@ const RegisterPage = () => {
     async (values) => {
       const result = await registerAndSignIn(values.name, values.email, values.password);
       if (result?.error) return result;
-      router.push("/dashboard");
+      router.push(ROUTES.dashboard);
     }
   );
 
@@ -28,7 +29,7 @@ const RegisterPage = () => {
         <span className="text-2xl font-bold gradient-accent-text">CoinPulse</span>
         <p className="text-text-secondary text-sm mt-1">Create your account</p>
       </div>
-      <GoogleSignInButton callbackUrl="/dashboard" />
+      <GoogleSignInButton callbackUrl={ROUTES.dashboard} />
       <AuthDivider />
       <form onSubmit={handleSubmit} className="space-y-4">
         {REGISTER_FIELDS.map(({ key, label, type, placeholder }) => (
@@ -48,7 +49,7 @@ const RegisterPage = () => {
           {loading ? "Creating account…" : "Create account"}
         </Button>
       </form>
-      <AuthRedirectLink text="Already have an account?" linkText="Sign in" href="/login" />
+      <AuthRedirectLink text="Already have an account?" linkText="Sign in" href={ROUTES.login} />
     </div>
   );
 }

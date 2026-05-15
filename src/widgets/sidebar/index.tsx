@@ -14,11 +14,12 @@ import {
 import { cn } from "@/shared/lib/utils";
 import { ROLE_PERMISSIONS, type UserRole } from "@/shared/types/roles";
 import { Button } from "@/shared/ui/button";
+import { ROUTES } from "@/shared/config/routes";
 
 const NAV_ITEMS = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/watchlist", label: "Watchlist", icon: Star },
-  { href: "/portfolio", label: "Portfolio", icon: Briefcase },
+  { href: ROUTES.dashboard, label: "Dashboard", icon: LayoutDashboard },
+  { href: ROUTES.watchlist, label: "Watchlist", icon: Star },
+  { href: ROUTES.portfolio, label: "Portfolio", icon: Briefcase },
 ] as const;
 
 const navItem = (active: boolean) =>
@@ -39,7 +40,7 @@ export const Sidebar = () => {
 
       {/* Logo */}
       <div className="h-16 flex items-center justify-center lg:justify-start border-b border-border-base px-0 lg:px-6 shrink-0">
-        <Link href="/dashboard" className="flex items-center gap-2.5 min-w-0">
+        <Link href={ROUTES.dashboard} className="flex items-center gap-2.5 min-w-0">
           <div className="w-8 h-8 rounded-lg gradient-accent flex items-center justify-center shrink-0">
             <TrendingUp size={16} className="text-white" />
           </div>
@@ -64,7 +65,7 @@ export const Sidebar = () => {
 
         {/* Settings */}
         {role && ROLE_PERMISSIONS.canAccessSettings(role) && (
-          <Link href="/settings" title="Settings" className={navItem(pathname === "/settings")}>
+          <Link href={ROUTES.settings} title="Settings" className={navItem(pathname === ROUTES.settings)}>
             <Settings size={18} className="shrink-0" />
             <span className="hidden lg:block">Settings</span>
           </Link>
@@ -73,11 +74,11 @@ export const Sidebar = () => {
         {/* Profile card */}
         {session?.user && (
           <Link
-            href="/profile"
+            href={ROUTES.profile}
             title="Profile"
             className={cn(
               "flex items-center justify-center lg:justify-start gap-3 p-2 lg:p-3 rounded-xl transition-all mt-1",
-              pathname === "/profile"
+              pathname === ROUTES.profile
                 ? "bg-accent-indigo/10 ring-1 ring-accent-indigo"
                 : "bg-surface-hover hover:bg-border-base"
             )}
@@ -99,7 +100,7 @@ export const Sidebar = () => {
         {/* Logout */}
         <Button
           variant="ghost"
-          onClick={() => signOut({ callbackUrl: "/login" })}
+          onClick={() => signOut({ callbackUrl: ROUTES.login })}
           title="Sign out"
           className="w-full justify-center lg:justify-start gap-3 lg:px-3 py-2 rounded-xl text-text-muted hover:text-price-down hover:bg-price-down/10"
         >
