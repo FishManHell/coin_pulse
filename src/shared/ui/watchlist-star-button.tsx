@@ -11,19 +11,19 @@ const styles = {
   inactive: "text-text-muted hover:text-accent-cyan",
 };
 
-type Props = {
+interface WatchlistStarButtonProps {
   isWatched: boolean;
   onToggle: () => void;
   stopPropagation?: boolean;
   size?: number;
-};
+}
 
 export const WatchlistStarButton = ({
   isWatched,
   onToggle,
   stopPropagation = false,
   size = 14,
-}: Readonly<Props>) => {
+}: Readonly<WatchlistStarButtonProps>) => {
   const handleClick = (e: MouseEvent<HTMLButtonElement>) => {
     if (stopPropagation) e.stopPropagation();
     onToggle();
