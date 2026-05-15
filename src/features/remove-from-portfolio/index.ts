@@ -1,23 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { toast } from "sonner";
+import { useMutation } from "@tanstack/react-query";
 import { useAppStore } from "@/shared/store";
-import { apiFetch } from "@/shared/lib/api-fetch";
+import { deletePortfolioPosition } from "@/entities/portfolio";
 
 export const useRemoveFromPortfolio = () => {
-  const [loading, setLoading] = useState(false);
   const setPortfolio = useAppStore((s) => s.setPortfolio);
   const portfolio = useAppStore((s) => s.portfolio);
 
-  const remove = async (id: string) => {
-    setLoading(true);
-    try {
-      const res = await apiFetch(`/api/portfolio/${id}`, { method: "DELETE" });
-      if (!res.ok) return;
+  const { mutate, isPending: loading } = useMutation({
+    mutationFn: deletePortfolioPosition,
+    onSuccess: (_, id) => {
       setPortfolio(portfolio.filter((p) => p.id !== id));
-    } finally {
-      setLoading(false);
-    }
+      toast.success("Position removed");
+    },
+    onError: (err) => {
+      toast.error("Couldn't remove position", { description: err.message });
+    },
+  });
+
+  const remove = (id: string) => {
+    if (loading) return;
+    mutate(id);
   };
 
   return { remove, loading };
