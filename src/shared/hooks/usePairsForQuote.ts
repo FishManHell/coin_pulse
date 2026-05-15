@@ -1,29 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import type { CoinMeta, CoinMetaResponse } from "@/shared/types";
 
-export const usePairsForQuote = (quote: string) => {
-  const [pairs, setPairs] = useState<CoinMeta[]>([]);
-  const [prevQuote, setPrevQuote] = useState(quote);
-
-  if (prevQuote !== quote) {
-    setPrevQuote(quote);
-    setPairs([]);
-  }
-
-  useEffect(() => {
-    let cancelled = false;
-    fetch(`/api/coin-meta?quote=${quote}`)
-      .then((r) => r.json())
-      .then((data: CoinMetaResponse) => {
-        if (!cancelled) setPairs(data.pairs);
-      })
-      .catch(() => {});
-    return () => {
-      cancelled = true;
-    };
-  }, [quote]);
-
-  return pairs;
+export const usePairsForQuote = (quote: string): CoinMeta[] => {
+  const { data } = useQuery({
+    queryKey: ["coin-meta", quote],
+    queryFn: async (): Promise<CoinMeta[]> => {
+      const res = await fetch(`/api/coin-meta?quote=${quote}`);
+      const json: CoinMetaResponse = await res.json();
+      return json.pairs;
+    },
+  });
+  return data ?? [];
 };
