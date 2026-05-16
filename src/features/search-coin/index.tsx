@@ -3,7 +3,6 @@
 import { useState, useRef, useCallback, type ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useAppStore } from "@/shared/store";
-import { useCoinFilter } from "@/shared/lib/use-coin-filter";
 import { useDismiss } from "@/shared/lib/use-dismiss";
 import { cn } from "@/shared/lib/utils";
 import { ROUTES } from "@/shared/config/routes";
@@ -24,9 +23,7 @@ export const SearchCoin = ({ className, autoFocus }: SearchCoinProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const prices = useAppStore((s) => s.prices);
   const setSelectedSymbol = useAppStore((s) => s.setSelectedSymbol);
-  const results = useCoinFilter(query, { limit: 6 });
 
   const close = useCallback(() => {
     setOpen(false);
@@ -35,12 +32,15 @@ export const SearchCoin = ({ className, autoFocus }: SearchCoinProps) => {
 
   useDismiss(containerRef, close, open);
 
-  const handleSelect = (coin: CoinMeta) => {
-    setSelectedSymbol(coin.symbol);
-    router.push(ROUTES.dashboard);
-    setQuery("");
-    setOpen(false);
-  };
+  const handleSelect = useCallback(
+    (coin: CoinMeta) => {
+      setSelectedSymbol(coin.symbol);
+      router.push(ROUTES.dashboard);
+      setQuery("");
+      setOpen(false);
+    },
+    [router, setSelectedSymbol],
+  );
 
   const handleQueryChange = (e: ChangeEvent<HTMLInputElement>) => {
     setQuery(e.target.value);
@@ -60,14 +60,7 @@ export const SearchCoin = ({ className, autoFocus }: SearchCoinProps) => {
         placeholder="Search coins…"
         className="bg-bg pr-4"
       />
-      {open && (
-        <SearchResultsDropdown
-          results={results}
-          query={query}
-          prices={prices}
-          onSelect={handleSelect}
-        />
-      )}
+      {open && <SearchResultsDropdown query={query} onSelect={handleSelect} />}
     </div>
   );
 };

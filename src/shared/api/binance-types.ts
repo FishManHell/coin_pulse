@@ -22,6 +22,20 @@ export interface MiniTicker {
 }
 
 /**
+ * Full payload of `/ticker/24hr` — used for snapshot fetches that need the
+ * same shape as the WebSocket ticker event.
+ */
+export interface FullTicker {
+  symbol: string;
+  lastPrice: string;
+  priceChange: string;
+  priceChangePercent: string;
+  volume: string;
+  highPrice: string;
+  lowPrice: string;
+}
+
+/**
  * One row of `/klines?…` — Binance returns positional tuples with mixed
  * primitive types. Timestamps are numeric (ms epoch), prices and volumes
  * are stringified decimals to preserve precision over the wire.

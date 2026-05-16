@@ -1,20 +1,22 @@
 "use client";
 
 import { TrendingUp, TrendingDown } from "lucide-react";
+import { useAppStore } from "@/shared/store";
 import { CoinIcon } from "@/shared/ui/coin-icon";
 import { stripQuote } from "@/shared/lib/symbol";
 import { formatPrice, cn } from "@/shared/lib/utils";
-import type { CoinMeta, CoinTicker } from "@/shared/types";
+import type { CoinMeta } from "@/shared/types";
 import { styles } from "./styles";
 
 interface SearchResultItemProps {
   coin: CoinMeta;
-  ticker?: CoinTicker;
   onSelect: (coin: CoinMeta) => void;
 }
 
-export const SearchResultItem = ({ coin, ticker, onSelect }: SearchResultItemProps) => {
-  const base = stripQuote(coin.symbol, "USDT");
+export const SearchResultItem = ({ coin, onSelect }: SearchResultItemProps) => {
+  const ticker = useAppStore((s) => s.prices[coin.symbol]);
+  const selectedQuote = useAppStore((s) => s.selectedQuote);
+  const base = stripQuote(coin.symbol, selectedQuote);
   const isUp = (ticker?.priceChangePercent ?? 0) >= 0;
 
   const handleMouseDown = () => onSelect(coin);
@@ -25,7 +27,7 @@ export const SearchResultItem = ({ coin, ticker, onSelect }: SearchResultItemPro
         <CoinIcon base={base} size="sm" />
         <div>
           <p className={styles.rowName}>{coin.name}</p>
-          <p className={styles.rowPair}>{base}/USDT</p>
+          <p className={styles.rowPair}>{base}/{selectedQuote}</p>
         </div>
       </div>
 

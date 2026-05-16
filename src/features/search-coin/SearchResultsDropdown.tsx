@@ -1,22 +1,22 @@
 "use client";
 
-import type { CoinMeta, CoinTicker } from "@/shared/types";
+import { useMemo } from "react";
+import { useCoinFilter } from "@/shared/lib/use-coin-filter";
+import type { CoinMeta } from "@/shared/types";
 import { SearchResultItem } from "./SearchResultItem";
+import { useSearchTickersSnapshot } from "./use-search-tickers-snapshot";
 import { styles } from "./styles";
 
 interface SearchResultsDropdownProps {
-  results: CoinMeta[];
   query: string;
-  prices: Record<string, CoinTicker>;
   onSelect: (coin: CoinMeta) => void;
 }
 
-export const SearchResultsDropdown = ({
-  results,
-  query,
-  prices,
-  onSelect,
-}: SearchResultsDropdownProps) => {
+export const SearchResultsDropdown = ({ query, onSelect }: SearchResultsDropdownProps) => {
+  const results = useCoinFilter(query, { limit: 6 });
+  const symbols = useMemo(() => results.map((r) => r.symbol), [results]);
+  useSearchTickersSnapshot(symbols);
+
   if (results.length === 0) {
     if (query.length === 0) return null;
     return (
@@ -29,12 +29,7 @@ export const SearchResultsDropdown = ({
   return (
     <div className={styles.dropdown}>
       {results.map((coin) => (
-        <SearchResultItem
-          key={coin.symbol}
-          coin={coin}
-          ticker={prices[coin.symbol]}
-          onSelect={onSelect}
-        />
+        <SearchResultItem key={coin.symbol} coin={coin} onSelect={onSelect} />
       ))}
     </div>
   );

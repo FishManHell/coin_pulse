@@ -1,8 +1,8 @@
-import type { Kline, TimeRange } from "@/shared/types";
+import type { CoinTicker, Kline, TimeRange } from "@/shared/types";
 import { BINANCE_BASE as BASE, CG_MARKETS } from "./endpoints";
 import { tradingPairs } from "./binance-pairs";
 import { buildStablecoinSet } from "./binance-stables";
-import type { BinanceKline, MiniTicker } from "./binance-types";
+import type { BinanceKline, FullTicker, MiniTicker } from "./binance-types";
 
 export { tradingPairs } from "./binance-pairs";
 
@@ -70,6 +70,25 @@ const RANGE_CONFIG: Record<TimeRange, { interval: string; limit: number }> = {
   "1W":  { interval: "1h",  limit: 168 },
   "1M":  { interval: "4h",  limit: 180 },
   "1Y":  { interval: "1d",  limit: 365 },
+};
+
+const parseFullTicker = (t: FullTicker): CoinTicker => ({
+  symbol: t.symbol,
+  price: parseFloat(t.lastPrice),
+  priceChange: parseFloat(t.priceChange),
+  priceChangePercent: parseFloat(t.priceChangePercent),
+  volume: parseFloat(t.volume),
+  high24h: parseFloat(t.highPrice),
+  low24h: parseFloat(t.lowPrice),
+});
+
+export const fetchTickersSnapshot = async (symbols: string[]): Promise<CoinTicker[]> => {
+  if (!symbols.length) return [];
+  const symbolsParam = encodeURIComponent(JSON.stringify(symbols));
+  const res = await fetch(`${BASE}/ticker/24hr?symbols=${symbolsParam}`);
+  if (!res.ok) throw new Error(`Binance ticker snapshot error: ${res.status}`);
+  const raw: FullTicker[] = await res.json();
+  return raw.map(parseFullTicker);
 };
 
 export const fetchKlines = async (symbol: string, range: TimeRange): Promise<Kline[]> => {
