@@ -19,38 +19,25 @@ interface PortfolioTableProps { initialPositions: PortfolioPosition[] }
 export const PortfolioTable = ({ initialPositions }: Readonly<PortfolioTableProps>) => {
   const setPortfolio = useAppStore((s) => s.setPortfolio);
   const portfolio = useAppStore((s) => s.portfolio);
-  const prices = useAppStore((s) => s.prices);
+  // Boolean selector flips false → true on the very first tick then stays true,
+  // so Zustand skips re-renders on every subsequent tick.
+  const hasAnyPrice = useAppStore((s) => Object.keys(s.prices).length > 0);
   const [showForm, setShowForm] = useState(false);
 
-  const onToggleShowForm = () => setShowForm(prev => !prev);
+  const onToggleShowForm = () => setShowForm((prev) => !prev);
   const onCloseForm = () => setShowForm(false);
 
   const grouped = useMemo(() => groupPositions(portfolio), [portfolio]);
   const symbols = useMemo(() => grouped.map((g) => g.symbol), [grouped]);
   usePriceStream(symbols);
 
-  const initialLoad = grouped.length > 0 && Object.keys(prices).length === 0;
-  const totalInvested = grouped.reduce((s, g) => s + g.totalCost, 0);
-  const totalCurrent = grouped.reduce((s, g) => {
-    const price = prices[g.symbol]?.price ?? g.avgBuyPrice;
-    return s + g.totalQty * price;
-  }, 0);
-  const totalPnl = totalCurrent - totalInvested;
-  const totalPnlPct = totalInvested > 0 ? (totalPnl / totalInvested) * 100 : 0;
+  const initialLoad = grouped.length > 0 && !hasAnyPrice;
 
   useEffect(() => { setPortfolio(initialPositions); }, []);
 
   return (
     <div className={styles.wrap}>
-      {portfolio.length > 0 && (
-        <SummaryCards
-          invested={totalInvested}
-          current={totalCurrent}
-          pnl={totalPnl}
-          pnlPct={totalPnlPct}
-          loading={initialLoad}
-        />
-      )}
+      {portfolio.length > 0 && <SummaryCards grouped={grouped} loading={initialLoad} />}
 
       <div className={styles.table}>
         <div className={styles.tableHead}>
