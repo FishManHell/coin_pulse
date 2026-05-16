@@ -10,9 +10,12 @@ import { TransactionRow } from "./TransactionRow";
 import { PositionRowSkeleton } from "./PositionRowSkeleton";
 import type { GroupedPosition } from "./group-positions";
 
-type Props = { group: GroupedPosition; initialLoad: boolean };
+interface PositionRowProps {
+  group: GroupedPosition;
+  initialLoad: boolean;
+}
 
-export const PositionRow = ({ group, initialLoad }: Props) => {
+export const PositionRow = ({ group, initialLoad }: PositionRowProps) => {
   const [expanded, setExpanded] = useState(false);
   const ticker = useAppStore((s) => s.prices[group.symbol]);
 
