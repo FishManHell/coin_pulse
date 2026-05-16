@@ -5,17 +5,13 @@ import { useCoinMeta } from "@/shared/hooks/useCoinMeta";
 import { useAddToWatchlist } from "@/features/add-to-watchlist";
 import { useRemoveFromWatchlist } from "@/features/remove-from-watchlist";
 import { CoinHeader } from "./CoinHeader";
-import { PriceBlock } from "./PriceBlock";
-import { PriceBlockSkeleton } from "./PriceBlockSkeleton";
-import { StatRow } from "./StatRow";
-import { StatsBlockSkeleton } from "./StatsBlockSkeleton";
-import { getStatRows } from "./get-stat-rows";
+import { LivePriceBlock } from "./LivePriceBlock";
+import { LiveStats } from "./LiveStats";
 import { styles } from "./styles";
 
 export const CoinDetailsPanel = () => {
   const selectedSymbol = useAppStore((s) => s.selectedSymbol);
   const selectedQuote  = useAppStore((s) => s.selectedQuote);
-  const ticker         = useAppStore((s) => s.prices[selectedSymbol]);
   const isWatched      = useAppStore((s) => s.watchlist.some((w) => w.symbol === selectedSymbol));
   const { add,    loading: adding }   = useAddToWatchlist();
   const { remove, loading: removing } = useRemoveFromWatchlist();
@@ -39,18 +35,12 @@ export const CoinDetailsPanel = () => {
           onToggleWatch={onToggleWatch}
           toggling={adding || removing}
         />
-        {ticker ? <PriceBlock ticker={ticker} /> : <PriceBlockSkeleton />}
+        <LivePriceBlock symbol={selectedSymbol} />
       </div>
 
       <div className={styles.statsSection}>
         <p className={styles.statsTitle}>Market stats</p>
-        {ticker ? (
-          <div>
-            {getStatRows(ticker).map((row) => <StatRow key={row.label} {...row} />)}
-          </div>
-        ) : (
-          <StatsBlockSkeleton />
-        )}
+        <LiveStats symbol={selectedSymbol} />
       </div>
 
       <div className={styles.liveFooter}>
