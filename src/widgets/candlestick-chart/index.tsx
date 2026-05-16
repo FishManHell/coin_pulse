@@ -34,7 +34,6 @@ export const CandlestickChart = () => {
           </div>
         )}
         <ChartCanvas
-          key={chartType}
           klines={klines}
           livePrice={ticker?.price}
           theme={theme}

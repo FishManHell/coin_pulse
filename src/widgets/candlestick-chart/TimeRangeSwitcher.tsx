@@ -2,12 +2,12 @@ import { cn } from "@/shared/lib/utils";
 import { TIME_RANGES } from "./chart-config";
 import type { TimeRange } from "@/shared/types";
 
-type Props = {
+interface TimeRangeSwitcherProps {
   value: TimeRange;
   onChange: (range: TimeRange) => void;
-};
+}
 
-export const TimeRangeSwitcher = ({ value, onChange }: Props) => (
+export const TimeRangeSwitcher = ({ value, onChange }: TimeRangeSwitcherProps) => (
   <div className="flex items-center gap-1 bg-bg rounded-xl p-1 w-fit mb-4">
     {TIME_RANGES.map((r) => (
       <button
