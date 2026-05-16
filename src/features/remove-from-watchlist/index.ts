@@ -7,12 +7,12 @@ import { deleteWatchlistItem } from "@/entities/watchlist";
 
 export const useRemoveFromWatchlist = () => {
   const setWatchlist = useAppStore((s) => s.setWatchlist);
-  const watchlist = useAppStore((s) => s.watchlist);
 
   const { mutate, isPending: loading } = useMutation({
     mutationFn: deleteWatchlistItem,
     onSuccess: (_, symbol) => {
-      setWatchlist(watchlist.filter((w) => w.symbol !== symbol));
+      const current = useAppStore.getState().watchlist;
+      setWatchlist(current.filter((w) => w.symbol !== symbol));
       toast.success("Removed from watchlist");
     },
     onError: (err) => {

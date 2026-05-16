@@ -7,12 +7,12 @@ import { createWatchlistItem } from "@/entities/watchlist";
 
 export const useAddToWatchlist = () => {
   const setWatchlist = useAppStore((s) => s.setWatchlist);
-  const watchlist = useAppStore((s) => s.watchlist);
 
   const { mutate, isPending: loading } = useMutation({
     mutationFn: createWatchlistItem,
     onSuccess: (item, input) => {
-      setWatchlist([item, ...watchlist.filter((w) => w.symbol !== input.symbol)]);
+      const current = useAppStore.getState().watchlist;
+      setWatchlist([item, ...current.filter((w) => w.symbol !== input.symbol)]);
       toast.success(`${input.name} added to watchlist`);
     },
     onError: (err) => {

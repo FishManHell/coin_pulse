@@ -7,12 +7,12 @@ import { createPortfolioPosition, type CreatePortfolioInput } from "@/entities/p
 
 export const useAddToPortfolio = () => {
   const setPortfolio = useAppStore((s) => s.setPortfolio);
-  const portfolio = useAppStore((s) => s.portfolio);
 
   const mutation = useMutation({
     mutationFn: createPortfolioPosition,
     onSuccess: (position, input) => {
-      setPortfolio([position, ...portfolio]);
+      const current = useAppStore.getState().portfolio;
+      setPortfolio([position, ...current]);
       toast.success(`${input.name} added to portfolio`);
     },
     onError: (err) => {

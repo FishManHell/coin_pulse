@@ -7,12 +7,12 @@ import { deletePortfolioPosition } from "@/entities/portfolio";
 
 export const useRemoveFromPortfolio = () => {
   const setPortfolio = useAppStore((s) => s.setPortfolio);
-  const portfolio = useAppStore((s) => s.portfolio);
 
   const { mutate, isPending: loading } = useMutation({
     mutationFn: deletePortfolioPosition,
     onSuccess: (_, id) => {
-      setPortfolio(portfolio.filter((p) => p.id !== id));
+      const current = useAppStore.getState().portfolio;
+      setPortfolio(current.filter((p) => p.id !== id));
       toast.success("Position removed");
     },
     onError: (err) => {
