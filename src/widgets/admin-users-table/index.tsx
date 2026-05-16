@@ -5,7 +5,7 @@ import type { UserRole } from "@/shared/types/roles";
 import { styles } from "./styles";
 import { TableHeader } from "./TableHeader";
 import { UserRow } from "./UserRow";
-import type { AdminUser } from "./types";
+import type { AdminUser } from "@/entities/user/types";
 
 interface AdminUsersTableProps {
   users: AdminUser[];

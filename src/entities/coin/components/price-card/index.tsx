@@ -4,8 +4,6 @@ import { KeyboardEvent } from "react";
 import { cn } from "@/shared/lib/utils";
 import { useAppStore } from "@/shared/store";
 import { useCoinMeta } from "@/shared/hooks/useCoinMeta";
-import { useAddToWatchlist } from "@/features/add-to-watchlist";
-import { useRemoveFromWatchlist } from "@/features/remove-from-watchlist";
 import type { CoinTicker } from "@/shared/types";
 import { WatchlistStarButton } from "@/shared/ui/watchlist-star-button";
 import { PriceBody } from "./PriceBody";
@@ -18,14 +16,21 @@ interface PriceCardProps {
   ticker: CoinTicker;
   onClick?: () => void;
   selected?: boolean;
+  isWatched: boolean;
+  onToggleWatch: () => void;
+  toggling: boolean;
 }
 
-export const PriceCard = ({ ticker, onClick, selected }: Readonly<PriceCardProps>) => {
+export const PriceCard = ({
+  ticker,
+  onClick,
+  selected,
+  isWatched,
+  onToggleWatch,
+  toggling,
+}: Readonly<PriceCardProps>) => {
   const selectedQuote = useAppStore((s) => s.selectedQuote);
   const { names } = useCoinMeta(selectedQuote);
-  const isWatched = useAppStore((s) => s.watchlist.some((w) => w.symbol === ticker.symbol));
-  const { add, loading: adding } = useAddToWatchlist();
-  const { remove, loading: removing } = useRemoveFromWatchlist();
 
   const base = ticker.symbol.slice(0, -selectedQuote.length);
   const displayName = names[base] ?? base;
@@ -35,14 +40,6 @@ export const PriceCard = ({ ticker, onClick, selected }: Readonly<PriceCardProps
 
   const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
     if (e.key === "Enter") onClick?.();
-  };
-
-  const handleToggleWatch = () => {
-    if (isWatched) {
-      remove(ticker.symbol);
-      return;
-    }
-    add(ticker.symbol, displayName, selectedQuote);
   };
 
   return (
@@ -62,7 +59,7 @@ export const PriceCard = ({ ticker, onClick, selected }: Readonly<PriceCardProps
         <PriceCardHeader base={base} quote={selectedQuote} displayName={displayName} />
         <div className={styles.topRight}>
           <PriceChangeBadge changePercent={ticker.priceChangePercent} />
-          <WatchlistStarButton isWatched={isWatched} onToggle={handleToggleWatch} disabled={adding || removing} stopPropagation />
+          <WatchlistStarButton isWatched={isWatched} onToggle={onToggleWatch} disabled={toggling} stopPropagation />
         </div>
       </div>
 

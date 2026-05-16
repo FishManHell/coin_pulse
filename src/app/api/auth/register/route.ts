@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import connectDB, { isDuplicateKeyError } from "@/shared/lib/db";
-import User from "@/models/User";
+import User from "@/entities/user/model/user";
 import { apiError, ERRORS } from "@/shared/lib/api-response";
 
 export async function POST(req: Request) {

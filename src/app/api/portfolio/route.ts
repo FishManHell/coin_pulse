@@ -3,7 +3,7 @@ import { requireApiUser } from "@/entities/user/lib/require-api-user";
 import connectDB from "@/shared/lib/db";
 import { parseQuoteFromSymbol } from "@/shared/lib/parse-quote";
 import { tradingPairs } from "@/shared/api/binance";
-import PortfolioPosition from "@/models/PortfolioPosition";
+import PortfolioPosition from "@/entities/portfolio/model/portfolio-position";
 import { toPortfolioDTO } from "@/entities/portfolio";
 import { apiError, ERRORS } from "@/shared/lib/api-response";
 import { requireString } from "@/shared/lib/validate";

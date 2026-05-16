@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { requireApiRole } from "@/entities/user/lib/require-api-user";
 import connectDB, { isDuplicateKeyError } from "@/shared/lib/db";
-import User from "@/models/User";
+import User from "@/entities/user/model/user";
 import { ROLE_PERMISSIONS, isValidRole, type UserRole } from "@/shared/types/roles";
 import { apiError, ERRORS } from "@/shared/lib/api-response";
 import { requireString } from "@/shared/lib/validate";

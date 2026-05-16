@@ -1,6 +1,6 @@
 import { requireUser } from "@/entities/user/lib/require-user";
 import connectDB from "@/shared/lib/db";
-import WatchlistItem from "@/models/WatchlistItem";
+import WatchlistItem from "@/entities/watchlist/model/watchlist-item";
 import { toWatchlistDTO } from "@/entities/watchlist";
 import { Header } from "@/widgets/header";
 import { WatchlistTable } from "@/widgets/watchlist-table";

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireApiRole } from "@/entities/user/lib/require-api-user";
 import connectDB from "@/shared/lib/db";
-import User from "@/models/User";
+import User from "@/entities/user/model/user";
 import { ROLE_PERMISSIONS } from "@/shared/types/roles";
 
 export async function GET() {

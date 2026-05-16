@@ -6,7 +6,7 @@ import { Button } from "@/shared/ui/button";
 import { styles } from "./styles";
 import { RoleBadge } from "./RoleBadge";
 import { RoleSelect } from "./RoleSelect";
-import type { AdminUser } from "./types";
+import type { AdminUser } from "@/entities/user/types";
 
 const dateFmt = new Intl.DateTimeFormat("en-US", {
   month: "short", day: "numeric", year: "numeric",

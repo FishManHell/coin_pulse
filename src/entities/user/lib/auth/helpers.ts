@@ -1,6 +1,6 @@
 import type { User as NextAuthUser } from "next-auth";
 import connectDB from "@/shared/lib/db";
-import User, { type UserDocument } from "@/models/User";
+import User, { type UserDocument } from "@/entities/user/model/user";
 import type { UserRole } from "@/shared/types/roles";
 
 export interface UserClaims {

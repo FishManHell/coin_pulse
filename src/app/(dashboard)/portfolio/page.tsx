@@ -1,6 +1,6 @@
 import { requireUser } from "@/entities/user/lib/require-user";
 import connectDB from "@/shared/lib/db";
-import PortfolioPosition from "@/models/PortfolioPosition";
+import PortfolioPosition from "@/entities/portfolio/model/portfolio-position";
 import { toPortfolioDTO } from "@/entities/portfolio";
 import { Header } from "@/widgets/header";
 import { PortfolioTable } from "@/widgets/portfolio-table";

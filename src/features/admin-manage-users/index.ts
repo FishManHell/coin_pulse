@@ -4,7 +4,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { useMutation } from "@tanstack/react-query";
 import type { UserRole } from "@/shared/types/roles";
-import type { AdminUser } from "@/widgets/admin-users-table/types";
+import type { AdminUser } from "@/entities/user/types";
 import { updateUserRole, deleteUser } from "./api";
 
 interface RoleVars {

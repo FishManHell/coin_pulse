@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { requireApiUser } from "@/entities/user/lib/require-api-user";
 import connectDB from "@/shared/lib/db";
 import { parseQuoteFromSymbol } from "@/shared/lib/parse-quote";
-import WatchlistItem from "@/models/WatchlistItem";
+import WatchlistItem from "@/entities/watchlist/model/watchlist-item";
 import { toWatchlistDTO } from "@/entities/watchlist";
 import { apiError } from "@/shared/lib/api-response";
 

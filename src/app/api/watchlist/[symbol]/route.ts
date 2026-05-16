@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireApiUser } from "@/entities/user/lib/require-api-user";
 import connectDB from "@/shared/lib/db";
-import WatchlistItem from "@/models/WatchlistItem";
+import WatchlistItem from "@/entities/watchlist/model/watchlist-item";
 import { ERRORS } from "@/shared/lib/api-response";
 
 export async function DELETE(
