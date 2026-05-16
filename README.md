@@ -80,7 +80,7 @@ entities/     coin/components/{price-card, selected-symbol-stream},
 shared/       ui (generic primitives only — Button, SearchInput, Select, Skeleton, …),
               lib (cn, formatters, db, parse-quote, api-fetch with 401/403 toasts, symbol),
               hooks (usePriceStream, useTheme, useCoinMeta, useQuoteCurrencies,
-                     useFormState, useFloatingRect, useStaleAfter),
+                     useFormState, useFloatingRect, useResizeObserver, useStaleAfter),
               config (routes), store, types, api
 models/       Mongoose schemas (server-only)
 scripts/      Prebuild snapshots (Binance trading pairs)

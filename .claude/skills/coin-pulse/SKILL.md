@@ -59,7 +59,7 @@ shared/        — ui — only generic primitives (Button, SearchInput, Select, 
                       use-coin-filter, use-dismiss)
                  types
                  hooks (usePriceStream, useTheme, useQuoteCurrencies, useCoinMeta,
-                      useFormState, useFloatingRect, useStaleAfter)
+                      useFormState, useFloatingRect, useResizeObserver, useStaleAfter)
                  config (routes — internal route constants)
                  store, api
 models/        — Mongoose schemas (server-only): User, WatchlistItem, PortfolioPosition
@@ -141,7 +141,7 @@ GOOGLE_CLIENT_SECRET   — Google Cloud Console
 - Powered by `next-themes` — `ThemeProvider` in root layout with `attribute="class"`, `defaultTheme="light"`. No vanilla `<script>` injection, no Zustand theme slice
 - `useTheme` in `shared/hooks/useTheme.ts` is a thin wrapper around `next-themes` `useTheme` — exposes `{ theme, toggle }`
 - `ThemeToggle` uses a `mounted` guard to avoid hydration mismatch
-- TradingView chart colors updated via `chart.applyOptions()` on theme change — never recreate the chart
+- TradingView chart colors updated via `chart.applyOptions()` on theme change — never recreate the chart. The chart-options builders live in `widgets/candlestick-chart/chart-theme.ts`
 
 ## Binance WebSocket
 
@@ -184,6 +184,40 @@ The Binance integration is split by concern, not by function-per-file:
 - `price-stream.ts` — singleton WS state machine (lifecycle + ref-count +
   reconcile + subscribe + auto-reconnect).
 - `endpoints.ts` — base URLs (`BINANCE_BASE`, `CG_MARKETS`).
+
+## Zustand Subscription Discipline
+
+Live ticks fan out through many components — the wrong selector turns one WS message into 30+ re-renders. Rules:
+
+- **Never subscribe to `s.prices` whole.** Always per-key (`s.prices[symbol]`) so Zustand's Object.is check skips re-renders for unrelated symbols. The price-card cascade was eliminated by extracting `LivePriceCard` wrappers that each subscribe to their own ticker.
+- **Never subscribe to `s.watchlist` whole** when you only need a boolean. Use `s.watchlist.some((w) => w.symbol === ticker.symbol)` — selector still runs per state change but returns the same boolean, so no re-render.
+- **For derived totals across many symbols** (e.g. portfolio P&L), use `useShallow` with the relevant subset: `useAppStore(useShallow((s) => Object.fromEntries(symbols.map((sym) => [sym, s.prices[sym]?.price]))))`. Re-renders only when one of *your* symbols ticks AND its price actually changed.
+- **For "any tick happened" gates**, use a boolean selector like `Object.keys(s.prices).length > 0` — flips false→true once on the first tick and stays put, so it doesn't drive re-renders past mount.
+- **Split smart containers by data dependency.** `SummaryCards` is a thin wrapper that composes `InvestedCard` (no subscription — derives from portfolio only) and `LiveSummaryCards` (smart, `useShallow` to held-symbol prices). Invested never blinks; Current/P&L blink only on relevant ticks.
+- **Mutation hooks read store via `useAppStore.getState()` inside `onSuccess`** so they don't subscribe — `useAddToWatchlist`/`useRemoveFromWatchlist` consumers don't re-render on every watchlist change elsewhere.
+
+## Imperative-Library Wrappers — `useCandlestickChart`
+
+The TradingView chart is wrapped via a dedicated hook (`widgets/candlestick-chart/use-candlestick-chart.ts`) that owns all imperative state: chart instance, series controller, theme + data + live-tick effects, container resize via `useResizeObserver`. The component itself is a thin `<div ref>` consumer:
+
+```tsx
+export const ChartCanvas = (props) => {
+  const containerRef = useCandlestickChart(props);
+  return <div ref={containerRef} className="w-full" />;
+};
+```
+
+Series swap on `chartType` change is internal — `chart.removeSeries(old) + addSeries(new)` — **do not** force-remount via `key={chartType}` on the parent. The series controller (`chart-series.ts`) returns `{ setData, updateLive, destroy }` per type; the per-case branches own their `ISeriesApi<"…">` so the consumer never casts. Theme changes flow through `applyOptions` only.
+
+This pattern is the template for any imperative-library wrapper that needs many lifecycle effects: bundle them in a custom hook so the component stays a pure props→JSX contract.
+
+## REST Snapshot for Non-Streamed Symbols
+
+`features/search-coin/use-search-tickers-snapshot.ts` fires a single `/ticker/24hr?symbols=[…]` batch when the dropdown opens, writes the parsed tickers into the Zustand `prices` slice via `updatePrice`, and caches per symbol-list with `staleTime: 30s` (TanStack Query). Long-tail coins that the WS subscriptions don't cover get a price preview without churning the WebSocket. The same pattern applies anywhere a UI needs a momentary snapshot of prices it doesn't otherwise stream.
+
+## CoinIcon Fallback Chain
+
+`shared/lib/coin-icon.ts` exposes a CDN chain — `atomiclabs/cryptocurrency-icons` first (crisp SVGs, ~500 popular coins), then `assets.coincap.io` (PNG, long-tail), then the gradient + first-letter fallback already built into `CoinIcon`. The component tracks `cdnIdx` state, increments on `onError`, and shows the gradient once the chain exhausts. Add a new CDN by appending to `CDN_BUILDERS`.
 
 ## References
 

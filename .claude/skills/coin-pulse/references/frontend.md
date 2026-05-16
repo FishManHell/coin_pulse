@@ -22,6 +22,37 @@
 - Role types: use `USER_ROLES` const object and derive `UserRole` type — never use string literals
 - Session user: `session.user` is typed via `shared/types/next-auth.d.ts` augmentation — no casting needed
 
+## Zustand Subscription Discipline
+
+Streaming ticks (5–10 Hz) fan out across many components — a wrong selector turns one WS message into 30+ re-renders. Rules established from a measured perf round:
+
+**Never subscribe to whole collections on the live path.** Always per-key or per-boolean. Zustand uses `Object.is` between renders, so a selector returning the same primitive skips re-render entirely.
+
+| Pattern | Wrong | Right |
+|---|---|---|
+| Price for one symbol | `s.prices` | `s.prices[symbol]` |
+| Is this watched? | `s.watchlist` then `.some(...)` outside | `s.watchlist.some((w) => w.symbol === symbol)` (boolean) |
+| Has any tick arrived? | `s.prices` | `Object.keys(s.prices).length > 0` (boolean, flips once) |
+| Totals across N symbols | `s.prices` then `.reduce(...)` outside | `useShallow((s) => Object.fromEntries(symbols.map((sym) => [sym, s.prices[sym]?.price])))` |
+
+**Lift smart subscriptions into a dedicated child.** Don't subscribe at the parent and pass derived values down — the parent re-renders on every tick and cascades through its entire subtree (no `React.memo` in this codebase). Instead, extract a small "live" container that owns the subscription, and let the parent stay subscription-free.
+
+```
+PortfolioTable (subscribes to portfolio + hasAnyPrice boolean — quiet on ticks)
+├── SummaryCards (layout-only wrapper)
+│   ├── InvestedCard (derives from portfolio only — never blinks on ticks)
+│   └── LiveSummaryCards (useShallow per-symbol prices — blinks on relevant ticks only)
+├── TableHeader (quiet)
+├── AddPositionForm (quiet — was the worst offender before the split)
+└── PositionRow × N (each subscribes per-symbol — blinks individually)
+```
+
+`MarketOverview` follows the same shape: it doesn't read `prices` at all; each `LivePriceCard` wrapper subscribes to its own `prices[symbol]` + `selectedSymbol === symbol` boolean.
+
+**Mutation hooks must not subscribe.** `useAddToWatchlist`/`useRemoveFromWatchlist` read the current watchlist via `useAppStore.getState().watchlist` inside `onSuccess`, not via `useAppStore((s) => s.watchlist)`. That removes one cascading subscription from every PriceCard/CoinDetailsPanel consumer. The trade-off: the closure captures the snapshot at success-time, not enqueue-time, which is what we want for de-duplication.
+
+**Disable mutating buttons while in flight.** `WatchlistStarButton` takes `disabled` and forwards to the Button — wired from `adding || removing` loading flags. Locally imperceptible (mutations finish in ~50ms), but on slow networks it prevents spam-clicks from firing duplicate add/remove requests.
+
 ## Real-Time Data Pattern
 
 Binance WS connection is a **module-level singleton** in `shared/api/price-stream.ts`.
@@ -147,8 +178,9 @@ const series = chart.addSeries(CandlestickSeries, { upColor: "#10B981" /* ...oth
 // chart.addCandlestickSeries({ ... })
 ```
 
-When chart type changes: use `key={chartType}` on the canvas component to force remount.
-Theme changes: call `chart.applyOptions()` — never recreate the chart.
+Wrapping pattern: all imperative state lives in `widgets/candlestick-chart/use-candlestick-chart.ts` (chart instance, series controller, theme/data/live-tick effects, `useResizeObserver`). The component is a thin `<div ref>` consumer.
+
+Series swap on `chartType` change happens internally via `chart.removeSeries(old) + addSeries(new)` from `chart-series.ts` — the controller returns `{ setData, updateLive, destroy }` per type so the consumer never casts `ISeriesApi<"…">`. **Do not** force-remount with `key={chartType}` on the parent — the swap is in-place. Theme changes flow through `applyOptions()`; never recreate the chart.
 
 ## Sidebar Responsive Pattern
 
@@ -167,9 +199,9 @@ Theme changes: call `chart.applyOptions()` — never recreate the chart.
 
 `shared/ui/coin-icon.tsx` is the single source of truth for coin avatars (used by `PriceCard`, `WatchlistRow`, `PositionRow`, `MarketOverview`, `CoinDetailsPanel`, etc.). It renders a gradient placeholder with the first letter immediately, then crossfades the real SVG on top once it loads:
 
-- Real SVG comes from the **cryptocurrency-icons CDN** (`https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@1a63530b/svg/color/<base>.svg`) — see `shared/lib/coin-icon.ts` for the URL helper.
+- Real SVG/PNG comes from a **CDN chain** exported by `shared/lib/coin-icon.ts` as `CDN_BUILDERS`: atomiclabs/cryptocurrency-icons first (crisp SVGs, top ~500 coins), then assets.coincap.io (PNG, long-tail coverage). The component tracks `cdnIdx`, increments on `onError`, and only falls through to the gradient when the chain exhausts. Add another CDN by appending to `CDN_BUILDERS`.
 - Placeholder gradient is deterministic per base via a small string-hash → palette lookup in `shared/lib/coin-gradient.ts` (`getCoinGradient(base)`). Same base always picks the same gradient so the avatar feels stable across renders.
-- On `onError` the `<img>` is unmounted and only the gradient stays — never falls through to a broken icon.
+- The gradient stays under the `<img>` the whole time — even mid-chain, you see the gradient until the next CDN responds, never a broken icon.
 
 Never re-introduce hardcoded `COIN_ICONS` or `COIN_COLORS` maps. New coins are discovered dynamically, so any static table immediately falls behind.
 
@@ -190,7 +222,17 @@ use-price-flash.ts     — hook: returns "flash-up"/"flash-down"/"" based on las
 styles.ts              — Tailwind class strings
 ```
 
-The same shape (header / body / change / styles + a per-concern hook) is the default when a card-shaped widget grows past ~80 lines — see `CoinDetailsPanel` (`CoinHeader`, `PriceBlock`, `StatRow`, `get-stat-rows.ts`) for the same template. Combobox/dropdown variant: `coin-combobox` and `search-coin` follow the same split (`index.tsx` + `Dropdown.tsx` + per-row component + `styles.ts`); pass per-item `ticker` directly to the row, never the global `prices` map.
+`PriceCard` itself is presentational — it receives `ticker` as a prop. The smart wrapper that does the per-symbol subscription lives one layer up: `widgets/market-overview/LivePriceCard.tsx` (subscribes to `prices[symbol]` + `selectedSymbol === symbol` boolean, renders Skeleton / NoData / `PriceCard`). The parent `MarketOverview` itself holds zero `prices`-related subscriptions.
+
+The same shape (header / body / change / styles + a per-concern hook) is the default when a card-shaped widget grows past ~80 lines — see `CoinDetailsPanel` (`CoinHeader`, `PriceBlock`, `StatRow`, `get-stat-rows.ts`) for the same template. Combobox/dropdown variant: `coin-combobox` and `search-coin` follow the same split (`index.tsx` + `Dropdown.tsx` + per-row component + `styles.ts`); each row subscribes to its own `prices[symbol]`, never to the global `prices` map.
+
+## SearchCoin REST Snapshot — Non-Streamed Symbols
+
+The dashboard WS only streams prices for the active sets (top-N, watchlist, portfolio, selected). Search results frequently fall outside that set — long-tail coins would render without prices.
+
+`features/search-coin/use-search-tickers-snapshot.ts` fires a single batched `/ticker/24hr?symbols=[…]` REST call (Binance `data-api.binance.vision`) when the dropdown opens, parses the response into our `CoinTicker` shape, and writes each row into the Zustand `prices` slice via `updatePrice`. Cached per symbol-list with `staleTime: 30s` via TanStack Query. The snapshots stay in `prices` for the rest of the session — harmless, and they get overwritten naturally if WS later picks them up.
+
+Move the `useCoinFilter` subscription into the dropdown too — the parent `SearchCoin` then has zero subscriptions on the live path (just local `query`/`open` state + stable `setSelectedSymbol`), and quote switches don't re-render the closed search input.
 
 ## Loading State Pattern — Streaming Tables
 
@@ -203,7 +245,7 @@ if (!ticker && initialLoad) return <PositionRowSkeleton group={group} />;
 
 Both components must share the same grid columns/styles, otherwise layout jumps when the row swaps in. The skeleton renders ticker-independent fields (avatar, name) immediately and uses `<Skeleton className="w-N h-4" />` for streaming columns.
 
-`initialLoad` is computed once at the table level (`Object.keys(prices).length === 0` while there are positions/items) — it latches `false` after the first ticker arrives, so adding a new entry in steady state does **not** flash skeletons over previously-loaded rows or summary cards.
+`initialLoad` is computed from a boolean selector — `useAppStore((s) => Object.keys(s.prices).length > 0)` — that flips false→true once on the first tick and stays. The parent table never re-renders on subsequent ticks because the boolean is stable; only the per-symbol row subscriptions fire. Adding a new entry in steady state does **not** flash skeletons over previously-loaded rows or summary cards.
 
 ## Form State Pattern — `useFormState<T>`
 
