@@ -48,23 +48,28 @@ features/      — add-to-watchlist, remove-from-watchlist,
                  add-to-portfolio, remove-from-portfolio, search-coin,
                  select-quote, filter-watchlist-by-quote, coin-combobox,
                  edit-profile, change-password, admin-manage-users
-entities/      — coin/components/{price-card, selected-symbol-stream},
-                 watchlist/{api.ts, components/{watchlist-initializer, watchlist-provider}},
-                 portfolio/api.ts,
-                 user/{lib/auth, components/RoleBadge}
+entities/      — coin/{ui/{price-card, selected-symbol-stream}, types},
+                 watchlist/{api.ts, model/watchlist-item, ui/{watchlist-initializer,
+                            watchlist-provider}, types, serializers, index},
+                 portfolio/{api.ts, model/portfolio-position, types, serializers, index},
+                 user/{lib/{auth, require-user, require-api-user}, model/user,
+                       ui/current-user-role-badge, types}
 shared/        — ui — only generic primitives (Button, SearchInput, Select, Skeleton,
                       CoinIcon, WatchlistStarButton, ThemeToggle, LabeledField,
                       GoogleIcon, Input); no domain-coupled or app-shell components
-                 lib (utils, db, parse-quote, api-fetch, coin-icon, coin-gradient, symbol,
-                      use-coin-filter, use-dismiss)
-                 types
+                 lib (utils, db, parse-quote, api-fetch, api-response, validate,
+                      coin-icon, coin-gradient, symbol)
+                 types (roles, coin-asset, next-auth.d.ts — no barrel)
                  hooks (usePriceStream, useTheme, useQuoteCurrencies, useCoinMeta,
-                      useFormState, useFloatingRect, useResizeObserver, useStaleAfter)
+                      useFormState, useFloatingRect, useResizeObserver, useStaleAfter,
+                      useCoinFilter, useDismiss)
                  config (routes — internal route constants)
                  store, api
-models/        — Mongoose schemas (server-only): User, WatchlistItem, PortfolioPosition
 scripts/       — Prebuild snapshots (Binance trading pairs)
 ```
+
+Mongoose schemas live in `entities/<name>/model/` (server-only). The
+top-level `src/models/` directory has been retired.
 
 Cross-feature imports are forbidden. If two features need shared logic, move it to entities/ or shared/.
 

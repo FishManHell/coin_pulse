@@ -73,16 +73,18 @@ widgets/      Sidebar, Header, CandlestickChart, MarketOverview, WatchlistTable,
 features/     add-to-watchlist, remove-from-watchlist, add-to-portfolio,
               remove-from-portfolio, admin-manage-users, search-coin, select-quote,
               filter-watchlist-by-quote, coin-combobox, edit-profile, change-password
-entities/     coin/components/{price-card, selected-symbol-stream},
-              watchlist/{api.ts, components/{watchlist-initializer, watchlist-provider}},
-              portfolio/api.ts,
-              user/{lib/auth, components/RoleBadge}
+entities/     coin/{ui/{price-card, selected-symbol-stream}, types},
+              watchlist/{api.ts, model/watchlist-item, ui/{watchlist-initializer,
+                         watchlist-provider}, types, serializers, index},
+              portfolio/{api.ts, model/portfolio-position, types, serializers, index},
+              user/{lib/{auth, require-user, require-api-user}, model/user,
+                    ui/current-user-role-badge, types}
 shared/       ui (generic primitives only — Button, SearchInput, Select, Skeleton, …),
               lib (cn, formatters, db, parse-quote, api-fetch with 401/403 toasts, symbol),
               hooks (usePriceStream, useTheme, useCoinMeta, useQuoteCurrencies,
-                     useFormState, useFloatingRect, useResizeObserver, useStaleAfter),
-              config (routes), store, types, api
-models/       Mongoose schemas (server-only)
+                     useFormState, useFloatingRect, useResizeObserver, useStaleAfter,
+                     useCoinFilter, useDismiss),
+              config (routes), store, types (roles, coin-asset, next-auth.d.ts), api
 scripts/      Prebuild snapshots (Binance trading pairs)
 ```
 

@@ -3,8 +3,9 @@
 ## FSD Import Rules
 
 - Within the same slice: relative paths (`../types`, `./lib/utils`)
-- Between layers: absolute paths with `@/` (`@/entities/coin/components/PriceCard`, `@/shared/ui/button`)
+- Between layers: absolute paths with `@/` (`@/entities/coin/ui/price-card`, `@/shared/ui/button`)
 - Never import upward — entity must not import from feature, feature must not import from widget
+- Entity slice layout follows FSD: `ui/` (React surface), `model/` (Mongoose schemas / Zustand pieces), `lib/` (server-only helpers), `api.ts`, `types.ts`, `serializers.ts`, `index.ts`
 
 ## Component Conventions
 
@@ -17,7 +18,7 @@
 
 ## TypeScript Rules
 
-- All types in slice-level `types.ts` or `shared/types/` — never inside components
+- Domain types live in `entities/<entity>/types.ts` (CoinTicker/Kline/CoinMeta/TimeRange in `entities/coin/types`, AdminUser in `entities/user/types`, etc.). Truly cross-cutting types — `roles`, `coin-asset` base DTOs, `next-auth.d.ts` — live in `shared/types/`. Never put types inside component files
 - `import type` for type-only imports
 - Role types: use `USER_ROLES` const object and derive `UserRole` type — never use string literals
 - Session user: `session.user` is typed via `shared/types/next-auth.d.ts` augmentation — no casting needed
@@ -49,7 +50,7 @@ PortfolioTable (subscribes to portfolio + hasAnyPrice boolean — quiet on ticks
 
 `MarketOverview` follows the same shape: it doesn't read `prices` at all; each `LivePriceCard` wrapper subscribes to its own `prices[symbol]` + `selectedSymbol === symbol` boolean.
 
-**Mutation hooks must not subscribe.** `useAddToWatchlist`/`useRemoveFromWatchlist` read the current watchlist via `useAppStore.getState().watchlist` inside `onSuccess`, not via `useAppStore((s) => s.watchlist)`. That removes one cascading subscription from every PriceCard/CoinDetailsPanel consumer. The trade-off: the closure captures the snapshot at success-time, not enqueue-time, which is what we want for de-duplication.
+**Mutation hooks must not subscribe.** All four — `useAddToWatchlist`, `useRemoveFromWatchlist`, `useAddToPortfolio`, `useRemoveFromPortfolio` — read the current collection via `useAppStore.getState().<slice>` inside `onSuccess`, not via `useAppStore((s) => s.<slice>)`. That removes a cascading subscription from every consumer (LivePriceCard, CoinHeader, PositionRow, etc.) — they only re-render on their own state change, not on every unrelated mutation elsewhere. The trade-off: the closure captures the snapshot at success-time, not enqueue-time — which is what we want for de-duplication.
 
 **Disable mutating buttons while in flight.** `WatchlistStarButton` takes `disabled` and forwards to the Button — wired from `adding || removing` loading flags. Locally imperceptible (mutations finish in ~50ms), but on slow networks it prevents spam-clicks from firing duplicate add/remove requests.
 
@@ -207,11 +208,11 @@ Never re-introduce hardcoded `COIN_ICONS` or `COIN_COLORS` maps. New coins are d
 
 ## Watchlist Toggle — `<WatchlistStarButton />`
 
-`shared/ui/watchlist-star-button.tsx` is the unified star-toggle for adding/removing a symbol from the watchlist. Both the dashboard `PriceCard` and the watchlist table reuse it — do not re-implement the toggle inline in a feature. It reads watchlist state from the store, owns its own optimistic update, and wires through the `add-to-watchlist` / `remove-from-watchlist` features.
+`shared/ui/watchlist-star-button.tsx` is the unified star-toggle for adding/removing a symbol from the watchlist. Both the dashboard `PriceCard` and the watchlist table reuse it — do not re-implement the toggle inline in a feature. It is a **pure presentational button**: `{ isWatched, onToggle, disabled, size?, stopPropagation? }` — no store reads, no mutation logic. The caller owns `isWatched` (per-symbol boolean selector), `onToggle` (closure that calls the matching feature hook), and `disabled` (loading flag from the mutation). That keeps `shared/ui` free of domain coupling.
 
 ## PriceCard Decomposition
 
-`entities/coin/components/price-card/` is split into small components rather than one monolith:
+`entities/coin/ui/price-card/` is split into small components rather than one monolith:
 
 ```
 index.tsx              — composition + early-return for "no ticker yet"
@@ -222,7 +223,7 @@ use-price-flash.ts     — hook: returns "flash-up"/"flash-down"/"" based on las
 styles.ts              — Tailwind class strings
 ```
 
-`PriceCard` itself is presentational — it receives `ticker` as a prop. The smart wrapper that does the per-symbol subscription lives one layer up: `widgets/market-overview/LivePriceCard.tsx` (subscribes to `prices[symbol]` + `selectedSymbol === symbol` boolean, renders Skeleton / NoData / `PriceCard`). The parent `MarketOverview` itself holds zero `prices`-related subscriptions.
+`PriceCard` is presentational and **never imports features** (FSD: entity ↛ feature). It receives `{ ticker, selected, onClick, isWatched, onToggleWatch, toggling }` as props. The smart wrapper that owns the per-symbol subscription AND the watchlist-feature wiring lives one layer up: `widgets/market-overview/LivePriceCard.tsx` calls `useAddToWatchlist`/`useRemoveFromWatchlist`, computes `isWatched` from a per-symbol boolean selector, builds `onToggleWatch`, and passes everything down. The parent `MarketOverview` itself holds zero `prices`-related subscriptions.
 
 The same shape (header / body / change / styles + a per-concern hook) is the default when a card-shaped widget grows past ~80 lines — see `CoinDetailsPanel` (`CoinHeader`, `PriceBlock`, `StatRow`, `get-stat-rows.ts`) for the same template. Combobox/dropdown variant: `coin-combobox` and `search-coin` follow the same split (`index.tsx` + `Dropdown.tsx` + per-row component + `styles.ts`); each row subscribes to its own `prices[symbol]`, never to the global `prices` map.
 
@@ -296,8 +297,9 @@ GoogleIcon. As soon as a component reads from a domain slice (e.g. `selectedSymb
 `watchlist`) or wraps an app-shell concern (next-auth, TanStack Query), it belongs
 elsewhere:
 
-- Domain-coupled components → `entities/<entity>/components/`
-  (selected-symbol-stream, watchlist-initializer, watchlist-provider, price-card)
+- Domain-coupled components → `entities/<entity>/ui/`
+  (selected-symbol-stream, watchlist-initializer, watchlist-provider, price-card,
+  current-user-role-badge)
 - App-shell providers → `app/_providers/` (session-provider, query-provider).
   Underscore prefix opts the directory out of Next App Router routing.
 
