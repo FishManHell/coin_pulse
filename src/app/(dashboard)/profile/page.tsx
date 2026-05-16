@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/entities/user/lib/auth-config";
 import { Header } from "@/widgets/header";
-import { CurrentUserRoleBadge } from "@/entities/user/components/current-user-role-badge";
+import { CurrentUserRoleBadge } from "@/entities/user/ui/current-user-role-badge";
 import { EditProfileForm } from "@/features/edit-profile";
 import { ChangePasswordForm, GoogleAccountNotice } from "@/features/change-password";
 

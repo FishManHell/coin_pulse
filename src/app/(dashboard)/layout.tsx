@@ -1,6 +1,6 @@
 import { requireUser } from "@/entities/user/lib/require-user";
 import { Sidebar } from "@/widgets/sidebar";
-import { WatchlistProvider } from "@/entities/watchlist/components/watchlist-provider";
+import { WatchlistProvider } from "@/entities/watchlist/ui/watchlist-provider";
 import {ReactNode} from "react";
 
 const PrivateLayout = async ({children,}: { children: ReactNode; }) =>  {

@@ -5,7 +5,7 @@ import { useAppStore } from "@/shared/store";
 import { useCoinMeta } from "@/shared/hooks/useCoinMeta";
 import { useAddToWatchlist } from "@/features/add-to-watchlist";
 import { useRemoveFromWatchlist } from "@/features/remove-from-watchlist";
-import { PriceCard } from "@/entities/coin/components/price-card";
+import { PriceCard } from "@/entities/coin/ui/price-card";
 import { SkeletonCard } from "./SkeletonCard";
 import { NoDataCard } from "./NoDataCard";
 
