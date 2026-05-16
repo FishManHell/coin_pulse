@@ -23,13 +23,12 @@ interface PriceCardProps {
 export const PriceCard = ({ ticker, onClick, selected }: Readonly<PriceCardProps>) => {
   const selectedQuote = useAppStore((s) => s.selectedQuote);
   const { names } = useCoinMeta(selectedQuote);
-  const watchlist = useAppStore((s) => s.watchlist);
+  const isWatched = useAppStore((s) => s.watchlist.some((w) => w.symbol === ticker.symbol));
   const { add } = useAddToWatchlist();
   const { remove } = useRemoveFromWatchlist();
 
   const base = ticker.symbol.slice(0, -selectedQuote.length);
   const displayName = names[base] ?? base;
-  const isWatched = watchlist.some((w) => w.symbol === ticker.symbol);
   const flash = usePriceFlash(ticker.price);
 
   const handleClick = () => onClick?.();

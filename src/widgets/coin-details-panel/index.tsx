@@ -16,14 +16,13 @@ export const CoinDetailsPanel = () => {
   const selectedSymbol = useAppStore((s) => s.selectedSymbol);
   const selectedQuote  = useAppStore((s) => s.selectedQuote);
   const ticker         = useAppStore((s) => s.prices[selectedSymbol]);
-  const watchlist      = useAppStore((s) => s.watchlist);
+  const isWatched      = useAppStore((s) => s.watchlist.some((w) => w.symbol === selectedSymbol));
   const { add }    = useAddToWatchlist();
   const { remove } = useRemoveFromWatchlist();
 
   const { names }   = useCoinMeta(selectedQuote);
   const base        = selectedSymbol.slice(0, -selectedQuote.length);
   const displayName = names[base];
-  const isWatched   = watchlist.some((w) => w.symbol === selectedSymbol);
 
   const onToggleWatch = () => {
       return isWatched ? remove(selectedSymbol) : add(selectedSymbol, displayName ?? base, selectedQuote);
