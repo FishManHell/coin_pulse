@@ -1,7 +1,7 @@
 "use client";
 
 import { ReactNode, useState } from "react";
-import { Bell, Search, X } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 import { ThemeToggle } from "@/shared/ui/theme-toggle";
 import { SearchCoin } from "@/features/search-coin";
@@ -49,10 +49,6 @@ export const Header = ({ title, actions, showSearch = true }: HeaderProps) => {
 
         {actions}
         <ThemeToggle />
-
-        <button className={styles.iconButton}>
-          <Bell size={16} />
-        </button>
       </div>
     </header>
   );
