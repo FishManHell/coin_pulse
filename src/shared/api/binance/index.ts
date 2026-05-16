@@ -1,10 +1,10 @@
 import type { CoinTicker, Kline, TimeRange } from "@/entities/coin/types";
-import { BINANCE_BASE as BASE, CG_MARKETS } from "./endpoints";
-import { tradingPairs } from "./binance-pairs";
-import { buildStablecoinSet } from "./binance-stables";
-import type { BinanceKline, FullTicker, MiniTicker } from "./binance-types";
+import { BINANCE_BASE as BASE, CG_MARKETS } from "../endpoints";
+import { tradingPairs } from "./pairs";
+import { buildStablecoinSet } from "./stables";
+import type { BinanceKline, FullTicker, MiniTicker } from "./types";
 
-export { tradingPairs } from "./binance-pairs";
+export { tradingPairs } from "./pairs";
 
 const MIN_PAIR_VOLUME = 500_000;
 

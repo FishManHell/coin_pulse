@@ -2,7 +2,7 @@
 
 import { useAppStore } from "@/shared/store";
 import { useQuoteCurrencies } from "@/shared/hooks/useQuoteCurrencies";
-import { symbolExists } from "@/shared/api/binance-client";
+import { symbolExists } from "@/shared/api/binance/client";
 import { swapQuote } from "@/shared/lib/symbol";
 import {
   Select,

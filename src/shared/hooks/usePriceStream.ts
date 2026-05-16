@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { subscribe } from "@/shared/api/price-stream";
+import { subscribe } from "@/shared/api/binance/price-stream";
 
 export const usePriceStream = (symbols: string[]) => {
   const key = symbols.join(",");

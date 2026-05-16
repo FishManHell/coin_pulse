@@ -56,7 +56,7 @@ PortfolioTable (subscribes to portfolio + hasAnyPrice boolean — quiet on ticks
 
 ## Real-Time Data Pattern
 
-Binance WS connection is a **module-level singleton** in `shared/api/price-stream.ts`.
+Binance WS connection is a **module-level singleton** in `shared/api/binance/price-stream.ts`.
 The `subscribe(symbols)` API is ref-counted: many components can subscribe to overlapping
 symbol sets — internally it coalesces into one WS via `queueMicrotask` reconcile. The
 `usePriceStream(symbols)` hook in `shared/hooks/` is a thin React adapter around it.
@@ -72,8 +72,8 @@ The intentional-close path nulls handlers first, so it doesn't re-trigger reconn
 Don't add SSR guards inside the module — the public `subscribe()` already early-returns
 when `window` is undefined.
 
-Pure helpers (`parseTicker`, `buildStreamUrl`) live in `shared/api/binance-stream-parse.ts` —
-the state machine in price-stream.ts only orchestrates I/O.
+Pure helpers (`parseTicker`, `buildStreamUrl`) live in `shared/api/binance/stream-parse.ts` —
+the state machine in `binance/price-stream.ts` only orchestrates I/O.
 
 Price change: flash green if up, red if down — animate via `flash-up` / `flash-down` CSS classes.
 

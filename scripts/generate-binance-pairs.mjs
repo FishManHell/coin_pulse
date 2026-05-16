@@ -11,7 +11,7 @@ import { dirname, resolve } from "node:path";
 const SOURCE = "https://data-api.binance.vision/api/v3/exchangeInfo";
 const OUT = resolve(
   dirname(fileURLToPath(import.meta.url)),
-  "../src/shared/api/binance-pairs.generated.json",
+  "../src/shared/api/binance/pairs.generated.json",
 );
 
 try {

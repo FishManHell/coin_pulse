@@ -1,4 +1,4 @@
-import binancePairs from "./binance-pairs.generated.json";
+import binancePairs from "./pairs.generated.json";
 
 // Reference data snapshotted at build time by scripts/generate-binance-pairs.mjs.
 // Avoids fetching the 22MB exchangeInfo response at runtime (exceeds Next data

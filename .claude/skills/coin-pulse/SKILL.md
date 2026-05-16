@@ -103,7 +103,7 @@ Permission matrix lives in `ROLE_PERMISSIONS` — always use it, never hardcode 
 
 ```
 Binance WS (wss://stream.binance.com:9443/stream?streams=...)
-  → shared/api/price-stream (ref-counted singleton, auto-reconnect)
+  → shared/api/binance/price-stream (ref-counted singleton, auto-reconnect)
   → Zustand prices slice → components read prices
 
 Server data (GET) → TanStack Query cache (useCoinMeta, useTopCoins, useChartData,
@@ -152,43 +152,48 @@ GOOGLE_CLIENT_SECRET   — Google Cloud Console
 
 - Combined streams: `wss://stream.binance.com:9443/stream?streams=btcusdt@ticker/ethusdt@ticker`
 - Single symbol ticker fields: `s`=symbol, `c`=price, `P`=% change, `p`=change, `v`=volume, `h`=high, `l`=low
-- Connection lives in `shared/api/price-stream.ts` as a module-level singleton.
-  Ref-counted subscriptions coalesce mount/unmount cycles via `queueMicrotask` —
-  StrictMode doesn't churn the socket. Reconnect on unexpected drops: `onclose`
-  resets activeSymbols and schedules a single delayed reconcile after 5s.
+- Connection lives in `shared/api/binance/price-stream.ts` as a module-level
+  singleton. Ref-counted subscriptions coalesce mount/unmount cycles via
+  `queueMicrotask` — StrictMode doesn't churn the socket. Reconnect on
+  unexpected drops: `onclose` resets activeSymbols and schedules a single
+  delayed reconcile after 5s.
 - Pure parsing helpers (`parseTicker`, `buildStreamUrl`) live in
-  `shared/api/binance-stream-parse.ts`; the state machine stays in price-stream.ts.
+  `shared/api/binance/stream-parse.ts`; the state machine stays in price-stream.ts.
 
 ## Binance Trading Pairs — Build-Time Snapshot
 
 The `symbol → quoteAsset` map is snapshotted at build time into
-`shared/api/binance-pairs.generated.json` by `scripts/generate-binance-pairs.mjs`
-(runs as `prebuild` in `package.json`). `shared/api/binance-pairs.ts` imports it as a
-module-level Map (re-exported by `binance.ts` for compatibility). Never fetch
+`shared/api/binance/pairs.generated.json` by `scripts/generate-binance-pairs.mjs`
+(runs as `prebuild` in `package.json`). `shared/api/binance/pairs.ts` imports it as a
+module-level Map (re-exported by `binance/index.ts` for compatibility). Never fetch
 `/api/v3/exchangeInfo` at runtime — its ~22MB response exceeds Next 16's data
 cache 2MB per-item limit and `cache: "no-store"` is ignored by Turbopack, so
 each call would re-download the full payload.
 
 ## shared/api Module Layout
 
-The Binance integration is split by concern, not by function-per-file:
+The Binance integration is grouped under `shared/api/binance/` (public surface
+stays `@/shared/api/binance` — the folder's `index.ts` is the REST entry).
+Mixed base URLs sit at the parent `shared/api/endpoints.ts`:
 
-- `binance.ts` — public REST fetchers: `fetchQuoteCurrencies`, `fetchTopSymbols`,
-  `fetchKlines`. `fetchTopSymbols` runs a single-pass loop (precomputed base +
-  parsed volume; sort uses cached numbers) and degrades gracefully when
-  CoinGecko returns non-OK (skips the crypto allowlist filter instead of
-  returning empty).
-- `binance-pairs.ts` — `tradingPairs` Map from the build-time snapshot.
-- `binance-stables.ts` — `buildStablecoinSet(tickers)` helper (USD-stablecoin
+- `binance/index.ts` — public REST fetchers: `fetchQuoteCurrencies`,
+  `fetchTopSymbols`, `fetchKlines`. `fetchTopSymbols` runs a single-pass loop
+  (precomputed base + parsed volume; sort uses cached numbers) and degrades
+  gracefully when CoinGecko returns non-OK (skips the crypto allowlist filter
+  instead of returning empty).
+- `binance/pairs.ts` — `tradingPairs` Map from the build-time snapshot
+  (`binance/pairs.generated.json`).
+- `binance/stables.ts` — `buildStablecoinSet(tickers)` helper (USD-stablecoin
   detection by ≈$1 USDT price). Shared by both top-coins and quote-currencies
   fetchers.
-- `binance-types.ts` — on-the-wire shapes for both REST (`MiniTicker`,
+- `binance/types.ts` — on-the-wire shapes for both REST (`MiniTicker`,
   `BinanceKline` tuple) and WS (`BinanceTickerEvent`, `BinanceStreamEnvelope`).
-- `binance-client.ts` — `symbolExists` (REST `ticker/price` probe).
-- `binance-stream-parse.ts` — pure WS helpers (parseTicker, buildStreamUrl).
-- `price-stream.ts` — singleton WS state machine (lifecycle + ref-count +
-  reconcile + subscribe + auto-reconnect).
-- `endpoints.ts` — base URLs (`BINANCE_BASE`, `CG_MARKETS`).
+- `binance/client.ts` — `symbolExists` (REST `ticker/price` probe).
+- `binance/stream-parse.ts` — pure WS helpers (parseTicker, buildStreamUrl).
+- `binance/price-stream.ts` — singleton WS state machine (lifecycle + ref-count
+  + reconcile + subscribe + auto-reconnect).
+- `endpoints.ts` — base URLs (`BINANCE_BASE`, `CG_MARKETS`) at `shared/api/`
+  root, not under `binance/`, because `CG_MARKETS` is CoinGecko.
 
 ## Zustand Subscription Discipline
 

@@ -1,6 +1,6 @@
 import { useAppStore } from "@/shared/store";
-import type { BinanceStreamEnvelope, BinanceTickerEvent } from "./binance-types";
-import { buildStreamUrl, parseTicker } from "./binance-stream-parse";
+import type { BinanceStreamEnvelope, BinanceTickerEvent } from "./types";
+import { buildStreamUrl, parseTicker } from "./stream-parse";
 
 const RECONNECT_DELAY_MS = 5000;
 

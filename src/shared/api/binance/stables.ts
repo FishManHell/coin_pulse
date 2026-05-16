@@ -1,5 +1,5 @@
-import { tradingPairs } from "./binance-pairs";
-import type { MiniTicker } from "./binance-types";
+import { tradingPairs } from "./pairs";
+import type { MiniTicker } from "./types";
 
 const STABLE_PRICE_MIN = 0.99;
 const STABLE_PRICE_MAX = 1.01;

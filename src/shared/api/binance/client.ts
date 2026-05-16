@@ -1,4 +1,4 @@
-import { BINANCE_BASE as BASE } from "./endpoints";
+import { BINANCE_BASE as BASE } from "../endpoints";
 
 /**
  * Check whether a symbol pair is currently tradeable on Binance.
