@@ -16,6 +16,7 @@ interface WatchlistStarButtonProps {
   onToggle: () => void;
   stopPropagation?: boolean;
   size?: number;
+  disabled?: boolean;
 }
 
 export const WatchlistStarButton = ({
@@ -23,6 +24,7 @@ export const WatchlistStarButton = ({
   onToggle,
   stopPropagation = false,
   size = 14,
+  disabled = false,
 }: Readonly<WatchlistStarButtonProps>) => {
   const handleClick = (e: MouseEvent<HTMLButtonElement>) => {
     if (stopPropagation) e.stopPropagation();
@@ -34,6 +36,7 @@ export const WatchlistStarButton = ({
       variant="ghost"
       size="icon-sm"
       onClick={handleClick}
+      disabled={disabled}
       className={cn(styles.button, isWatched ? styles.active : styles.inactive)}
     >
       <Star size={size} fill={isWatched ? "currentColor" : "none"} />

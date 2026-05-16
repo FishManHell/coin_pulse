@@ -11,9 +11,10 @@ interface CoinHeaderProps {
   displayName: string | undefined;
   isWatched: boolean;
   onToggleWatch: () => void;
+  toggling: boolean;
 }
 
-export const CoinHeader = ({ base, quote, displayName, isWatched, onToggleWatch }: CoinHeaderProps) => (
+export const CoinHeader = ({ base, quote, displayName, isWatched, onToggleWatch, toggling }: CoinHeaderProps) => (
   <div className={styles.coinHeaderRow}>
     <div className={styles.coinHeaderInfo}>
       <CoinIcon base={base} size="md" />
@@ -27,6 +28,6 @@ export const CoinHeader = ({ base, quote, displayName, isWatched, onToggleWatch 
       </div>
     </div>
 
-    <WatchlistStarButton isWatched={isWatched} onToggle={onToggleWatch} size={15} />
+    <WatchlistStarButton isWatched={isWatched} onToggle={onToggleWatch} disabled={toggling} size={15} />
   </div>
 );

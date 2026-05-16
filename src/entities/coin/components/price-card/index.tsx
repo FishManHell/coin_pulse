@@ -24,8 +24,8 @@ export const PriceCard = ({ ticker, onClick, selected }: Readonly<PriceCardProps
   const selectedQuote = useAppStore((s) => s.selectedQuote);
   const { names } = useCoinMeta(selectedQuote);
   const isWatched = useAppStore((s) => s.watchlist.some((w) => w.symbol === ticker.symbol));
-  const { add } = useAddToWatchlist();
-  const { remove } = useRemoveFromWatchlist();
+  const { add, loading: adding } = useAddToWatchlist();
+  const { remove, loading: removing } = useRemoveFromWatchlist();
 
   const base = ticker.symbol.slice(0, -selectedQuote.length);
   const displayName = names[base] ?? base;
@@ -62,7 +62,7 @@ export const PriceCard = ({ ticker, onClick, selected }: Readonly<PriceCardProps
         <PriceCardHeader base={base} quote={selectedQuote} displayName={displayName} />
         <div className={styles.topRight}>
           <PriceChangeBadge changePercent={ticker.priceChangePercent} />
-          <WatchlistStarButton isWatched={isWatched} onToggle={handleToggleWatch} stopPropagation />
+          <WatchlistStarButton isWatched={isWatched} onToggle={handleToggleWatch} disabled={adding || removing} stopPropagation />
         </div>
       </div>
 
