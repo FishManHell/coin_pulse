@@ -4,7 +4,7 @@ import { KeyboardEvent } from "react";
 import { cn } from "@/shared/lib/utils";
 import { useAppStore } from "@/shared/store";
 import { useCoinMeta } from "@/shared/hooks/useCoinMeta";
-import type { CoinTicker } from "@/shared/types";
+import type { CoinTicker } from "@/entities/coin/types";
 import { WatchlistStarButton } from "@/shared/ui/watchlist-star-button";
 import { PriceBody } from "./PriceBody";
 import { PriceCardHeader } from "./PriceCardHeader";

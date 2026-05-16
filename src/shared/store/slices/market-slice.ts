@@ -1,5 +1,5 @@
 import type { StateCreator } from "zustand";
-import type { CoinTicker } from "@/shared/types";
+import type { CoinTicker } from "@/entities/coin/types";
 import type { AppStore, StoreMutators } from "../types";
 
 export interface MarketSlice {

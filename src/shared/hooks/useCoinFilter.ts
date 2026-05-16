@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { useAppStore } from "@/shared/store";
 import { useCoinMeta } from "@/shared/hooks/useCoinMeta";
-import type { CoinMeta } from "@/shared/types";
+import type { CoinMeta } from "@/entities/coin/types";
 
 interface Options {
   limit?: number;

@@ -18,16 +18,12 @@ export interface Kline {
   volume: number;
 }
 
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  image?: string;
-}
-
 export type TimeRange = "1H" | "24H" | "1W" | "1M" | "1Y";
 
-export interface CoinMeta { symbol: string; name: string };
+export interface CoinMeta {
+  symbol: string;
+  name: string;
+}
 
 export interface CoinMetaResponse {
   names: Record<string, string>;

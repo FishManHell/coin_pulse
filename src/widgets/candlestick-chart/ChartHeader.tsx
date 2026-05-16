@@ -1,6 +1,6 @@
 import { TrendingUp, TrendingDown } from "lucide-react";
 import { formatPrice, formatPercent, cn } from "@/shared/lib/utils";
-import type { CoinTicker } from "@/shared/types";
+import type { CoinTicker } from "@/entities/coin/types";
 
 interface ChartHeaderProps {
   base: string;

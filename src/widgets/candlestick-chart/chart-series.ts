@@ -6,7 +6,7 @@ import {
   type IChartApi,
   type Time,
 } from "lightweight-charts";
-import type { Kline } from "@/shared/types";
+import type { Kline } from "@/entities/coin/types";
 import type { ChartType } from "./chart-config";
 
 const UP = "#10B981";

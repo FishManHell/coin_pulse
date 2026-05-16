@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { unstable_cache } from "next/cache";
-import type { CoinMeta, CoinMetaResponse } from "@/shared/types";
+import type { CoinMeta, CoinMetaResponse } from "@/entities/coin/types";
 import { BINANCE_BASE, CG_MARKETS } from "@/shared/api/endpoints";
 
 // ticker/price (~135KB) lists every currently-traded symbol;

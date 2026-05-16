@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useRef, useMemo, type ChangeEvent } from "react";
-import { useDismiss } from "@/shared/lib/use-dismiss";
+import { useDismiss } from "@/shared/hooks/useDismiss";
 import { stripQuote } from "@/shared/lib/symbol";
 import { cn } from "@/shared/lib/utils";
 import { SearchInput } from "@/shared/ui/search-input";
 import { useFloatingRect } from "@/shared/hooks/useFloatingRect";
-import type { CoinMeta } from "@/shared/types";
+import type { CoinMeta } from "@/entities/coin/types";
 import { CoinDropdown } from "./CoinDropdown";
 
 interface CoinComboboxProps {

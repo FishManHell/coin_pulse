@@ -3,11 +3,11 @@
 import { useState, useRef, useCallback, type ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useAppStore } from "@/shared/store";
-import { useDismiss } from "@/shared/lib/use-dismiss";
+import { useDismiss } from "@/shared/hooks/useDismiss";
 import { cn } from "@/shared/lib/utils";
 import { ROUTES } from "@/shared/config/routes";
 import { SearchInput } from "@/shared/ui/search-input";
-import type { CoinMeta } from "@/shared/types";
+import type { CoinMeta } from "@/entities/coin/types";
 import { SearchResultsDropdown } from "./SearchResultsDropdown";
 import { styles } from "./styles";
 

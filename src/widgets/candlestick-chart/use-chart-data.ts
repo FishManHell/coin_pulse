@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAppStore } from "@/shared/store";
 import { fetchKlines } from "@/shared/api/binance";
-import type { TimeRange } from "@/shared/types";
+import type { TimeRange } from "@/entities/coin/types";
 import type { ChartType } from "./chart-config";
 
 export const useChartData = () => {

@@ -3,7 +3,7 @@
 import { useSession } from "next-auth/react";
 import { ROLE_LABELS, type UserRole } from "@/shared/types/roles";
 
-export const RoleBadge = () => {
+export const CurrentUserRoleBadge = () => {
   const { data } = useSession();
   const role = (data?.user as { role?: UserRole } | undefined)?.role;
   if (!role) return null;

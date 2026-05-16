@@ -3,7 +3,7 @@
 import { createPortal } from "react-dom";
 import { cn } from "@/shared/lib/utils";
 import { stripQuote } from "@/shared/lib/symbol";
-import type { CoinMeta } from "@/shared/types";
+import type { CoinMeta } from "@/entities/coin/types";
 import { styles } from "./styles";
 
 interface CoinDropdownProps {

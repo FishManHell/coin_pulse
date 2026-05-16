@@ -5,7 +5,7 @@ import { useAppStore } from "@/shared/store";
 import { CoinIcon } from "@/shared/ui/coin-icon";
 import { stripQuote } from "@/shared/lib/symbol";
 import { formatPrice, cn } from "@/shared/lib/utils";
-import type { CoinMeta } from "@/shared/types";
+import type { CoinMeta } from "@/entities/coin/types";
 import { styles } from "./styles";
 
 interface SearchResultItemProps {

@@ -1,4 +1,4 @@
-import type { CoinTicker } from "@/shared/types";
+import type { CoinTicker } from "@/entities/coin/types";
 import type { BinanceTickerEvent } from "./binance-types";
 
 const BINANCE_WS_BASE = "wss://stream.binance.com:9443";

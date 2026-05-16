@@ -1,8 +1,8 @@
 "use client";
 
 import { useMemo } from "react";
-import { useCoinFilter } from "@/shared/lib/use-coin-filter";
-import type { CoinMeta } from "@/shared/types";
+import { useCoinFilter } from "@/shared/hooks/useCoinFilter";
+import type { CoinMeta } from "@/entities/coin/types";
 import { SearchResultItem } from "./SearchResultItem";
 import { useSearchTickersSnapshot } from "./use-search-tickers-snapshot";
 import { styles } from "./styles";
