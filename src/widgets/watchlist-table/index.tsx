@@ -22,9 +22,10 @@ export const WatchlistTable = ({ initialItems }: WatchlistTableProps) => {
   const symbols = useMemo(() => watchlist.map((w) => w.symbol), [watchlist]);
   usePriceStream(symbols);
 
-  useEffect(() => {
-    setWatchlist(initialItems);
-  }, []);
+  // One-time hydration from server props. Including deps would re-fire on
+  // every prop update and overwrite later store changes from user actions.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { setWatchlist(initialItems); }, []);
 
   const quotes = useMemo(
     () => [...new Set(watchlist.map((w) => w.quote))].sort(),

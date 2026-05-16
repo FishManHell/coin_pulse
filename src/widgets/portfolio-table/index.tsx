@@ -33,6 +33,9 @@ export const PortfolioTable = ({ initialPositions }: Readonly<PortfolioTableProp
 
   const initialLoad = grouped.length > 0 && !hasAnyPrice;
 
+  // One-time hydration from server props. Including deps would re-fire on
+  // every prop update and overwrite later store changes from user actions.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { setPortfolio(initialPositions); }, []);
 
   return (
