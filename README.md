@@ -116,7 +116,7 @@ scripts/      Prebuild snapshots (Binance trading pairs)
 ```bash
 git clone https://github.com/FishManHell/coin_pulse.git
 cd coin_pulse
-yarn install
+npm install
 ```
 
 ### 2. Configure environment
@@ -141,7 +141,7 @@ GOOGLE_CLIENT_SECRET=
 ### 3. Run
 
 ```bash
-yarn dev
+npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000)
@@ -153,7 +153,7 @@ npm test            # single run
 npm run test:watch  # TDD watch mode
 ```
 
-Tier 1 coverage today: pure-logic units (parsers, formatters, serializers, P&L aggregation). See `.claude/skills/coin-pulse/references/testing.md` for the roadmap and conventions.
+125 tests across 22 files: pure-logic units (Tier 1), Zustand stores (Tier 2), React hooks via `renderHook` + fake timers (Tier 3), plus business logic extracted from forms / smart containers / API routes (Tier 4-6: `deriveEffectiveSymbol`, `compute*Pnl`, `parsePortfolioPayload`, `ROLE_PERMISSIONS`). `vitest run` is wired into `prebuild` — Vercel + CI fail on red tests. See `.claude/skills/coin-pulse/references/testing.md` for the pure-extract strategy and explicit skip list.
 
 ---
 
