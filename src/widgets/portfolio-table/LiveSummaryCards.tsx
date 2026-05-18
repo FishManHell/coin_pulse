@@ -6,6 +6,7 @@ import { usePricesStore } from "@/entities/coin";
 import { formatPrice, formatPercent } from "@/shared/lib/utils";
 import type { GroupedPosition } from "./group-positions";
 import { SummaryCard } from "./SummaryCard";
+import { computePortfolioPnl } from "./compute-portfolio-pnl";
 
 interface LiveSummaryCardsProps {
   grouped: GroupedPosition[];
@@ -24,14 +25,7 @@ export const LiveSummaryCards = ({ grouped, loading }: Readonly<LiveSummaryCards
     ),
   );
 
-  const invested = grouped.reduce((sum, g) => sum + g.totalCost, 0);
-  const current = grouped.reduce((sum, g) => {
-    const price = prices[g.symbol] ?? g.avgBuyPrice;
-    return sum + g.totalQty * price;
-  }, 0);
-  const pnl = current - invested;
-  const pnlPct = invested > 0 ? (pnl / invested) * 100 : 0;
-  const isUp = pnl >= 0;
+  const { current, pnl, pnlPct, isUp } = computePortfolioPnl(grouped, prices);
 
   return (
     <>

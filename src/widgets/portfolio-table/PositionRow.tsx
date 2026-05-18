@@ -9,6 +9,7 @@ import { styles } from "./styles";
 import { TransactionRow } from "./TransactionRow";
 import { PositionRowSkeleton } from "./PositionRowSkeleton";
 import type { GroupedPosition } from "./group-positions";
+import { computePositionPnl } from "./compute-position-pnl";
 
 interface PositionRowProps {
   group: GroupedPosition;
@@ -22,11 +23,7 @@ export const PositionRow = ({ group, initialLoad }: PositionRowProps) => {
   if (!ticker && initialLoad) return <PositionRowSkeleton group={group} />;
 
   const base = group.symbol.slice(0, -group.quote.length);
-  const currentPrice = ticker?.price ?? group.avgBuyPrice;
-  const currentValue = currentPrice * group.totalQty;
-  const pnl = currentValue - group.totalCost;
-  const pnlPct = group.totalCost > 0 ? (pnl / group.totalCost) * 100 : 0;
-  const up = pnl >= 0;
+  const { currentPrice, pnl, pnlPct, isUp } = computePositionPnl(group, ticker?.price);
 
   const toggleExpanded = () => setExpanded((v) => !v);
 
@@ -61,9 +58,9 @@ export const PositionRow = ({ group, initialLoad }: PositionRowProps) => {
         <span className={styles.cellSecondary}>{group.totalQty}</span>
         <span className={styles.cellSecondary}>${formatPrice(group.avgBuyPrice)}</span>
         <span className={styles.cellPrimary}>${formatPrice(currentPrice)}</span>
-        <span className={cn(styles.pnlCell, up ? "text-price-up" : "text-price-down")}>
-          {up ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
-          {up ? "+" : ""}${formatPrice(Math.abs(pnl))}
+        <span className={cn(styles.pnlCell, isUp ? "text-price-up" : "text-price-down")}>
+          {isUp ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
+          {isUp ? "+" : ""}${formatPrice(Math.abs(pnl))}
           <span className="text-xs opacity-70">({formatPercent(pnlPct)})</span>
         </span>
         <span />
