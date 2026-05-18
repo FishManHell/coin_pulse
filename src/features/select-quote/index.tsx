@@ -1,6 +1,6 @@
 "use client";
 
-import { useAppStore } from "@/shared/store";
+import { useSelectionStore } from "@/shared/store";
 import { useQuoteCurrencies } from "@/shared/hooks/useQuoteCurrencies";
 import { symbolExists } from "@/shared/api/binance/client";
 import { swapQuote } from "@/shared/lib/symbol";
@@ -14,14 +14,14 @@ import {
 
 export const QuoteSelector = () => {
   const quotes = useQuoteCurrencies();
-  const selectedQuote = useAppStore((s) => s.selectedQuote);
-  const setSelectedQuote = useAppStore((s) => s.setSelectedQuote);
-  const setSelectedSymbol = useAppStore((s) => s.setSelectedSymbol);
+  const selectedQuote = useSelectionStore((s) => s.selectedQuote);
+  const setSelectedQuote = useSelectionStore((s) => s.setSelectedQuote);
+  const setSelectedSymbol = useSelectionStore((s) => s.setSelectedSymbol);
 
   const handleQuoteChange = async (newQuote: string) => {
     if (newQuote === selectedQuote) return;
 
-    const oldSymbol = useAppStore.getState().selectedSymbol;
+    const oldSymbol = useSelectionStore.getState().selectedSymbol;
     let candidate: string | null = null;
 
     if (oldSymbol.endsWith(selectedQuote)) {

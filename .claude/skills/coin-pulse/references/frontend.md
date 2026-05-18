@@ -23,6 +23,21 @@
 - Role types: use `USER_ROLES` const object and derive `UserRole` type — never use string literals
 - Session user: `session.user` is typed via `shared/types/next-auth.d.ts` augmentation — no casting needed
 
+## Zustand Stores — Per-Entity Split
+
+State is sharded across four small stores; there is no combined `useAppStore`:
+
+| Store | Location | Holds |
+|---|---|---|
+| `usePricesStore` | `entities/coin/model/store.ts` | `prices: Record<symbol, CoinTicker>` + `updatePrice` |
+| `useWatchlistStore` | `entities/watchlist/model/store.ts` (barrel) | `items: WatchlistItem[]` + `setItems` |
+| `usePortfolioStore` | `entities/portfolio/model/store.ts` (barrel) | `positions: PortfolioPosition[]` + `setPositions` |
+| `useSelectionStore` | `shared/store/selection-store.ts` (barrel `@/shared/store`) | `selectedSymbol`, `selectedQuote` + setters |
+
+Consumers reading from multiple domains subscribe to each store separately (Zustand selectors are per-store, no cross-store derivation). Each store carries its own `devtools` instance for easy isolation in DevTools.
+
+This split keeps the FSD layering pure — no `shared → entities` type crossings — at the cost of a slightly more verbose import block in widgets that mix domains.
+
 ## Zustand Subscription Discipline
 
 Streaming ticks (5–10 Hz) fan out across many components — a wrong selector turns one WS message into 30+ re-renders. Rules established from a measured perf round:
@@ -31,10 +46,10 @@ Streaming ticks (5–10 Hz) fan out across many components — a wrong selector 
 
 | Pattern | Wrong | Right |
 |---|---|---|
-| Price for one symbol | `s.prices` | `s.prices[symbol]` |
-| Is this watched? | `s.watchlist` then `.some(...)` outside | `s.watchlist.some((w) => w.symbol === symbol)` (boolean) |
-| Has any tick arrived? | `s.prices` | `Object.keys(s.prices).length > 0` (boolean, flips once) |
-| Totals across N symbols | `s.prices` then `.reduce(...)` outside | `useShallow((s) => Object.fromEntries(symbols.map((sym) => [sym, s.prices[sym]?.price])))` |
+| Price for one symbol | `usePricesStore((s) => s.prices)` | `usePricesStore((s) => s.prices[symbol])` |
+| Is this watched? | `useWatchlistStore((s) => s.items)` then `.some(...)` outside | `useWatchlistStore((s) => s.items.some((w) => w.symbol === symbol))` (boolean) |
+| Has any tick arrived? | `usePricesStore((s) => s.prices)` | `usePricesStore((s) => Object.keys(s.prices).length > 0)` (boolean, flips once) |
+| Totals across N symbols | `usePricesStore((s) => s.prices)` then `.reduce(...)` outside | `usePricesStore(useShallow((s) => Object.fromEntries(symbols.map((sym) => [sym, s.prices[sym]?.price]))))` |
 
 **Lift smart subscriptions into a dedicated child.** Don't subscribe at the parent and pass derived values down — the parent re-renders on every tick and cascades through its entire subtree (no `React.memo` in this codebase). Instead, extract a small "live" container that owns the subscription, and let the parent stay subscription-free.
 
@@ -50,20 +65,22 @@ PortfolioTable (subscribes to portfolio + hasAnyPrice boolean — quiet on ticks
 
 `MarketOverview` follows the same shape: it doesn't read `prices` at all; each `LivePriceCard` wrapper subscribes to its own `prices[symbol]` + `selectedSymbol === symbol` boolean.
 
-**Mutation hooks must not subscribe.** All four — `useAddToWatchlist`, `useRemoveFromWatchlist`, `useAddToPortfolio`, `useRemoveFromPortfolio` — read the current collection via `useAppStore.getState().<slice>` inside `onSuccess`, not via `useAppStore((s) => s.<slice>)`. That removes a cascading subscription from every consumer (LivePriceCard, CoinHeader, PositionRow, etc.) — they only re-render on their own state change, not on every unrelated mutation elsewhere. The trade-off: the closure captures the snapshot at success-time, not enqueue-time — which is what we want for de-duplication.
+**Mutation hooks must not subscribe.** All four — `useAddToWatchlist`, `useRemoveFromWatchlist`, `useAddToPortfolio`, `useRemoveFromPortfolio` — read the current collection via `useWatchlistStore.getState().items` / `usePortfolioStore.getState().positions` inside `onSuccess`, not via subscription. That removes a cascading subscription from every consumer (LivePriceCard, CoinHeader, PositionRow, etc.) — they only re-render on their own state change, not on every unrelated mutation elsewhere. The trade-off: the closure captures the snapshot at success-time, not enqueue-time — which is what we want for de-duplication.
 
 **Disable mutating buttons while in flight.** `WatchlistStarButton` takes `disabled` and forwards to the Button — wired from `adding || removing` loading flags. Locally imperceptible (mutations finish in ~50ms), but on slow networks it prevents spam-clicks from firing duplicate add/remove requests.
 
 ## Real-Time Data Pattern
 
-Binance WS connection is a **module-level singleton** in `shared/api/binance/price-stream.ts`.
+Binance WS connection is a **module-level singleton** in `entities/coin/api/price-stream.ts`
+(it writes directly into `usePricesStore`, so the singleton lives in the same entity slice).
 The `subscribe(symbols)` API is ref-counted: many components can subscribe to overlapping
 symbol sets — internally it coalesces into one WS via `queueMicrotask` reconcile. The
-`usePriceStream(symbols)` hook in `shared/hooks/` is a thin React adapter around it.
-Components read prices from the Zustand `prices` slice — never connect to WS directly.
+`usePriceStream(symbols)` hook in `entities/coin/api/use-price-stream.ts` is a thin React
+adapter around it; consumers import it via the entity barrel `@/entities/coin`.
+Components read prices from `usePricesStore` — never connect to WS directly.
 
 ```
-Binance WS → price-stream singleton → Zustand prices slice → component reads state
+Binance WS → entities/coin/api/price-stream singleton → usePricesStore → component reads state
 ```
 
 Recovery: unexpected drops route through `onclose` (which fires after `onerror` per
@@ -106,10 +123,10 @@ matching the 24h server `unstable_cache`).
 | `useQuoteCurrencies()` | `string[]` (fallback `["USDT"]`) | `/api/quote-currencies` |
 
 **Single source of truth**: server data lives in the Query cache only, never duplicated
-into Zustand. The Zustand market slice holds streaming prices and `selectedSymbol`/
-`selectedQuote` (genuine client state); coin names and tradeable pairs are read via
-`useCoinMeta` everywhere they're needed. Multiple consumers (PriceCard ×N, combobox,
-filter) share one fetch via the `["coin-meta", quote]` queryKey.
+into Zustand. `usePricesStore` holds streaming prices; `useSelectionStore` holds
+`selectedSymbol`/`selectedQuote` (genuine client state). Coin names and tradeable
+pairs are read via `useCoinMeta` everywhere they're needed. Multiple consumers
+(PriceCard ×N, combobox, filter) share one fetch via the `["coin-meta", quote]` queryKey.
 
 ## Mutation + Toast Pattern
 
@@ -132,7 +149,7 @@ The hook stays pure orchestration:
 ```ts
 const mutation = useMutation({
   mutationFn: createPortfolioPosition,
-  onSuccess: (position, input) => { setPortfolio([position, ...]); toast.success(`${input.name} added`); },
+  onSuccess: (position, input) => { setPositions([position, ...]); toast.success(`${input.name} added`); },
   onError: (err) => { toast.error("Couldn't add position", { description: err.message }); },
 });
 ```
@@ -153,7 +170,7 @@ inside `mutationFn`.
 ## Quote-Aware Form Independence
 
 `AddPositionForm` (in `features/add-to-portfolio`) is fully decoupled from the global `selectedQuote` in both directions:
-- It defaults to a hardcoded `"USDT"` on every mount — never reads `useAppStore.getState().selectedQuote`.
+- It defaults to a hardcoded `"USDT"` on every mount — never reads `useSelectionStore.getState().selectedQuote`.
 - Its quote select writes to local `useState` only — never propagates back to the global store.
 
 The dashboard header `QuoteSelector` and the form's own pair select represent two different bounded contexts ("what market am I exploring" vs "what pair did I trade in") that happen to share the same string type. Do not re-bridge them.
@@ -240,13 +257,13 @@ Move the `useCoinFilter` subscription into the dropdown too — the parent `Sear
 For rows that depend on streaming prices (Binance WS), split each row into two siblings: the real row and a skeleton row (e.g. `PositionRow` + `PositionRowSkeleton`, `WatchlistRow` + `WatchlistRowSkeleton`). The real row does an early return when its ticker is missing — keeping its main render path free of loading branches:
 
 ```tsx
-const ticker = useAppStore((s) => s.prices[item.symbol]);
+const ticker = usePricesStore((s) => s.prices[item.symbol]);
 if (!ticker && initialLoad) return <PositionRowSkeleton group={group} />;
 ```
 
 Both components must share the same grid columns/styles, otherwise layout jumps when the row swaps in. The skeleton renders ticker-independent fields (avatar, name) immediately and uses `<Skeleton className="w-N h-4" />` for streaming columns.
 
-`initialLoad` is computed from a boolean selector — `useAppStore((s) => Object.keys(s.prices).length > 0)` — that flips false→true once on the first tick and stays. The parent table never re-renders on subsequent ticks because the boolean is stable; only the per-symbol row subscriptions fire. Adding a new entry in steady state does **not** flash skeletons over previously-loaded rows or summary cards.
+`initialLoad` is computed from a boolean selector — `usePricesStore((s) => Object.keys(s.prices).length > 0)` — that flips false→true once on the first tick and stays. The parent table never re-renders on subsequent ticks because the boolean is stable; only the per-symbol row subscriptions fire. Adding a new entry in steady state does **not** flash skeletons over previously-loaded rows or summary cards.
 
 ## Form State Pattern — `useFormState<T>`
 

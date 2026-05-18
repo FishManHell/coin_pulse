@@ -6,7 +6,7 @@ import { stripQuote } from "@/shared/lib/symbol";
 import { cn } from "@/shared/lib/utils";
 import { SearchInput } from "@/shared/ui/search-input";
 import { useFloatingRect } from "@/shared/hooks/useFloatingRect";
-import type { CoinMeta } from "@/entities/coin/types";
+import type { CoinMeta } from "@/entities/coin";
 import { CoinDropdown } from "./CoinDropdown";
 
 interface CoinComboboxProps {

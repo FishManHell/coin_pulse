@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { useCoinFilter } from "@/shared/hooks/useCoinFilter";
-import type { CoinMeta } from "@/entities/coin/types";
+import type { CoinMeta } from "@/entities/coin";
 import { SearchResultItem } from "./SearchResultItem";
 import { useSearchTickersSnapshot } from "./use-search-tickers-snapshot";
 import { styles } from "./styles";

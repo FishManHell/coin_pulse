@@ -1,6 +1,7 @@
 "use client";
 
-import { useAppStore } from "@/shared/store";
+import { useSelectionStore } from "@/shared/store";
+import { usePricesStore } from "@/entities/coin";
 import { useTheme } from "@/shared/hooks/useTheme";
 import { ChartCanvas } from "./ChartCanvas";
 import { ChartHeader } from "./ChartHeader";
@@ -9,9 +10,9 @@ import { TimeRangeSwitcher } from "./TimeRangeSwitcher";
 import { useChartData } from "./use-chart-data";
 
 export const CandlestickChart = () => {
-  const selectedSymbol = useAppStore((s) => s.selectedSymbol);
-  const selectedQuote = useAppStore((s) => s.selectedQuote);
-  const ticker = useAppStore((s) => s.prices[selectedSymbol]);
+  const selectedSymbol = useSelectionStore((s) => s.selectedSymbol);
+  const selectedQuote = useSelectionStore((s) => s.selectedQuote);
+  const ticker = usePricesStore((s) => s.prices[selectedSymbol]);
   const { theme } = useTheme();
 
   const { range, setRange, chartType, setChartType, klines, loading } = useChartData();

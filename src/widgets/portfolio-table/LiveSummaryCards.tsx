@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { useShallow } from "zustand/react/shallow";
-import { useAppStore } from "@/shared/store";
+import { usePricesStore } from "@/entities/coin";
 import { formatPrice, formatPercent } from "@/shared/lib/utils";
 import type { GroupedPosition } from "./group-positions";
 import { SummaryCard } from "./SummaryCard";
@@ -18,7 +18,7 @@ export const LiveSummaryCards = ({ grouped, loading }: Readonly<LiveSummaryCards
   // Subscribe shallow-equal to only the prices we actually consume — re-renders
   // skip when an unrelated symbol ticks AND when one of ours ticks but its
   // numeric price is unchanged.
-  const prices = useAppStore(
+  const prices = usePricesStore(
     useShallow((s) =>
       Object.fromEntries(symbols.map((sym) => [sym, s.prices[sym]?.price])),
     ),

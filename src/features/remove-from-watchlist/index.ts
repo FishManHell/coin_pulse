@@ -2,17 +2,16 @@
 
 import { toast } from "sonner";
 import { useMutation } from "@tanstack/react-query";
-import { useAppStore } from "@/shared/store";
-import { deleteWatchlistItem } from "@/entities/watchlist";
+import { deleteWatchlistItem, useWatchlistStore } from "@/entities/watchlist";
 
 export const useRemoveFromWatchlist = () => {
-  const setWatchlist = useAppStore((s) => s.setWatchlist);
+  const setItems = useWatchlistStore((s) => s.setItems);
 
   const { mutate, isPending: loading } = useMutation({
     mutationFn: deleteWatchlistItem,
     onSuccess: (_, symbol) => {
-      const current = useAppStore.getState().watchlist;
-      setWatchlist(current.filter((w) => w.symbol !== symbol));
+      const current = useWatchlistStore.getState().items;
+      setItems(current.filter((w) => w.symbol !== symbol));
       toast.success("Removed from watchlist");
     },
     onError: (err) => {

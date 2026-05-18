@@ -1,11 +1,11 @@
 "use client";
 
 import { TrendingUp, TrendingDown } from "lucide-react";
-import { useAppStore } from "@/shared/store";
+import { useSelectionStore } from "@/shared/store";
+import { usePricesStore, type CoinMeta } from "@/entities/coin";
 import { CoinIcon } from "@/shared/ui/coin-icon";
 import { stripQuote } from "@/shared/lib/symbol";
 import { formatPrice, cn } from "@/shared/lib/utils";
-import type { CoinMeta } from "@/entities/coin/types";
 import { styles } from "./styles";
 
 interface SearchResultItemProps {
@@ -14,8 +14,8 @@ interface SearchResultItemProps {
 }
 
 export const SearchResultItem = ({ coin, onSelect }: SearchResultItemProps) => {
-  const ticker = useAppStore((s) => s.prices[coin.symbol]);
-  const selectedQuote = useAppStore((s) => s.selectedQuote);
+  const ticker = usePricesStore((s) => s.prices[coin.symbol]);
+  const selectedQuote = useSelectionStore((s) => s.selectedQuote);
   const base = stripQuote(coin.symbol, selectedQuote);
   const isUp = (ticker?.priceChangePercent ?? 0) >= 0;
 

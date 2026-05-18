@@ -5,3 +5,4 @@ export {
   deletePortfolioPosition,
   type CreatePortfolioInput,
 } from "./api";
+export { usePortfolioStore } from "./model/store";

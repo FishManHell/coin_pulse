@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import type { CoinMetaResponse } from "@/entities/coin/types";
+import type { CoinMetaResponse } from "@/entities/coin";
 
 const EMPTY: CoinMetaResponse = { names: {}, pairs: [] };
 

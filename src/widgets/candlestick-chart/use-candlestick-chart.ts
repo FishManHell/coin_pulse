@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef } from "react";
 import { createChart, type IChartApi } from "lightweight-charts";
 import { useResizeObserver } from "@/shared/hooks/useResizeObserver";
-import type { Kline } from "@/entities/coin/types";
+import type { Kline } from "@/entities/coin";
 import { buildChartOptions, buildThemeOptions, type ChartTheme } from "./chart-theme";
 import { createSeries, type ChartSeriesController } from "./chart-series";
 import type { ChartType } from "./chart-config";

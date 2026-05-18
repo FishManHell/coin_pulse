@@ -81,16 +81,18 @@ entities/     coin/{ui/{price-card, selected-symbol-stream}, types},
                     ui/current-user-role-badge, types}
 shared/       ui (generic primitives only — Button, SearchInput, Select, Skeleton, …),
               lib (cn, formatters, db, parse-quote, api-fetch with 401/403 toasts, symbol),
-              hooks (usePriceStream, useTheme, useCoinMeta, useQuoteCurrencies,
+              hooks (useTheme, useCoinMeta, useQuoteCurrencies,
                      useFormState, useFloatingRect, useResizeObserver, useStaleAfter,
                      useCoinFilter, useDismiss),
-              config (routes), store, types (roles, coin-asset, next-auth.d.ts), api
+              config (routes), store (useSelectionStore only — entity data lives
+                 in per-entity stores), types (roles, coin-asset, next-auth.d.ts), api
 scripts/      Prebuild snapshots (Binance trading pairs)
 ```
 
 ### Data flow
 
-- **Streaming prices**: Binance WS → `shared/api/binance/price-stream.ts` (ref-counted singleton with auto-reconnect on `onclose`) → Zustand `prices` slice → components.
+- **Streaming prices**: Binance WS → `entities/coin/api/price-stream.ts` (ref-counted singleton with auto-reconnect on `onclose`) → `usePricesStore` (`entities/coin/model/store.ts`) → components (via `usePriceStream` hook re-exported from `@/entities/coin`).
+- **Client state**: per-entity Zustand stores — `usePricesStore` (coin), `useWatchlistStore`, `usePortfolioStore`, plus `useSelectionStore` (selectedSymbol/selectedQuote) in `shared/store/`. No combined `useAppStore`.
 - **Server data**: TanStack Query is the single source of truth (e.g. `useCoinMeta(quote)` for coin names + tradeable pairs). Multiple consumers share one fetch via queryKey dedup.
 - **Mutations**: entity-scoped API functions in `entities/<X>/api.ts` throw on `!res.ok`; hooks compose them via `useMutation` + sonner toasts. The `apiFetch` wrapper handles 401 (signOut) and 403 (toast) globally.
 

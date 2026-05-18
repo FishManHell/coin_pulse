@@ -1,6 +1,6 @@
 "use client";
 
-import type { Kline } from "@/entities/coin/types";
+import type { Kline } from "@/entities/coin";
 import { useCandlestickChart } from "./use-candlestick-chart";
 import type { ChartTheme } from "./chart-theme";
 import type { ChartType } from "./chart-config";

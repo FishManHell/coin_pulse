@@ -1,9 +1,9 @@
 "use client";
 
 import { useMemo } from "react";
-import { useAppStore } from "@/shared/store";
+import { useSelectionStore } from "@/shared/store";
 import { useCoinMeta } from "@/shared/hooks/useCoinMeta";
-import type { CoinMeta } from "@/entities/coin/types";
+import type { CoinMeta } from "@/entities/coin";
 
 interface Options {
   limit?: number;
@@ -12,7 +12,7 @@ interface Options {
 
 export const useCoinFilter = (query: string, options: Options = {}): CoinMeta[] => {
   const { limit, showAllOnEmpty = false } = options;
-  const selectedQuote = useAppStore((s) => s.selectedQuote);
+  const selectedQuote = useSelectionStore((s) => s.selectedQuote);
   const { pairs } = useCoinMeta(selectedQuote);
 
   return useMemo(() => {

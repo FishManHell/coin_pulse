@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useAppStore } from "@/shared/store";
+import { useSelectionStore } from "@/shared/store";
 import { fetchKlines } from "@/shared/api/binance";
-import type { TimeRange } from "@/entities/coin/types";
+import type { TimeRange } from "@/entities/coin";
 import type { ChartType } from "./chart-config";
 
 export const useChartData = () => {
-  const selectedSymbol = useAppStore((s) => s.selectedSymbol);
+  const selectedSymbol = useSelectionStore((s) => s.selectedSymbol);
   const [range, setRange] = useState<TimeRange>("24H");
   const [chartType, setChartType] = useState<ChartType>("candlestick");
 

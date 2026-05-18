@@ -2,7 +2,7 @@
 
 import { useState, KeyboardEvent } from "react";
 import { ChevronDown, ChevronRight, TrendingUp, TrendingDown } from "lucide-react";
-import { useAppStore } from "@/shared/store";
+import { usePricesStore } from "@/entities/coin";
 import { formatPrice, formatPercent, cn } from "@/shared/lib/utils";
 import { CoinIcon } from "@/shared/ui/coin-icon";
 import { styles } from "./styles";
@@ -17,7 +17,7 @@ interface PositionRowProps {
 
 export const PositionRow = ({ group, initialLoad }: PositionRowProps) => {
   const [expanded, setExpanded] = useState(false);
-  const ticker = useAppStore((s) => s.prices[group.symbol]);
+  const ticker = usePricesStore((s) => s.prices[group.symbol]);
 
   if (!ticker && initialLoad) return <PositionRowSkeleton group={group} />;
 

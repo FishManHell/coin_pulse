@@ -2,8 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Plus } from "lucide-react";
-import { useAppStore } from "@/shared/store";
-import { usePriceStream } from "@/shared/hooks/usePriceStream";
+import { usePricesStore } from "@/entities/coin";
+import { usePortfolioStore } from "@/entities/portfolio";
+import { usePriceStream } from "@/entities/coin";
 import { Button } from "@/shared/ui/button";
 import type { PortfolioPosition } from "@/entities/portfolio";
 import { AddPositionForm } from "@/features/add-to-portfolio";
@@ -17,11 +18,11 @@ import { styles } from "./styles";
 interface PortfolioTableProps { initialPositions: PortfolioPosition[] }
 
 export const PortfolioTable = ({ initialPositions }: Readonly<PortfolioTableProps>) => {
-  const setPortfolio = useAppStore((s) => s.setPortfolio);
-  const portfolio = useAppStore((s) => s.portfolio);
+  const setPositions = usePortfolioStore((s) => s.setPositions);
+  const portfolio = usePortfolioStore((s) => s.positions);
   // Boolean selector flips false → true on the very first tick then stays true,
   // so Zustand skips re-renders on every subsequent tick.
-  const hasAnyPrice = useAppStore((s) => Object.keys(s.prices).length > 0);
+  const hasAnyPrice = usePricesStore((s) => Object.keys(s.prices).length > 0);
   const [showForm, setShowForm] = useState(false);
 
   const onToggleShowForm = () => setShowForm((prev) => !prev);
@@ -36,7 +37,7 @@ export const PortfolioTable = ({ initialPositions }: Readonly<PortfolioTableProp
   // One-time hydration from server props. Including deps would re-fire on
   // every prop update and overwrite later store changes from user actions.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { setPortfolio(initialPositions); }, []);
+  useEffect(() => { setPositions(initialPositions); }, []);
 
   return (
     <div className={styles.wrap}>

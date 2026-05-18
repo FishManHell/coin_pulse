@@ -1,12 +1,12 @@
 "use client";
 
-import { useAppStore } from "@/shared/store";
+import { usePricesStore } from "@/entities/coin";
 import { StatRow } from "./StatRow";
 import { StatsBlockSkeleton } from "./StatsBlockSkeleton";
 import { getStatRows } from "./get-stat-rows";
 
 export const LiveStats = ({ symbol }: { symbol: string }) => {
-  const ticker = useAppStore((s) => s.prices[symbol]);
+  const ticker = usePricesStore((s) => s.prices[symbol]);
   if (!ticker) return <StatsBlockSkeleton />;
   return (
     <div>

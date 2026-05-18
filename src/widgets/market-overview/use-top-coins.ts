@@ -1,12 +1,12 @@
 "use client";
 
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { useAppStore } from "@/shared/store";
+import { useSelectionStore } from "@/shared/store";
 import { useStaleAfter } from "@/shared/hooks/useStaleAfter";
 import { useEnsureValidSelection } from "./use-ensure-valid-selection";
 
 export const useTopCoins = (initialSymbols: string[]) => {
-  const selectedQuote = useAppStore((s) => s.selectedQuote);
+  const selectedQuote = useSelectionStore((s) => s.selectedQuote);
 
   const { data: symbols, isFetching: fetching } = useQuery({
     queryKey: ["top-coins", selectedQuote],

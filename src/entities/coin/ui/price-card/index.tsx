@@ -2,9 +2,9 @@
 
 import { KeyboardEvent } from "react";
 import { cn } from "@/shared/lib/utils";
-import { useAppStore } from "@/shared/store";
+import { useSelectionStore } from "@/shared/store";
 import { useCoinMeta } from "@/shared/hooks/useCoinMeta";
-import type { CoinTicker } from "@/entities/coin/types";
+import type { CoinTicker } from "../../types";
 import { WatchlistStarButton } from "@/shared/ui/watchlist-star-button";
 import { PriceBody } from "./PriceBody";
 import { PriceCardHeader } from "./PriceCardHeader";
@@ -29,7 +29,7 @@ export const PriceCard = ({
   onToggleWatch,
   toggling,
 }: Readonly<PriceCardProps>) => {
-  const selectedQuote = useAppStore((s) => s.selectedQuote);
+  const selectedQuote = useSelectionStore((s) => s.selectedQuote);
   const { names } = useCoinMeta(selectedQuote);
 
   const base = ticker.symbol.slice(0, -selectedQuote.length);

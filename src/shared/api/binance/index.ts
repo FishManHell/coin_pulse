@@ -1,4 +1,4 @@
-import type { CoinTicker, Kline, TimeRange } from "@/entities/coin/types";
+import type { CoinTicker, Kline, TimeRange } from "@/entities/coin";
 import { BINANCE_BASE as BASE, CG_MARKETS } from "../endpoints";
 import { tradingPairs } from "./pairs";
 import { buildStablecoinSet } from "./stables";

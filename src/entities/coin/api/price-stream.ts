@@ -1,6 +1,6 @@
-import { useAppStore } from "@/shared/store";
-import type { BinanceStreamEnvelope, BinanceTickerEvent } from "./types";
-import { buildStreamUrl, parseTicker } from "./stream-parse";
+import type { BinanceStreamEnvelope, BinanceTickerEvent } from "@/shared/api/binance/types";
+import { buildStreamUrl, parseTicker } from "@/shared/api/binance/stream-parse";
+import { usePricesStore } from "../model/store";
 
 const RECONNECT_DELAY_MS = 5000;
 
@@ -53,7 +53,7 @@ const openSocket = (symbols: string[]) => {
     // Combined-stream endpoint always wraps payloads in the envelope shape.
     const payload = JSON.parse(event.data) as BinanceStreamEnvelope<BinanceTickerEvent>;
     const ticker = payload.data;
-    if (ticker?.s) useAppStore.getState().updatePrice(parseTicker(ticker));
+    if (ticker?.s) usePricesStore.getState().updatePrice(parseTicker(ticker));
   };
 
   // Recovery path. Intentional closes null this handler first, so it only fires

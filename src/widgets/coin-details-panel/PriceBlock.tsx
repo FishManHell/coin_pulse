@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { TrendingDown, TrendingUp } from "lucide-react";
 import { cn, formatPercent, formatPrice } from "@/shared/lib/utils";
 import { styles } from "./styles";
-import type { CoinTicker } from "@/entities/coin/types";
+import type { CoinTicker } from "@/entities/coin";
 
 type FlashDir = "up" | "down" | null;
 

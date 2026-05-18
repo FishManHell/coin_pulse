@@ -1,6 +1,7 @@
 "use client";
 
-import { useAppStore } from "@/shared/store";
+import { useSelectionStore } from "@/shared/store";
+import { useWatchlistStore } from "@/entities/watchlist";
 import { useCoinMeta } from "@/shared/hooks/useCoinMeta";
 import { useAddToWatchlist } from "@/features/add-to-watchlist";
 import { useRemoveFromWatchlist } from "@/features/remove-from-watchlist";
@@ -10,9 +11,9 @@ import { LiveStats } from "./LiveStats";
 import { styles } from "./styles";
 
 export const CoinDetailsPanel = () => {
-  const selectedSymbol = useAppStore((s) => s.selectedSymbol);
-  const selectedQuote  = useAppStore((s) => s.selectedQuote);
-  const isWatched      = useAppStore((s) => s.watchlist.some((w) => w.symbol === selectedSymbol));
+  const selectedSymbol = useSelectionStore((s) => s.selectedSymbol);
+  const selectedQuote  = useSelectionStore((s) => s.selectedQuote);
+  const isWatched      = useWatchlistStore((s) => s.items.some((w) => w.symbol === selectedSymbol));
   const { add,    loading: adding }   = useAddToWatchlist();
   const { remove, loading: removing } = useRemoveFromWatchlist();
 

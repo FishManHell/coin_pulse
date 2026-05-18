@@ -1,6 +1,6 @@
 import { cn } from "@/shared/lib/utils";
 import { TIME_RANGES } from "./chart-config";
-import type { TimeRange } from "@/entities/coin/types";
+import type { TimeRange } from "@/entities/coin";
 
 interface TimeRangeSwitcherProps {
   value: TimeRange;

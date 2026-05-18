@@ -2,12 +2,12 @@
 
 import { useState, useRef, useCallback, type ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
-import { useAppStore } from "@/shared/store";
+import { useSelectionStore } from "@/shared/store";
 import { useDismiss } from "@/shared/hooks/useDismiss";
 import { cn } from "@/shared/lib/utils";
 import { ROUTES } from "@/shared/config/routes";
 import { SearchInput } from "@/shared/ui/search-input";
-import type { CoinMeta } from "@/entities/coin/types";
+import type { CoinMeta } from "@/entities/coin";
 import { SearchResultsDropdown } from "./SearchResultsDropdown";
 import { styles } from "./styles";
 
@@ -23,7 +23,7 @@ export const SearchCoin = ({ className, autoFocus }: SearchCoinProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const setSelectedSymbol = useAppStore((s) => s.setSelectedSymbol);
+  const setSelectedSymbol = useSelectionStore((s) => s.setSelectedSymbol);
 
   const close = useCallback(() => {
     setOpen(false);

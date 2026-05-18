@@ -1,7 +1,7 @@
 "use client";
 
 import { Trash2, TrendingUp, TrendingDown } from "lucide-react";
-import { useAppStore } from "@/shared/store";
+import { usePricesStore } from "@/entities/coin";
 import { useRemoveFromWatchlist } from "@/features/remove-from-watchlist";
 import { formatPrice, formatPercent, cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/button";
@@ -11,7 +11,7 @@ import { styles } from "./styles";
 import type { WatchlistItem } from "@/entities/watchlist";
 
 export const WatchlistRow = ({ item }: { item: WatchlistItem }) => {
-  const ticker = useAppStore((s) => s.prices[item.symbol]);
+  const ticker = usePricesStore((s) => s.prices[item.symbol]);
   const { remove, loading } = useRemoveFromWatchlist();
 
   if (!ticker) return <WatchlistRowSkeleton item={item} />;

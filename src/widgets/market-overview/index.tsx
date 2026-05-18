@@ -1,6 +1,6 @@
 "use client";
 
-import { usePriceStream } from "@/shared/hooks/usePriceStream";
+import { usePriceStream } from "@/entities/coin";
 import { SkeletonCard } from "./SkeletonCard";
 import { EmptyState } from "./EmptyState";
 import { LivePriceCard } from "./LivePriceCard";

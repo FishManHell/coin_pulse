@@ -1,4 +1,4 @@
-import type { TimeRange } from "@/entities/coin/types";
+import type { TimeRange } from "@/entities/coin";
 
 export type ChartType = "candlestick" | "bar" | "area" | "line";
 

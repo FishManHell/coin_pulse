@@ -2,17 +2,16 @@
 
 import { toast } from "sonner";
 import { useMutation } from "@tanstack/react-query";
-import { useAppStore } from "@/shared/store";
-import { deletePortfolioPosition } from "@/entities/portfolio";
+import { deletePortfolioPosition, usePortfolioStore } from "@/entities/portfolio";
 
 export const useRemoveFromPortfolio = () => {
-  const setPortfolio = useAppStore((s) => s.setPortfolio);
+  const setPositions = usePortfolioStore((s) => s.setPositions);
 
   const { mutate, isPending: loading } = useMutation({
     mutationFn: deletePortfolioPosition,
     onSuccess: (_, id) => {
-      const current = useAppStore.getState().portfolio;
-      setPortfolio(current.filter((p) => p.id !== id));
+      const current = usePortfolioStore.getState().positions;
+      setPositions(current.filter((p) => p.id !== id));
       toast.success("Position removed");
     },
     onError: (err) => {

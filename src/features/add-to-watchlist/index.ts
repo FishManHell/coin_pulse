@@ -2,17 +2,16 @@
 
 import { toast } from "sonner";
 import { useMutation } from "@tanstack/react-query";
-import { useAppStore } from "@/shared/store";
-import { createWatchlistItem } from "@/entities/watchlist";
+import { createWatchlistItem, useWatchlistStore } from "@/entities/watchlist";
 
 export const useAddToWatchlist = () => {
-  const setWatchlist = useAppStore((s) => s.setWatchlist);
+  const setItems = useWatchlistStore((s) => s.setItems);
 
   const { mutate, isPending: loading } = useMutation({
     mutationFn: createWatchlistItem,
     onSuccess: (item, input) => {
-      const current = useAppStore.getState().watchlist;
-      setWatchlist([item, ...current.filter((w) => w.symbol !== input.symbol)]);
+      const current = useWatchlistStore.getState().items;
+      setItems([item, ...current.filter((w) => w.symbol !== input.symbol)]);
       toast.success(`${input.name} added to watchlist`);
     },
     onError: (err) => {

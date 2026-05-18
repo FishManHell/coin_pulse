@@ -5,3 +5,4 @@ export {
   deleteWatchlistItem,
   type CreateWatchlistInput,
 } from "./api";
+export { useWatchlistStore } from "./model/store";

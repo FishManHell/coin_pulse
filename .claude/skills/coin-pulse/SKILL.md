@@ -60,7 +60,7 @@ shared/        — ui — only generic primitives (Button, SearchInput, Select, 
                  lib (utils, db, parse-quote, api-fetch, api-response, validate,
                       coin-icon, coin-gradient, symbol)
                  types (roles, coin-asset, next-auth.d.ts — no barrel)
-                 hooks (usePriceStream, useTheme, useQuoteCurrencies, useCoinMeta,
+                 hooks (useTheme, useQuoteCurrencies, useCoinMeta,
                       useFormState, useFloatingRect, useResizeObserver, useStaleAfter,
                       useCoinFilter, useDismiss)
                  config (routes — internal route constants)
@@ -103,8 +103,8 @@ Permission matrix lives in `ROLE_PERMISSIONS` — always use it, never hardcode 
 
 ```
 Binance WS (wss://stream.binance.com:9443/stream?streams=...)
-  → shared/api/binance/price-stream (ref-counted singleton, auto-reconnect)
-  → Zustand prices slice → components read prices
+  → entities/coin/api/price-stream (ref-counted singleton, auto-reconnect)
+  → usePricesStore → components read prices
 
 Server data (GET) → TanStack Query cache (useCoinMeta, useTopCoins, useChartData,
                     useQuoteCurrencies) → components
@@ -152,13 +152,17 @@ GOOGLE_CLIENT_SECRET   — Google Cloud Console
 
 - Combined streams: `wss://stream.binance.com:9443/stream?streams=btcusdt@ticker/ethusdt@ticker`
 - Single symbol ticker fields: `s`=symbol, `c`=price, `P`=% change, `p`=change, `v`=volume, `h`=high, `l`=low
-- Connection lives in `shared/api/binance/price-stream.ts` as a module-level
-  singleton. Ref-counted subscriptions coalesce mount/unmount cycles via
-  `queueMicrotask` — StrictMode doesn't churn the socket. Reconnect on
-  unexpected drops: `onclose` resets activeSymbols and schedules a single
-  delayed reconcile after 5s.
-- Pure parsing helpers (`parseTicker`, `buildStreamUrl`) live in
-  `shared/api/binance/stream-parse.ts`; the state machine stays in price-stream.ts.
+- Connection lives in `entities/coin/api/price-stream.ts` as a module-level
+  singleton (writes into `usePricesStore`). Ref-counted subscriptions coalesce
+  mount/unmount cycles via `queueMicrotask` — StrictMode doesn't churn the
+  socket. Reconnect on unexpected drops: `onclose` resets activeSymbols and
+  schedules a single delayed reconcile after 5s.
+- React adapter `usePriceStream(symbols)` is the public hook (re-exported from
+  `@/entities/coin`). Widgets and the dashboard stream use it; nothing in
+  `shared/` knows about the singleton anymore.
+- Pure parsing helpers (`parseTicker`, `buildStreamUrl`) stay in
+  `shared/api/binance/stream-parse.ts` — they only touch Binance event shapes
+  and `CoinTicker` types (type-only crossing), so they're framework-free.
 
 ## Binance Trading Pairs — Build-Time Snapshot
 
@@ -195,16 +199,27 @@ Mixed base URLs sit at the parent `shared/api/endpoints.ts`:
 - `endpoints.ts` — base URLs (`BINANCE_BASE`, `CG_MARKETS`) at `shared/api/`
   root, not under `binance/`, because `CG_MARKETS` is CoinGecko.
 
+## Zustand Stores — Per-Entity Split
+
+State is sharded across four small stores; there is no combined `useAppStore`:
+
+- `usePricesStore` at `entities/coin/model/store.ts` — `prices: Record<string, CoinTicker>` + `updatePrice`.
+- `useWatchlistStore` at `entities/watchlist/model/store.ts` — `items: WatchlistItem[]` + `setItems`. Public via barrel.
+- `usePortfolioStore` at `entities/portfolio/model/store.ts` — `positions: PortfolioPosition[]` + `setPositions`. Public via barrel.
+- `useSelectionStore` at `shared/store/selection-store.ts` — `selectedSymbol` + `selectedQuote` + setters. Pure UI selection, no entity coupling. Re-exported from `shared/store`.
+
+Consumers that need state from multiple domains subscribe to each store separately (Zustand selectors are per-store). Each store has its own `devtools` instance (`coinpulse/prices`, `coinpulse/watchlist`, `coinpulse/portfolio`, `coinpulse/selection`).
+
 ## Zustand Subscription Discipline
 
 Live ticks fan out through many components — the wrong selector turns one WS message into 30+ re-renders. Rules:
 
-- **Never subscribe to `s.prices` whole.** Always per-key (`s.prices[symbol]`) so Zustand's Object.is check skips re-renders for unrelated symbols. The price-card cascade was eliminated by extracting `LivePriceCard` wrappers that each subscribe to their own ticker.
-- **Never subscribe to `s.watchlist` whole** when you only need a boolean. Use `s.watchlist.some((w) => w.symbol === ticker.symbol)` — selector still runs per state change but returns the same boolean, so no re-render.
-- **For derived totals across many symbols** (e.g. portfolio P&L), use `useShallow` with the relevant subset: `useAppStore(useShallow((s) => Object.fromEntries(symbols.map((sym) => [sym, s.prices[sym]?.price]))))`. Re-renders only when one of *your* symbols ticks AND its price actually changed.
-- **For "any tick happened" gates**, use a boolean selector like `Object.keys(s.prices).length > 0` — flips false→true once on the first tick and stays put, so it doesn't drive re-renders past mount.
+- **Never subscribe to `s.prices` whole.** Always per-key (`usePricesStore((s) => s.prices[symbol])`) so Zustand's Object.is check skips re-renders for unrelated symbols. The price-card cascade was eliminated by extracting `LivePriceCard` wrappers that each subscribe to their own ticker.
+- **Never subscribe to `s.items` whole** in `useWatchlistStore` when you only need a boolean. Use `useWatchlistStore((s) => s.items.some((w) => w.symbol === ticker.symbol))` — selector still runs per state change but returns the same boolean, so no re-render.
+- **For derived totals across many symbols** (e.g. portfolio P&L), use `useShallow` with the relevant subset: `usePricesStore(useShallow((s) => Object.fromEntries(symbols.map((sym) => [sym, s.prices[sym]?.price]))))`. Re-renders only when one of *your* symbols ticks AND its price actually changed.
+- **For "any tick happened" gates**, use a boolean selector like `usePricesStore((s) => Object.keys(s.prices).length > 0)` — flips false→true once on the first tick and stays put, so it doesn't drive re-renders past mount.
 - **Split smart containers by data dependency.** `SummaryCards` is a thin wrapper that composes `InvestedCard` (no subscription — derives from portfolio only) and `LiveSummaryCards` (smart, `useShallow` to held-symbol prices). Invested never blinks; Current/P&L blink only on relevant ticks.
-- **Mutation hooks read store via `useAppStore.getState()` inside `onSuccess`** so they don't subscribe — `useAddToWatchlist`/`useRemoveFromWatchlist` consumers don't re-render on every watchlist change elsewhere.
+- **Mutation hooks read store via `<store>.getState()` inside `onSuccess`** so they don't subscribe — `useAddToWatchlist`/`useRemoveFromWatchlist` consumers don't re-render on every watchlist change elsewhere.
 
 ## Imperative-Library Wrappers — `useCandlestickChart`
 

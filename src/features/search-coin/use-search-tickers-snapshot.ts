@@ -2,11 +2,11 @@
 
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useAppStore } from "@/shared/store";
+import { usePricesStore } from "@/entities/coin";
 import { fetchTickersSnapshot } from "@/shared/api/binance";
 
 export const useSearchTickersSnapshot = (symbols: string[]) => {
-  const updatePrice = useAppStore((s) => s.updatePrice);
+  const updatePrice = usePricesStore((s) => s.updatePrice);
   const key = symbols.join(",");
 
   const { data } = useQuery({

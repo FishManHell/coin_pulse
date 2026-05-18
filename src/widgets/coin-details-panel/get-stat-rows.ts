@@ -1,5 +1,5 @@
 import { formatPrice, formatVolume } from "@/shared/lib/utils";
-import type { CoinTicker } from "@/entities/coin/types";
+import type { CoinTicker } from "@/entities/coin";
 import type { StatRowProps } from "./StatRow";
 
 export const getStatRows = (ticker: CoinTicker): StatRowProps[] => {
