@@ -1,6 +1,6 @@
 {
   "name": "coin_pulse",
-  "version": "0.1.96",
+  "version": "0.1.97",
   "private": true,
   "scripts": {
     "dev": "next dev",
