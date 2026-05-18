@@ -29,6 +29,7 @@ Role-based access: superadmin / admin / developer / user.
 | Toasts    | sonner                                               |
 | Auth      | NextAuth v4 — JWT, Credentials + Google OAuth        |
 | Database  | MongoDB Atlas + Mongoose                             |
+| Tests     | Vitest 4 (node env by default; jsdom opt-in per file) |
 | Deploy    | Vercel — https://coin-pulse-kappa.vercel.app         |
 
 ## Architecture — Feature-Sliced Design (FSD)

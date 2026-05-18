@@ -53,6 +53,7 @@ CoinPulse is a full-stack crypto dashboard that streams live prices from Binance
 | Toasts | sonner |
 | Auth | NextAuth v4 — JWT, Credentials + Google OAuth |
 | Database | MongoDB Atlas + Mongoose |
+| Tests | Vitest 4 (node env by default; jsdom opt-in per file) |
 | Deploy | Vercel |
 
 ---
@@ -144,6 +145,15 @@ yarn dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000)
+
+### 4. Tests
+
+```bash
+npm test            # single run
+npm run test:watch  # TDD watch mode
+```
+
+Tier 1 coverage today: pure-logic units (parsers, formatters, serializers, P&L aggregation). See `.claude/skills/coin-pulse/references/testing.md` for the roadmap and conventions.
 
 ---
 
