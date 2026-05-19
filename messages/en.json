@@ -38,6 +38,41 @@
       "description": "Go to Dashboard and click ★ on any coin to add it here."
     }
   },
+  "dashboard": {
+    "marketOverview": {
+      "eyebrow": "Live prices",
+      "title": "Top Assets",
+      "live": "Live",
+      "emptyTitle": "No active pairs",
+      "emptyDescription": "This quote currency has no active trading pairs on Binance.",
+      "noData": "No data"
+    },
+    "chart": {
+      "types": {
+        "candlestick": "Candles",
+        "bar": "Bars",
+        "area": "Area",
+        "line": "Line"
+      }
+    },
+    "coinDetails": {
+      "marketStats": "Market stats",
+      "liveData": "Live data · Binance",
+      "todaySuffix": "today",
+      "stats": {
+        "high24h": "24h High",
+        "low24h": "24h Low",
+        "volume24h": "24h Volume",
+        "priceChange": "Price change"
+      }
+    },
+    "search": {
+      "headerPlaceholder": "Search coins…",
+      "comboboxPlaceholder": "Search coin…",
+      "noResults": "No coins found",
+      "noResultsForQuery": "No coins found for \"{query}\""
+    }
+  },
   "portfolio": {
     "columns": {
       "asset": "Asset",

@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback, type ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useSelectionStore } from "@/shared/store";
 import { useDismiss } from "@/shared/hooks/useDismiss";
 import { cn } from "@/shared/lib/utils";
@@ -22,6 +23,7 @@ export const SearchCoin = ({ className, autoFocus }: SearchCoinProps) => {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const t = useTranslations("dashboard.search");
 
   const setSelectedSymbol = useSelectionStore((s) => s.setSelectedSymbol);
 
@@ -57,7 +59,7 @@ export const SearchCoin = ({ className, autoFocus }: SearchCoinProps) => {
         value={query}
         onChange={handleQueryChange}
         onFocus={handleFocus}
-        placeholder="Search coins…"
+        placeholder={t("headerPlaceholder")}
         className="bg-bg pr-4"
       />
       {open && <SearchResultsDropdown query={query} onSelect={handleSelect} />}

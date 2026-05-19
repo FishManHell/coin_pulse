@@ -38,6 +38,41 @@
       "description": "Перейдіть на Огляд і натисніть ★ на будь-якій монеті, щоб додати її сюди."
     }
   },
+  "dashboard": {
+    "marketOverview": {
+      "eyebrow": "Поточні ціни",
+      "title": "Топ-активи",
+      "live": "Наживо",
+      "emptyTitle": "Немає активних пар",
+      "emptyDescription": "Для цієї котирувальної валюти немає активних торгових пар на Binance.",
+      "noData": "Немає даних"
+    },
+    "chart": {
+      "types": {
+        "candlestick": "Свічки",
+        "bar": "Бари",
+        "area": "Область",
+        "line": "Лінія"
+      }
+    },
+    "coinDetails": {
+      "marketStats": "Ринкова статистика",
+      "liveData": "Дані наживо · Binance",
+      "todaySuffix": "сьогодні",
+      "stats": {
+        "high24h": "Макс. за 24 год",
+        "low24h": "Мін. за 24 год",
+        "volume24h": "Обсяг за 24 год",
+        "priceChange": "Зміна ціни"
+      }
+    },
+    "search": {
+      "headerPlaceholder": "Пошук монет…",
+      "comboboxPlaceholder": "Пошук монети…",
+      "noResults": "Монет не знайдено",
+      "noResultsForQuery": "Монет не знайдено за запитом «{query}»"
+    }
+  },
   "portfolio": {
     "columns": {
       "asset": "Актив",

@@ -1,6 +1,7 @@
 "use client";
 
 import { createPortal } from "react-dom";
+import { useTranslations } from "next-intl";
 import { cn } from "@/shared/lib/utils";
 import { stripQuote } from "@/shared/lib/symbol";
 import type { CoinMeta } from "@/entities/coin";
@@ -21,6 +22,7 @@ export const CoinDropdown = ({
   rect,
   onSelect,
 }: CoinDropdownProps) => {
+  const t = useTranslations("dashboard.search");
   return createPortal(
     <div
       style={{
@@ -51,7 +53,7 @@ export const CoinDropdown = ({
           </button>
         ))
       ) : (
-        <p className={styles.empty}>No coins found</p>
+        <p className={styles.empty}>{t("noResults")}</p>
       )}
     </div>,
     document.body

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useSelectionStore } from "@/shared/store";
 import { useWatchlistStore } from "@/entities/watchlist";
 import { useCoinMeta } from "@/shared/hooks/useCoinMeta";
@@ -16,6 +17,7 @@ export const CoinDetailsPanel = () => {
   const isWatched      = useWatchlistStore((s) => s.items.some((w) => w.symbol === selectedSymbol));
   const { add,    loading: adding }   = useAddToWatchlist();
   const { remove, loading: removing } = useRemoveFromWatchlist();
+  const t = useTranslations("dashboard.coinDetails");
 
   const { names }   = useCoinMeta(selectedQuote);
   const base        = selectedSymbol.slice(0, -selectedQuote.length);
@@ -40,14 +42,14 @@ export const CoinDetailsPanel = () => {
       </div>
 
       <div className={styles.statsSection}>
-        <p className={styles.statsTitle}>Market stats</p>
+        <p className={styles.statsTitle}>{t("marketStats")}</p>
         <LiveStats symbol={selectedSymbol} />
       </div>
 
       <div className={styles.liveFooter}>
         <div className={styles.liveRow}>
           <span className={styles.liveDot} />
-          Live data · Binance
+          {t("liveData")}
         </div>
       </div>
     </aside>

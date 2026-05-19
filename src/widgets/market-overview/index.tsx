@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { usePriceStream } from "@/entities/coin";
 import { SkeletonCard } from "./SkeletonCard";
 import { EmptyState } from "./EmptyState";
@@ -12,6 +13,7 @@ const SKELETON_COUNT = 6;
 export const MarketOverview = ({ initialSymbols }: { initialSymbols: string[] }) => {
   const { symbols, fetching, timedOut } = useTopCoins(initialSymbols);
   usePriceStream(symbols);
+  const t = useTranslations("dashboard.marketOverview");
 
   const renderContent = () => {
     if (fetching) return Array.from({ length: SKELETON_COUNT }, (_, i) => <SkeletonCard key={i} />);
@@ -23,12 +25,12 @@ export const MarketOverview = ({ initialSymbols }: { initialSymbols: string[] })
     <section>
       <div className={styles.headerRow}>
         <div>
-          <p className={styles.eyebrow}>Live prices</p>
-          <h2 className={styles.title}>Top Assets</h2>
+          <p className={styles.eyebrow}>{t("eyebrow")}</p>
+          <h2 className={styles.title}>{t("title")}</h2>
         </div>
         <span className={styles.liveRow}>
           <span className={styles.liveDot} />
-          Live
+          {t("live")}
         </span>
       </div>
 

@@ -1,15 +1,20 @@
+import { useTranslations } from "next-intl";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { styles } from "./styles";
+import type { StatLabelKey } from "./get-stat-rows";
 
-const LABELS = ["24h High", "24h Low", "24h Volume", "Price change"] as const;
+const LABEL_KEYS: readonly StatLabelKey[] = ["high24h", "low24h", "volume24h", "priceChange"];
 
-export const StatsBlockSkeleton = () => (
-  <div>
-    {LABELS.map((label) => (
-      <div key={label} className={styles.statRow}>
-        <span className={styles.statLabel}>{label}</span>
-        <Skeleton className="w-20 h-4" />
-      </div>
-    ))}
-  </div>
-);
+export const StatsBlockSkeleton = () => {
+  const t = useTranslations("dashboard.coinDetails.stats");
+  return (
+    <div>
+      {LABEL_KEYS.map((key) => (
+        <div key={key} className={styles.statRow}>
+          <span className={styles.statLabel}>{t(key)}</span>
+          <Skeleton className="w-20 h-4" />
+        </div>
+      ))}
+    </div>
+  );
+};

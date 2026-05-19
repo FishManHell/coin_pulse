@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { useTranslations } from "next-intl";
 import { useCoinFilter } from "@/shared/hooks/useCoinFilter";
 import type { CoinMeta } from "@/entities/coin";
 import { SearchResultItem } from "./SearchResultItem";
@@ -16,12 +17,13 @@ export const SearchResultsDropdown = ({ query, onSelect }: SearchResultsDropdown
   const results = useCoinFilter(query, { limit: 6 });
   const symbols = useMemo(() => results.map((r) => r.symbol), [results]);
   useSearchTickersSnapshot(symbols);
+  const t = useTranslations("dashboard.search");
 
   if (results.length === 0) {
     if (query.length === 0) return null;
     return (
       <div className={styles.emptyDropdown}>
-        <p className={styles.emptyText}>No coins found for &quot;{query}&quot;</p>
+        <p className={styles.emptyText}>{t("noResultsForQuery", { query })}</p>
       </div>
     );
   }

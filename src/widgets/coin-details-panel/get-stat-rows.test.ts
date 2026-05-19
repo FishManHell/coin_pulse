@@ -5,7 +5,7 @@ import { getStatRows } from "./get-stat-rows";
 describe("getStatRows", () => {
   it("emits four rows in fixed order: high, low, volume, change", () => {
     const rows = getStatRows(makeCoinTicker());
-    expect(rows.map((r) => r.label)).toEqual(["24h High", "24h Low", "24h Volume", "Price change"]);
+    expect(rows.map((r) => r.labelKey)).toEqual(["high24h", "low24h", "volume24h", "priceChange"]);
   });
 
   it("formats high/low as $-prefixed prices and tags them with up/down colors", () => {

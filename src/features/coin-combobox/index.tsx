@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useMemo, type ChangeEvent } from "react";
+import { useTranslations } from "next-intl";
 import { useDismiss } from "@/shared/hooks/useDismiss";
 import { stripQuote } from "@/shared/lib/symbol";
 import { cn } from "@/shared/lib/utils";
@@ -25,9 +26,11 @@ export const CoinCombobox = ({
   pairs,
   quote,
   disabled,
-  placeholder = "Search coin…",
+  placeholder,
   className,
 }: CoinComboboxProps) => {
+  const t = useTranslations("dashboard.search");
+  const effectivePlaceholder = placeholder ?? t("comboboxPlaceholder");
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const [userSelected, setUserSelected] = useState(false);
@@ -82,7 +85,7 @@ export const CoinCombobox = ({
         onChange={handleQueryChange}
         onFocus={handleFocus}
         disabled={disabled}
-        placeholder={selectedShort || placeholder}
+        placeholder={selectedShort || effectivePlaceholder}
       />
       {open && rect && query.length > 0 && (
         <CoinDropdown
