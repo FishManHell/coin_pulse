@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { usePricesStore } from "@/entities/coin";
 import { usePortfolioStore } from "@/entities/portfolio";
 import { usePriceStream } from "@/entities/coin";
@@ -24,6 +25,7 @@ export const PortfolioTable = ({ initialPositions }: Readonly<PortfolioTableProp
   // so Zustand skips re-renders on every subsequent tick.
   const hasAnyPrice = usePricesStore((s) => Object.keys(s.prices).length > 0);
   const [showForm, setShowForm] = useState(false);
+  const t = useTranslations("portfolio.table");
 
   const onToggleShowForm = () => setShowForm((prev) => !prev);
   const onCloseForm = () => setShowForm(false);
@@ -45,9 +47,9 @@ export const PortfolioTable = ({ initialPositions }: Readonly<PortfolioTableProp
 
       <div className={styles.table}>
         <div className={styles.tableHead}>
-          <h3 className={styles.tableTitle}>Positions</h3>
+          <h3 className={styles.tableTitle}>{t("title")}</h3>
           <Button variant="gradient" size="xs" onClick={onToggleShowForm}>
-            <Plus /> Add position
+            <Plus /> {t("addPosition")}
           </Button>
         </div>
 

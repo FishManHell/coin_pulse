@@ -2,6 +2,7 @@
 
 import { useState, KeyboardEvent } from "react";
 import { ChevronDown, ChevronRight, TrendingUp, TrendingDown } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { usePricesStore } from "@/entities/coin";
 import { formatPrice, formatPercent, cn } from "@/shared/lib/utils";
 import { CoinIcon } from "@/shared/ui/coin-icon";
@@ -19,6 +20,7 @@ interface PositionRowProps {
 export const PositionRow = ({ group, initialLoad }: PositionRowProps) => {
   const [expanded, setExpanded] = useState(false);
   const ticker = usePricesStore((s) => s.prices[group.symbol]);
+  const t = useTranslations("portfolio.table");
 
   if (!ticker && initialLoad) return <PositionRowSkeleton group={group} />;
 
@@ -50,8 +52,7 @@ export const PositionRow = ({ group, initialLoad }: PositionRowProps) => {
           <div>
             <p className={styles.assetName}>{group.name}</p>
             <p className={styles.assetTicker}>
-              {base}/{group.quote} · {group.transactions.length}{" "}
-              {group.transactions.length === 1 ? "buy" : "buys"}
+              {base}/{group.quote} · {t("buysCount", { count: group.transactions.length })}
             </p>
           </div>
         </div>

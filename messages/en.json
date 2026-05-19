@@ -38,6 +38,42 @@
       "description": "Go to Dashboard and click ★ on any coin to add it here."
     }
   },
+  "portfolio": {
+    "columns": {
+      "asset": "Asset",
+      "qty": "Qty",
+      "avgBuy": "Avg buy",
+      "current": "Current",
+      "pnl": "P&L"
+    },
+    "summary": {
+      "invested": "Invested",
+      "currentValue": "Current value",
+      "totalPnl": "Total P&L"
+    },
+    "table": {
+      "title": "Positions",
+      "addPosition": "Add position",
+      "buysCount": "{count, plural, one {# buy} other {# buys}}"
+    },
+    "actions": {
+      "deleteTransaction": "Delete transaction"
+    },
+    "empty": {
+      "title": "No positions yet",
+      "description": "Click \"Add position\" to start tracking."
+    },
+    "form": {
+      "coin": "Coin",
+      "pair": "Pair",
+      "quantity": "Quantity",
+      "buyPrice": "Buy price ($)",
+      "selectCoin": "Select coin",
+      "loadingPairs": "Loading…",
+      "submit": "Add",
+      "cancel": "Cancel"
+    }
+  },
   "errors": {
     "common": {
       "unauthorized": "Unauthorized",

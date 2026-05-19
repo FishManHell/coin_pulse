@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { useTranslations } from "next-intl";
 import { useShallow } from "zustand/react/shallow";
 import { usePricesStore } from "@/entities/coin";
 import { formatPrice, formatPercent } from "@/shared/lib/utils";
@@ -14,6 +15,7 @@ interface LiveSummaryCardsProps {
 }
 
 export const LiveSummaryCards = ({ grouped, loading }: Readonly<LiveSummaryCardsProps>) => {
+  const t = useTranslations("portfolio.summary");
   const symbols = useMemo(() => grouped.map((g) => g.symbol), [grouped]);
 
   // Subscribe shallow-equal to only the prices we actually consume — re-renders
@@ -30,13 +32,13 @@ export const LiveSummaryCards = ({ grouped, loading }: Readonly<LiveSummaryCards
   return (
     <>
       <SummaryCard
-        label="Current value"
+        label={t("currentValue")}
         value={`$${formatPrice(current)}`}
         color="text-text-primary"
         loading={loading}
       />
       <SummaryCard
-        label="Total P&L"
+        label={t("totalPnl")}
         value={`${isUp ? "+" : ""}$${formatPrice(Math.abs(pnl))} (${formatPercent(pnlPct)})`}
         color={isUp ? "text-price-up" : "text-price-down"}
         loading={loading}

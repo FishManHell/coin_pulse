@@ -1,4 +1,5 @@
 import { ChevronRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/shared/lib/utils";
 import { CoinIcon } from "@/shared/ui/coin-icon";
 import { Skeleton } from "@/shared/ui/skeleton";
@@ -6,6 +7,7 @@ import { styles } from "./styles";
 import type { GroupedPosition } from "./group-positions";
 
 export const PositionRowSkeleton = ({ group }: { group: GroupedPosition }) => {
+  const t = useTranslations("portfolio.table");
   const base = group.symbol.slice(0, -group.quote.length);
 
   return (
@@ -18,8 +20,7 @@ export const PositionRowSkeleton = ({ group }: { group: GroupedPosition }) => {
         <div>
           <p className={styles.assetName}>{group.name}</p>
           <p className={styles.assetTicker}>
-            {base}/{group.quote} · {group.transactions.length}{" "}
-            {group.transactions.length === 1 ? "buy" : "buys"}
+            {base}/{group.quote} · {t("buysCount", { count: group.transactions.length })}
           </p>
         </div>
       </div>

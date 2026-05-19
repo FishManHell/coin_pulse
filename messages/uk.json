@@ -38,6 +38,42 @@
       "description": "Перейдіть на Огляд і натисніть ★ на будь-якій монеті, щоб додати її сюди."
     }
   },
+  "portfolio": {
+    "columns": {
+      "asset": "Актив",
+      "qty": "Кількість",
+      "avgBuy": "Середня ціна",
+      "current": "Поточна",
+      "pnl": "P&L"
+    },
+    "summary": {
+      "invested": "Інвестовано",
+      "currentValue": "Поточна вартість",
+      "totalPnl": "Загальний P&L"
+    },
+    "table": {
+      "title": "Позиції",
+      "addPosition": "Додати позицію",
+      "buysCount": "{count, plural, one {# покупка} few {# покупки} many {# покупок} other {# покупок}}"
+    },
+    "actions": {
+      "deleteTransaction": "Видалити транзакцію"
+    },
+    "empty": {
+      "title": "Поки що немає позицій",
+      "description": "Натисніть «Додати позицію», щоб почати облік."
+    },
+    "form": {
+      "coin": "Монета",
+      "pair": "Пара",
+      "quantity": "Кількість",
+      "buyPrice": "Ціна купівлі ($)",
+      "selectCoin": "Виберіть монету",
+      "loadingPairs": "Завантаження…",
+      "submit": "Додати",
+      "cancel": "Скасувати"
+    }
+  },
   "errors": {
     "common": {
       "unauthorized": "Не авторизовано",

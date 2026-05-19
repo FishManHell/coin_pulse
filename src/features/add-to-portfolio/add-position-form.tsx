@@ -1,6 +1,7 @@
 "use client";
 
 import { X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/shared/ui/button";
 import { CoinCombobox } from "@/features/coin-combobox";
 import {
@@ -14,6 +15,7 @@ import { usePositionForm } from "./use-position-form";
 import { styles } from "./styles";
 
 export const AddPositionForm = ({ onCloseAction }: { onCloseAction: () => void }) => {
+  const t = useTranslations("portfolio.form");
   const {
     fields,
     set,
@@ -30,18 +32,18 @@ export const AddPositionForm = ({ onCloseAction }: { onCloseAction: () => void }
     <form onSubmit={submit} className={styles.formWrap}>
       <div className={styles.formGrid}>
         <div>
-          <label className={styles.fieldLabel}>Coin</label>
+          <label className={styles.fieldLabel}>{t("coin")}</label>
           <CoinCombobox
             value={fields.symbol}
             onChange={(coin) => set("symbol", coin.symbol)}
             pairs={pairs}
             quote={quote}
             disabled={noPairs}
-            placeholder={noPairs ? "Loading…" : "Select coin"}
+            placeholder={noPairs ? t("loadingPairs") : t("selectCoin")}
           />
         </div>
         <div>
-          <label className={styles.fieldLabel}>Pair</label>
+          <label className={styles.fieldLabel}>{t("pair")}</label>
           <Select value={quote} onValueChange={setQuote}>
             <SelectTrigger className="w-full bg-surface border-border-base h-[38px] rounded-xl text-sm">
               <SelectValue />
@@ -54,7 +56,7 @@ export const AddPositionForm = ({ onCloseAction }: { onCloseAction: () => void }
           </Select>
         </div>
         <div>
-          <label className={styles.fieldLabel}>Quantity</label>
+          <label className={styles.fieldLabel}>{t("quantity")}</label>
           <input
             type="number" step="any" min="0" required
             placeholder="0.5"
@@ -64,7 +66,7 @@ export const AddPositionForm = ({ onCloseAction }: { onCloseAction: () => void }
           />
         </div>
         <div>
-          <label className={styles.fieldLabel}>Buy price ($)</label>
+          <label className={styles.fieldLabel}>{t("buyPrice")}</label>
           <input
             type="number" step="any" min="0" required
             placeholder="42000"
@@ -75,9 +77,9 @@ export const AddPositionForm = ({ onCloseAction }: { onCloseAction: () => void }
         </div>
         <div className="flex items-end gap-2">
           <Button type="submit" variant="gradient" disabled={loading || noPairs} className="flex-1">
-            {loading ? "…" : "Add"}
+            {loading ? "…" : t("submit")}
           </Button>
-          <Button type="button" variant="outline" size="icon" onClick={onCloseAction} aria-label="Cancel">
+          <Button type="button" variant="outline" size="icon" onClick={onCloseAction} aria-label={t("cancel")}>
             <X />
           </Button>
         </div>
