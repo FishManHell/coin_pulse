@@ -1,11 +1,15 @@
+import { useTranslations } from "next-intl";
 import { styles } from "./styles";
 
-const COLUMNS = ["Asset", "Price", "24h Change", "Volume", ""];
+export const TableHeader = () => {
+  const t = useTranslations("watchlist.columns");
+  const columns = [t("asset"), t("price"), t("change24h"), t("volume"), ""];
 
-export const TableHeader = () => (
-  <div className={styles.headerRow}>
-    {COLUMNS.map((h, i) => (
-      <span key={i} className={styles.headerCell}>{h}</span>
-    ))}
-  </div>
-);
+  return (
+    <div className={styles.headerRow}>
+      {columns.map((h, i) => (
+        <span key={i} className={styles.headerCell}>{h}</span>
+      ))}
+    </div>
+  );
+};

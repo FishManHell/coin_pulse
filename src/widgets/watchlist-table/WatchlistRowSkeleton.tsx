@@ -1,6 +1,7 @@
 "use client";
 
 import { Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useRemoveFromWatchlist } from "@/features/remove-from-watchlist";
 import { Button } from "@/shared/ui/button";
 import { CoinIcon } from "@/shared/ui/coin-icon";
@@ -10,6 +11,7 @@ import type { WatchlistItem } from "@/entities/watchlist";
 
 export const WatchlistRowSkeleton = ({ item }: { item: WatchlistItem }) => {
   const { remove, loading } = useRemoveFromWatchlist();
+  const t = useTranslations("watchlist.actions");
   const base = item.symbol.slice(0, -item.quote.length);
   const onRemove = () => remove(item.symbol);
 
@@ -38,7 +40,7 @@ export const WatchlistRowSkeleton = ({ item }: { item: WatchlistItem }) => {
         size="icon-sm"
         onClick={onRemove}
         disabled={loading}
-        aria-label="Remove from watchlist"
+        aria-label={t("remove")}
         className={styles.trashBtn}
       >
         <Trash2 />

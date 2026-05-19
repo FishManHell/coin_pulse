@@ -1,6 +1,7 @@
 "use client";
 
 import { Trash2, TrendingUp, TrendingDown } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { usePricesStore } from "@/entities/coin";
 import { useRemoveFromWatchlist } from "@/features/remove-from-watchlist";
 import { formatPrice, formatPercent, cn } from "@/shared/lib/utils";
@@ -13,6 +14,7 @@ import type { WatchlistItem } from "@/entities/watchlist";
 export const WatchlistRow = ({ item }: { item: WatchlistItem }) => {
   const ticker = usePricesStore((s) => s.prices[item.symbol]);
   const { remove, loading } = useRemoveFromWatchlist();
+  const t = useTranslations("watchlist.actions");
 
   if (!ticker) return <WatchlistRowSkeleton item={item} />;
 
@@ -48,7 +50,7 @@ export const WatchlistRow = ({ item }: { item: WatchlistItem }) => {
         size="icon-sm"
         onClick={onRemove}
         disabled={loading}
-        aria-label="Remove from watchlist"
+        aria-label={t("remove")}
         className={styles.trashBtn}
       >
         <Trash2 />

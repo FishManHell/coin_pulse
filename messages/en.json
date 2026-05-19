@@ -19,6 +19,25 @@
     "positionsCount": "{count, plural, =0 {No positions} one {# position} other {# positions}}",
     "usersCount": "{count, plural, =0 {No registered users} one {# registered user} other {# registered users}}"
   },
+  "watchlist": {
+    "columns": {
+      "asset": "Asset",
+      "price": "Price",
+      "change24h": "24h Change",
+      "volume": "Volume"
+    },
+    "filter": {
+      "label": "Quote",
+      "all": "All quotes"
+    },
+    "actions": {
+      "remove": "Remove from watchlist"
+    },
+    "empty": {
+      "title": "Watchlist is empty",
+      "description": "Go to Dashboard and click ★ on any coin to add it here."
+    }
+  },
   "errors": {
     "common": {
       "unauthorized": "Unauthorized",

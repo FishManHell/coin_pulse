@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import { useWatchlistStore } from "@/entities/watchlist";
 import { usePriceStream } from "@/entities/coin";
 import { ALL_QUOTES, WatchlistQuoteFilter } from "@/features/filter-watchlist-by-quote";
@@ -18,6 +19,7 @@ export const WatchlistTable = ({ initialItems }: WatchlistTableProps) => {
   const setItems = useWatchlistStore((s) => s.setItems);
   const watchlist = useWatchlistStore((s) => s.items);
   const [filter, setFilter] = useState<string>(ALL_QUOTES);
+  const t = useTranslations("watchlist.filter");
 
   const symbols = useMemo(() => watchlist.map((w) => w.symbol), [watchlist]);
   usePriceStream(symbols);
@@ -40,7 +42,7 @@ export const WatchlistTable = ({ initialItems }: WatchlistTableProps) => {
     <div className={styles.wrap}>
       {quotes.length > 1 && (
         <div className="flex items-center gap-3">
-          <span className="text-xs text-text-muted uppercase tracking-wider">Quote</span>
+          <span className="text-xs text-text-muted uppercase tracking-wider">{t("label")}</span>
           <WatchlistQuoteFilter value={filter} onChange={setFilter} quotes={quotes} />
         </div>
       )}

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import {
   Select,
   SelectContent,
@@ -16,20 +17,24 @@ interface WatchlistQuoteFilterProps {
   quotes: string[];
 }
 
-export const WatchlistQuoteFilter = ({ value, onChange, quotes }: Readonly<WatchlistQuoteFilterProps>) => (
-  <Select value={value} onValueChange={onChange}>
-    <SelectTrigger className="w-28 h-9 rounded-xl text-xs border-border-base bg-bg">
-      <SelectValue />
-    </SelectTrigger>
-    <SelectContent className="bg-surface border-border-base">
-      <SelectItem value={ALL_QUOTES} className="text-xs cursor-pointer">
-        All quotes
-      </SelectItem>
-      {quotes.map((q) => (
-        <SelectItem key={q} value={q} className="text-xs cursor-pointer">
-          {q}
+export const WatchlistQuoteFilter = ({ value, onChange, quotes }: Readonly<WatchlistQuoteFilterProps>) => {
+  const t = useTranslations("watchlist.filter");
+
+  return (
+    <Select value={value} onValueChange={onChange}>
+      <SelectTrigger className="w-28 h-9 rounded-xl text-xs border-border-base bg-bg">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent className="bg-surface border-border-base">
+        <SelectItem value={ALL_QUOTES} className="text-xs cursor-pointer">
+          {t("all")}
         </SelectItem>
-      ))}
-    </SelectContent>
-  </Select>
-);
+        {quotes.map((q) => (
+          <SelectItem key={q} value={q} className="text-xs cursor-pointer">
+            {q}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+};
