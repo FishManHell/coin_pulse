@@ -1,85 +1,85 @@
 {
   "common": {
     "appName": "CoinPulse",
-    "changeLanguage": "Change language"
+    "changeLanguage": "Змінити мову"
   },
   "nav": {
-    "dashboard": "Dashboard",
-    "watchlist": "Watchlist",
-    "portfolio": "Portfolio",
-    "settings": "Settings",
-    "profile": "Profile",
-    "signOut": "Sign out"
+    "dashboard": "Огляд",
+    "watchlist": "Спостереження",
+    "portfolio": "Портфель",
+    "settings": "Налаштування",
+    "profile": "Профіль",
+    "signOut": "Вийти"
   },
   "sections": {
-    "yourWatchlist": "Your watchlist",
-    "yourPortfolio": "Your portfolio",
-    "userManagement": "User management",
-    "assetsTracked": "{count, plural, =0 {No assets tracked} one {# asset tracked} other {# assets tracked}}",
-    "positionsCount": "{count, plural, =0 {No positions} one {# position} other {# positions}}",
-    "usersCount": "{count, plural, =0 {No registered users} one {# registered user} other {# registered users}}"
+    "yourWatchlist": "Ваш список спостереження",
+    "yourPortfolio": "Ваш портфель",
+    "userManagement": "Керування користувачами",
+    "assetsTracked": "{count, plural, =0 {У списку немає активів} one {У списку # актив} few {У списку # активи} many {У списку # активів} other {У списку # активів}}",
+    "positionsCount": "{count, plural, =0 {Немає позицій} one {# позиція} few {# позиції} many {# позицій} other {# позицій}}",
+    "usersCount": "{count, plural, =0 {Зареєстрованих користувачів немає} one {# зареєстрований користувач} few {# зареєстровані користувачі} many {# зареєстрованих користувачів} other {# зареєстрованих користувачів}}"
   },
   "errors": {
     "common": {
-      "unauthorized": "Unauthorized",
-      "forbidden": "Forbidden",
-      "notFound": "Not found",
-      "serverError": "Server error",
-      "invalidField": "Invalid input"
+      "unauthorized": "Не авторизовано",
+      "forbidden": "Заборонено",
+      "notFound": "Не знайдено",
+      "serverError": "Помилка сервера",
+      "invalidField": "Неприпустиме значення"
     },
     "auth": {
-      "requiredFields": "All fields are required",
-      "weakPassword": "Password must be at least 8 characters",
-      "emailTaken": "Email already in use",
-      "invalidRole": "Invalid role",
-      "cantChangeOwnRole": "Cannot change your own role",
-      "cantChangeThisRole": "Cannot change this role",
-      "cantDeleteSelf": "Cannot delete yourself"
+      "requiredFields": "Заповніть усі поля",
+      "weakPassword": "Пароль має містити щонайменше 8 символів",
+      "emailTaken": "Цей email уже зайнятий",
+      "invalidRole": "Неприпустима роль",
+      "cantChangeOwnRole": "Не можна змінити власну роль",
+      "cantChangeThisRole": "Не можна змінити цю роль",
+      "cantDeleteSelf": "Не можна видалити власний обліковий запис"
     },
     "profile": {
-      "noChanges": "No changes provided",
-      "googleManaged": "Name and email are managed by your Google account",
-      "googleNoPassword": "Google accounts cannot set a password here",
-      "currentPasswordRequired": "Current password required",
-      "currentPasswordIncorrect": "Current password is incorrect"
+      "noChanges": "Немає змін для збереження",
+      "googleManaged": "Імʼя та email керуються вашим Google-акаунтом",
+      "googleNoPassword": "Google-акаунти не можуть встановлювати пароль тут",
+      "currentPasswordRequired": "Потрібен поточний пароль",
+      "currentPasswordIncorrect": "Поточний пароль неправильний"
     },
     "portfolio": {
-      "pairNotTradeable": "Pair is not tradeable on Binance",
-      "invalidPayload": "Invalid payload",
-      "invalidQuote": "Invalid quote",
-      "symbolAndNameRequired": "Symbol and name are required",
-      "positiveNumbersRequired": "Quantity and price must be positive numbers"
+      "pairNotTradeable": "Ця пара недоступна для торгівлі на Binance",
+      "invalidPayload": "Некоректні дані",
+      "invalidQuote": "Некоректна котирувальна валюта",
+      "symbolAndNameRequired": "Потрібні символ і назва",
+      "positiveNumbersRequired": "Кількість і ціна мають бути додатніми числами"
     },
     "watchlist": {
-      "symbolAndNameRequired": "Symbol and name are required"
+      "symbolAndNameRequired": "Потрібні символ і назва"
     }
   },
   "toasts": {
     "watchlist": {
-      "added": "{name} added to watchlist",
-      "addFailed": "Couldn't add to watchlist",
-      "removed": "Removed from watchlist",
-      "removeFailed": "Couldn't remove from watchlist"
+      "added": "{name} додано до списку спостереження",
+      "addFailed": "Не вдалося додати до списку спостереження",
+      "removed": "Видалено зі списку спостереження",
+      "removeFailed": "Не вдалося видалити зі списку спостереження"
     },
     "portfolio": {
-      "added": "{name} added to portfolio",
-      "addFailed": "Couldn't add position",
-      "removed": "Position removed",
-      "removeFailed": "Couldn't remove position"
+      "added": "{name} додано до портфеля",
+      "addFailed": "Не вдалося додати позицію",
+      "removed": "Позицію видалено",
+      "removeFailed": "Не вдалося видалити позицію"
     },
     "admin": {
-      "roleUpdated": "Role updated",
-      "roleUpdateFailed": "Couldn't update role",
-      "userDeleted": "User deleted",
-      "userDeleteFailed": "Couldn't delete user"
+      "roleUpdated": "Роль оновлено",
+      "roleUpdateFailed": "Не вдалося оновити роль",
+      "userDeleted": "Користувача видалено",
+      "userDeleteFailed": "Не вдалося видалити користувача"
     }
   },
   "confirms": {
     "deleteUser": {
-      "title": "Delete this user?",
-      "description": "This action cannot be undone. The user and their data will be permanently removed.",
-      "confirm": "Delete user",
-      "cancel": "Cancel"
+      "title": "Видалити цього користувача?",
+      "description": "Цю дію неможливо скасувати. Користувача та всі його дані буде видалено назавжди.",
+      "confirm": "Видалити користувача",
+      "cancel": "Скасувати"
     }
   }
 }
