@@ -4,6 +4,7 @@ import { ReactNode, useState } from "react";
 import { Search, X } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 import { ThemeToggle } from "@/shared/ui/theme-toggle";
+import { LocaleSwitcher } from "@/features/locale-switcher";
 import { SearchCoin } from "@/features/search-coin";
 import { styles } from "./styles";
 
@@ -48,6 +49,7 @@ export const Header = ({ title, actions, showSearch = true }: HeaderProps) => {
         )}
 
         {actions}
+        <LocaleSwitcher />
         <ThemeToggle />
       </div>
     </header>
