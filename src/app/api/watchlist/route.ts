@@ -23,7 +23,7 @@ export async function POST(req: Request) {
   if ("error" in auth) return auth.error;
 
   const { symbol, name, quote } = await req.json();
-  if (!symbol || !name) return apiError("symbol and name required", 400);
+  if (!symbol || !name) return apiError("watchlist.symbolAndNameRequired", 400);
 
   const resolvedQuote = quote ?? parseQuoteFromSymbol(symbol);
 

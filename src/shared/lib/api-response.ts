@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 
-export const apiError = (message: string, status: number) =>
-  NextResponse.json({ error: message }, { status });
+// `code` is a dot-path that maps to a key under `errors.*` in messages files.
+// Client resolves the human string via useApiErrorTranslator.
+export const apiError = (code: string, status: number) =>
+  NextResponse.json({ error: code }, { status });
 
-// Common HTTP errors. Domain-specific messages stay inline via `apiError`.
 export const ERRORS = {
-  unauthorized: () => apiError("Unauthorized", 401),
-  forbidden: () => apiError("Forbidden", 403),
-  notFound: () => apiError("Not found", 404),
-  serverError: () => apiError("Server error", 500),
+  unauthorized: () => apiError("common.unauthorized", 401),
+  forbidden: () => apiError("common.forbidden", 403),
+  notFound: () => apiError("common.notFound", 404),
+  serverError: () => apiError("common.serverError", 500),
 };

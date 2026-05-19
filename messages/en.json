@@ -18,5 +18,61 @@
     "assetsTracked": "{count, plural, =0 {No assets tracked} one {# asset tracked} other {# assets tracked}}",
     "positionsCount": "{count, plural, =0 {No positions} one {# position} other {# positions}}",
     "usersCount": "{count, plural, =0 {No registered users} one {# registered user} other {# registered users}}"
+  },
+  "errors": {
+    "common": {
+      "unauthorized": "Unauthorized",
+      "forbidden": "Forbidden",
+      "notFound": "Not found",
+      "serverError": "Server error",
+      "invalidField": "Invalid input"
+    },
+    "auth": {
+      "requiredFields": "All fields are required",
+      "weakPassword": "Password must be at least 8 characters",
+      "emailTaken": "Email already in use",
+      "invalidRole": "Invalid role",
+      "cantChangeOwnRole": "Cannot change your own role",
+      "cantChangeThisRole": "Cannot change this role",
+      "cantDeleteSelf": "Cannot delete yourself"
+    },
+    "profile": {
+      "noChanges": "No changes provided",
+      "googleManaged": "Name and email are managed by your Google account",
+      "googleNoPassword": "Google accounts cannot set a password here",
+      "currentPasswordRequired": "Current password required",
+      "currentPasswordIncorrect": "Current password is incorrect"
+    },
+    "portfolio": {
+      "pairNotTradeable": "Pair is not tradeable on Binance",
+      "invalidPayload": "Invalid payload",
+      "invalidQuote": "Invalid quote",
+      "symbolAndNameRequired": "Symbol and name are required",
+      "positiveNumbersRequired": "Quantity and price must be positive numbers"
+    },
+    "watchlist": {
+      "symbolAndNameRequired": "Symbol and name are required"
+    }
+  },
+  "toasts": {
+    "watchlist": {
+      "added": "{name} added to watchlist",
+      "addFailed": "Couldn't add to watchlist",
+      "removed": "Removed from watchlist",
+      "removeFailed": "Couldn't remove from watchlist"
+    },
+    "portfolio": {
+      "added": "{name} added to portfolio",
+      "addFailed": "Couldn't add position",
+      "removed": "Position removed",
+      "removeFailed": "Couldn't remove position"
+    },
+    "admin": {
+      "roleUpdated": "Role updated",
+      "roleUpdateFailed": "Couldn't update role",
+      "userDeleted": "User deleted",
+      "userDeleteFailed": "Couldn't delete user",
+      "deleteUserConfirm": "Delete this user? This cannot be undone."
+    }
   }
 }

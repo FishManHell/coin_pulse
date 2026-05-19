@@ -20,21 +20,21 @@ export async function PATCH(
     const { name, email, role, password } = await req.json();
 
     const typeError =
-      requireString(name, "name") ??
-      requireString(email, "email") ??
-      requireString(password, "password");
+      requireString(name) ??
+      requireString(email) ??
+      requireString(password);
     if (typeError) return typeError;
-    if (role !== undefined && !isValidRole(role)) return apiError("Invalid role", 400);
+    if (role !== undefined && !isValidRole(role)) return apiError("auth.invalidRole", 400);
 
     await connectDB();
     const target = await User.findById(id);
     if (!target) return ERRORS.notFound();
 
     if (role && id === actor.id) {
-      return apiError("Cannot change your own role", 400);
+      return apiError("auth.cantChangeOwnRole", 400);
     }
     if (role && !ROLE_PERMISSIONS.canChangeRole(actor.role, target.role as UserRole)) {
-      return apiError("Cannot change this role", 403);
+      return apiError("auth.cantChangeThisRole", 403);
     }
     if (password && !ROLE_PERMISSIONS.canChangeOtherPassword(actor.role)) {
       return ERRORS.forbidden();
@@ -48,7 +48,7 @@ export async function PATCH(
     await target.save();
     return NextResponse.json({ message: "Updated" });
   } catch (err) {
-    if (isDuplicateKeyError(err)) return apiError("Email already in use", 400);
+    if (isDuplicateKeyError(err)) return apiError("auth.emailTaken", 400);
     console.error("admin user PATCH error:", err);
     return ERRORS.serverError();
   }
@@ -64,7 +64,7 @@ export async function DELETE(
 
   try {
     const { id } = await params;
-    if (id === actor.id) return apiError("Cannot delete yourself", 400);
+    if (id === actor.id) return apiError("auth.cantDeleteSelf", 400);
 
     await connectDB();
     const result = await User.deleteOne({ _id: id });

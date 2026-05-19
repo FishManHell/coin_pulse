@@ -28,7 +28,7 @@ export async function POST(req: Request) {
 
     const { symbol, name, quote, quantity, buyPrice } = parsed.data;
     if (tradingPairs.get(symbol) !== quote) {
-      return apiError("Pair is not tradeable on Binance", 400);
+      return apiError("portfolio.pairNotTradeable", 400);
     }
 
     await connectDB();

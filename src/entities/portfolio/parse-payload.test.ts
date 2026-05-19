@@ -36,16 +36,16 @@ describe("parsePortfolioPayload — happy path", () => {
 
 describe("parsePortfolioPayload — shape errors", () => {
   it("rejects null and non-objects", () => {
-    expect(parsePortfolioPayload(null)).toEqual({ ok: false, error: "Invalid payload" });
-    expect(parsePortfolioPayload(undefined)).toEqual({ ok: false, error: "Invalid payload" });
-    expect(parsePortfolioPayload("nope")).toEqual({ ok: false, error: "Invalid payload" });
-    expect(parsePortfolioPayload(42)).toEqual({ ok: false, error: "Invalid payload" });
+    expect(parsePortfolioPayload(null)).toEqual({ ok: false, error: "portfolio.invalidPayload" });
+    expect(parsePortfolioPayload(undefined)).toEqual({ ok: false, error: "portfolio.invalidPayload" });
+    expect(parsePortfolioPayload("nope")).toEqual({ ok: false, error: "portfolio.invalidPayload" });
+    expect(parsePortfolioPayload(42)).toEqual({ ok: false, error: "portfolio.invalidPayload" });
   });
 
   it("rejects non-string quote (when present)", () => {
     expect(parsePortfolioPayload({ ...valid, quote: 42 })).toEqual({
       ok: false,
-      error: "Invalid quote",
+      error: "portfolio.invalidQuote",
     });
   });
 });
@@ -81,10 +81,10 @@ describe("parsePortfolioPayload — numeric guards", () => {
     expect(parsePortfolioPayload({ ...valid, buyPrice: -100 }).ok).toBe(false);
   });
 
-  it("surfaces a single error message for numeric problems", () => {
+  it("surfaces a single error code for numeric problems", () => {
     expect(parsePortfolioPayload({ ...valid, quantity: -1 })).toEqual({
       ok: false,
-      error: "Quantity and price must be positive numbers",
+      error: "portfolio.positiveNumbersRequired",
     });
   });
 });

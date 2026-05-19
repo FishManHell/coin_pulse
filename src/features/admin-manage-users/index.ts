@@ -3,8 +3,10 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { useMutation } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import type { UserRole } from "@/shared/types/roles";
 import type { AdminUser } from "@/entities/user/types";
+import { useApiErrorTranslator } from "@/shared/lib/use-api-error-translator";
 import { updateUserRole, deleteUser } from "./api";
 
 interface RoleVars {
@@ -14,15 +16,17 @@ interface RoleVars {
 
 export const useAdminUsers = (initial: AdminUser[]) => {
   const [users, setUsers] = useState(initial);
+  const t = useTranslations("toasts.admin");
+  const translateError = useApiErrorTranslator();
 
   const roleMutation = useMutation({
     mutationFn: ({ id, role }: RoleVars) => updateUserRole(id, role),
     onSuccess: (_, { id, role }) => {
       setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, role } : u)));
-      toast.success("Role updated");
+      toast.success(t("roleUpdated"));
     },
     onError: (err) => {
-      toast.error("Couldn't update role", { description: err.message });
+      toast.error(t("roleUpdateFailed"), { description: translateError(err.message) });
     },
   });
 
@@ -30,10 +34,10 @@ export const useAdminUsers = (initial: AdminUser[]) => {
     mutationFn: deleteUser,
     onSuccess: (_, id) => {
       setUsers((prev) => prev.filter((u) => u.id !== id));
-      toast.success("User deleted");
+      toast.success(t("userDeleted"));
     },
     onError: (err) => {
-      toast.error("Couldn't delete user", { description: err.message });
+      toast.error(t("userDeleteFailed"), { description: translateError(err.message) });
     },
   });
 
@@ -46,7 +50,7 @@ export const useAdminUsers = (initial: AdminUser[]) => {
 
   const removeUser = (id: string) => {
     if (busy) return;
-    if (!confirm("Delete this user? This cannot be undone.")) return;
+    if (!confirm(t("deleteUserConfirm"))) return;
     deleteMutation.mutate(id);
   };
 

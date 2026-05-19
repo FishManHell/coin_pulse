@@ -9,11 +9,11 @@ export async function POST(req: Request) {
     const { name, email, password } = await req.json();
 
     if (!name || !email || !password) {
-      return apiError("All fields are required", 400);
+      return apiError("auth.requiredFields", 400);
     }
 
     if (password.length < 8) {
-      return apiError("Password must be at least 8 characters", 400);
+      return apiError("auth.weakPassword", 400);
     }
 
     await connectDB();
@@ -23,7 +23,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ message: "Account created" }, { status: 201 });
   } catch (err) {
-    if (isDuplicateKeyError(err)) return apiError("Email already in use", 400);
+    if (isDuplicateKeyError(err)) return apiError("auth.emailTaken", 400);
     console.error("register error:", err);
     return ERRORS.serverError();
   }
