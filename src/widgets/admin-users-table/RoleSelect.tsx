@@ -1,8 +1,8 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import {
   ALL_ROLES,
-  ROLE_LABELS,
   ROLE_PERMISSIONS,
   type UserRole,
 } from "@/shared/types/roles";
@@ -24,6 +24,7 @@ interface RoleSelectProps {
 }
 
 export const RoleSelect = ({ value, actorRole, disabled, onChange }: RoleSelectProps) => {
+  const t = useTranslations("admin.roles");
   const assignable = ALL_ROLES.filter((role) => {
     return ROLE_PERMISSIONS.canChangeRole(actorRole, role)
   });
@@ -38,7 +39,7 @@ export const RoleSelect = ({ value, actorRole, disabled, onChange }: RoleSelectP
       <SelectContent className="bg-surface border-border-base">
         {assignable.map((r) => (
           <SelectItem key={r} value={r} className="text-xs cursor-pointer">
-            {ROLE_LABELS[r]}
+            {t(r)}
           </SelectItem>
         ))}
       </SelectContent>

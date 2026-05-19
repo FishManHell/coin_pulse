@@ -38,6 +38,26 @@
       "description": "Перейдіть на Огляд і натисніть ★ на будь-якій монеті, щоб додати її сюди."
     }
   },
+  "admin": {
+    "columns": {
+      "user": "Користувач",
+      "email": "Email",
+      "role": "Роль",
+      "joined": "Приєднано"
+    },
+    "actions": {
+      "deleteUser": "Видалити користувача"
+    },
+    "roles": {
+      "superadmin": "Суперадмін",
+      "admin": "Адмін",
+      "developer": "Розробник",
+      "user": "Користувач"
+    },
+    "currentUserRole": {
+      "label": "Ваша роль:"
+    }
+  },
   "dashboard": {
     "marketOverview": {
       "eyebrow": "Поточні ціни",

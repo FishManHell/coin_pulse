@@ -1,9 +1,13 @@
+import { useTranslations } from "next-intl";
 import { styles } from "./styles";
 
-const COLUMNS = ["User", "Email", "Role", "Joined", ""];
+export const TableHeader = () => {
+  const t = useTranslations("admin.columns");
+  const columns = [t("user"), t("email"), t("role"), t("joined"), ""];
 
-export const TableHeader = () => (
-  <div className={styles.headerRow}>
-    {COLUMNS.map((h, i) => <span key={i} className={styles.headerCell}>{h}</span>)}
-  </div>
-);
+  return (
+    <div className={styles.headerRow}>
+      {columns.map((h, i) => <span key={i} className={styles.headerCell}>{h}</span>)}
+    </div>
+  );
+};

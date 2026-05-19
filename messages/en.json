@@ -38,6 +38,26 @@
       "description": "Go to Dashboard and click ★ on any coin to add it here."
     }
   },
+  "admin": {
+    "columns": {
+      "user": "User",
+      "email": "Email",
+      "role": "Role",
+      "joined": "Joined"
+    },
+    "actions": {
+      "deleteUser": "Delete user"
+    },
+    "roles": {
+      "superadmin": "Super Admin",
+      "admin": "Admin",
+      "developer": "Developer",
+      "user": "User"
+    },
+    "currentUserRole": {
+      "label": "Your role:"
+    }
+  },
   "dashboard": {
     "marketOverview": {
       "eyebrow": "Live prices",

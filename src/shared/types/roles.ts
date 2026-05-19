@@ -17,13 +17,6 @@ export type UserRole = (typeof ALL_ROLES)[number];
 export const isValidRole = (value: unknown): value is UserRole =>
   typeof value === "string" && (ALL_ROLES as readonly string[]).includes(value);
 
-export const ROLE_LABELS: Record<UserRole, string> = {
-  superadmin: "Super Admin",
-  admin: "Admin",
-  developer: "Developer",
-  user: "User",
-};
-
 export const ROLE_PERMISSIONS = {
   canAccessSettings: (role: UserRole) =>
     role === USER_ROLES.SUPERADMIN || role === USER_ROLES.ADMIN,
