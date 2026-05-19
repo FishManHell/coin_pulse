@@ -50,7 +50,6 @@ export const useAdminUsers = (initial: AdminUser[]) => {
 
   const removeUser = (id: string) => {
     if (busy) return;
-    if (!confirm(t("deleteUserConfirm"))) return;
     deleteMutation.mutate(id);
   };
 

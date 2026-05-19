@@ -1,8 +1,11 @@
 "use client";
 
+import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Trash2, Shield } from "lucide-react";
 import { ROLE_PERMISSIONS, type UserRole } from "@/shared/types/roles";
 import { Button } from "@/shared/ui/button";
+import { ConfirmDialog } from "@/shared/ui/confirm-dialog";
 import { styles } from "./styles";
 import { RoleBadge } from "./RoleBadge";
 import { RoleSelect } from "./RoleSelect";
@@ -25,9 +28,10 @@ export const UserRow = ({ user, actorId, actorRole, isLoading, onChangeRole, onD
   const isSelf = user.id === actorId;
   const canEditRole = !isSelf && ROLE_PERMISSIONS.canChangeRole(actorRole, user.role);
   const canDelete = !isSelf && ROLE_PERMISSIONS.canDeleteUser(actorRole);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const tConfirm = useTranslations("confirms.deleteUser");
 
   const handleRoleChange = (role: UserRole) => onChangeRole(user.id, role);
-  const handleDelete = () => onDelete(user.id);
 
   return (
     <div className={styles.row}>
@@ -55,16 +59,28 @@ export const UserRow = ({ user, actorId, actorRole, isLoading, onChangeRole, onD
 
       <div className={styles.deleteCell}>
         {canDelete ? (
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            onClick={handleDelete}
-            disabled={isLoading}
-            aria-label="Delete user"
-            className="text-text-muted hover:text-price-down hover:bg-price-down/10"
-          >
-            <Trash2 />
-          </Button>
+          <>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={() => setConfirmOpen(true)}
+              disabled={isLoading}
+              aria-label="Delete user"
+              className="text-text-muted hover:text-price-down hover:bg-price-down/10"
+            >
+              <Trash2 />
+            </Button>
+            <ConfirmDialog
+              open={confirmOpen}
+              onOpenChange={setConfirmOpen}
+              title={tConfirm("title")}
+              description={tConfirm("description")}
+              confirmLabel={tConfirm("confirm")}
+              cancelLabel={tConfirm("cancel")}
+              destructive
+              onConfirm={() => onDelete(user.id)}
+            />
+          </>
         ) : (
           <Shield size={14} className={styles.shield} />
         )}

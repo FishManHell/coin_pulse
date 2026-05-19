@@ -71,8 +71,15 @@
       "roleUpdated": "Role updated",
       "roleUpdateFailed": "Couldn't update role",
       "userDeleted": "User deleted",
-      "userDeleteFailed": "Couldn't delete user",
-      "deleteUserConfirm": "Delete this user? This cannot be undone."
+      "userDeleteFailed": "Couldn't delete user"
+    }
+  },
+  "confirms": {
+    "deleteUser": {
+      "title": "Delete this user?",
+      "description": "This action cannot be undone. The user and their data will be permanently removed.",
+      "confirm": "Delete user",
+      "cancel": "Cancel"
     }
   }
 }
