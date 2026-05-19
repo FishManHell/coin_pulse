@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { requireUser } from "@/entities/user/lib/require-user";
 import connectDB from "@/shared/lib/db";
 import WatchlistItem from "@/entities/watchlist/model/watchlist-item";
@@ -14,17 +15,18 @@ const WatchlistPage = async () =>  {
     .lean();
 
   const items = rawItems.map(toWatchlistDTO);
+  const t = await getTranslations();
 
   return (
     <>
-      <Header title="Watchlist" showSearch={false}/>
+      <Header title={t("nav.watchlist")} showSearch={false}/>
       <div className="flex-1 p-6 flex flex-col min-h-0">
         <div className="mb-6">
           <h2 className="text-lg font-semibold text-text-primary">
-            Your watchlist
+            {t("sections.yourWatchlist")}
           </h2>
           <p className="text-text-muted text-sm mt-1">
-            {items.length} {items.length === 1 ? "asset" : "assets"} tracked
+            {t("sections.assetsTracked", { count: items.length })}
           </p>
         </div>
         <WatchlistTable initialItems={items} />

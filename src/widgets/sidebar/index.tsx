@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { useTranslations } from "next-intl";
 import { Settings } from "lucide-react";
 import { ROLE_PERMISSIONS, type UserRole } from "@/shared/types/roles";
 import { ROUTES } from "@/shared/config/routes";
@@ -15,6 +16,7 @@ import { styles } from "./styles";
 export const Sidebar = () => {
   const pathname = usePathname();
   const { data: session } = useSession();
+  const t = useTranslations("nav");
   const role = (session?.user as { role?: UserRole } | undefined)?.role;
 
   return (
@@ -22,11 +24,11 @@ export const Sidebar = () => {
       <SidebarLogo />
 
       <nav className={styles.nav}>
-        {NAV_ITEMS.map(({ href, label, icon }) => (
+        {NAV_ITEMS.map(({ href, key, icon }) => (
           <SidebarNavLink
             key={href}
             href={href}
-            label={label}
+            label={t(key)}
             icon={icon}
             active={pathname === href}
           />
@@ -37,7 +39,7 @@ export const Sidebar = () => {
         {role && ROLE_PERMISSIONS.canAccessSettings(role) && (
           <SidebarNavLink
             href={ROUTES.settings}
-            label="Settings"
+            label={t("settings")}
             icon={Settings}
             active={pathname === ROUTES.settings}
           />

@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { requireUser } from "@/entities/user/lib/require-user";
 import { ROLE_PERMISSIONS, type UserRole } from "@/shared/types/roles";
 import { Header } from "@/widgets/header";
@@ -23,13 +24,15 @@ const SettingsPage = async () => {
     createdAt: u.createdAt.toISOString(),
   }));
 
+  const t = await getTranslations();
+
   return (
     <>
-      <Header title="Settings" />
+      <Header title={t("nav.settings")} />
       <div className="flex-1 p-6">
         <div className="mb-6">
-          <h2 className="text-lg font-semibold text-text-primary">User management</h2>
-          <p className="text-text-muted text-sm mt-1">{users.length} registered users</p>
+          <h2 className="text-lg font-semibold text-text-primary">{t("sections.userManagement")}</h2>
+          <p className="text-text-muted text-sm mt-1">{t("sections.usersCount", { count: users.length })}</p>
         </div>
         <AdminUsersTable users={users} actorId={actor.id} actorRole={actor.role} />
       </div>

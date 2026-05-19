@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { requireUser } from "@/entities/user/lib/require-user";
 import connectDB from "@/shared/lib/db";
 import PortfolioPosition from "@/entities/portfolio/model/portfolio-position";
@@ -14,15 +15,16 @@ const PortfolioPage = async () => {
     .lean();
 
   const positions = rawPositions.map(toPortfolioDTO);
+  const t = await getTranslations();
 
   return (
     <>
-      <Header title="Portfolio" showSearch={false} />
+      <Header title={t("nav.portfolio")} showSearch={false} />
       <div className="flex-1 p-6 flex flex-col min-h-0">
         <div className="mb-6">
-          <h2 className="text-lg font-semibold text-text-primary">Your portfolio</h2>
+          <h2 className="text-lg font-semibold text-text-primary">{t("sections.yourPortfolio")}</h2>
           <p className="text-text-muted text-sm mt-1">
-            {positions.length} {positions.length === 1 ? "position" : "positions"}
+            {t("sections.positionsCount", { count: positions.length })}
           </p>
         </div>
         <PortfolioTable initialPositions={positions} />

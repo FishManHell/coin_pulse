@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { Header } from "@/widgets/header";
 import { MarketOverview } from "@/widgets/market-overview";
 import { CandlestickChart } from "@/widgets/candlestick-chart";
@@ -7,11 +8,14 @@ import { QuoteSelector } from "@/features/select-quote";
 import { SelectedSymbolStream } from "@/entities/coin";
 
 const DashboardPage = async () => {
-  const initialSymbols = await fetchTopSymbols(6, "USDT");
+  const [initialSymbols, t] = await Promise.all([
+    fetchTopSymbols(6, "USDT"),
+    getTranslations("nav"),
+  ]);
 
   return (
     <>
-      <Header title="Dashboard" actions={<QuoteSelector />} />
+      <Header title={t("dashboard")} actions={<QuoteSelector />} />
       <SelectedSymbolStream />
       <div className="flex flex-1 min-h-0">
         <div className="flex-1 p-6 space-y-6 overflow-y-auto">

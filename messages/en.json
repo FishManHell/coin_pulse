@@ -1,5 +1,22 @@
 {
   "common": {
-    "appName": "CoinPulse"
+    "appName": "CoinPulse",
+    "changeLanguage": "Change language"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "watchlist": "Watchlist",
+    "portfolio": "Portfolio",
+    "settings": "Settings",
+    "profile": "Profile",
+    "signOut": "Sign out"
+  },
+  "sections": {
+    "yourWatchlist": "Your watchlist",
+    "yourPortfolio": "Your portfolio",
+    "userManagement": "User management",
+    "assetsTracked": "{count, plural, =0 {No assets tracked} one {# asset tracked} other {# assets tracked}}",
+    "positionsCount": "{count, plural, =0 {No positions} one {# position} other {# positions}}",
+    "usersCount": "{count, plural, =0 {No registered users} one {# registered user} other {# registered users}}"
   }
 }

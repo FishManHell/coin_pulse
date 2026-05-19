@@ -1,7 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Select } from "radix-ui";
 import { Check, ChevronDown } from "lucide-react";
 import { LOCALES, LOCALE_LABELS, isLocale } from "@/i18n/config";
@@ -10,6 +10,7 @@ import { styles } from "./styles";
 
 export const LocaleSwitcher = () => {
   const locale = useLocale();
+  const t = useTranslations("common");
   const [isPending, startTransition] = useTransition();
 
   const onValueChange = (value: string) => {
@@ -21,7 +22,7 @@ export const LocaleSwitcher = () => {
 
   return (
     <Select.Root value={locale} onValueChange={onValueChange} disabled={isPending}>
-      <Select.Trigger aria-label="Change language" className={styles.trigger}>
+      <Select.Trigger aria-label={t("changeLanguage")} className={styles.trigger}>
         <span>{locale.toUpperCase()}</span>
         <Select.Icon>
           <ChevronDown size={12} />
