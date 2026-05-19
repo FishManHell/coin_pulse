@@ -18,18 +18,24 @@ export const AdminUsersTable = ({ users: initialUsers, actorId, actorRole }: Rea
 
   return (
     <div className={styles.wrap}>
-      <TableHeader />
-      {users.map((user) => (
-        <UserRow
-          key={user.id}
-          user={user}
-          actorId={actorId}
-          actorRole={actorRole}
-          isLoading={loadingId === user.id}
-          onChangeRole={changeRole}
-          onDelete={removeUser}
-        />
-      ))}
+      <div className={styles.table}>
+        <div className={styles.tableScroll}>
+          <div className={styles.tableInner}>
+            <TableHeader />
+            {users.map((user) => (
+              <UserRow
+                key={user.id}
+                user={user}
+                actorId={actorId}
+                actorRole={actorRole}
+                isLoading={loadingId === user.id}
+                onChangeRole={changeRole}
+                onDelete={removeUser}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
