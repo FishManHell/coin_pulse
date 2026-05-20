@@ -4,15 +4,26 @@ import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { useShallow } from "zustand/react/shallow";
 import { usePricesStore } from "@/entities/coin";
-import { formatPrice, formatPercent } from "@/shared/lib/utils";
+import { formatPercent } from "@/shared/lib/utils";
 import type { GroupedPosition } from "./group-positions";
 import { SummaryCard } from "./SummaryCard";
-import { computePortfolioPnl } from "./compute-portfolio-pnl";
+import { QuotedAmount } from "./QuotedAmount";
+import { computePortfolioPnl, type QuotePnl } from "./compute-portfolio-pnl";
 
 interface LiveSummaryCardsProps {
   grouped: GroupedPosition[];
   loading: boolean;
 }
+
+const PnlNode = ({ q }: { q: QuotePnl }) => (
+  <>
+    {q.isUp ? "+" : "-"}
+    <QuotedAmount value={Math.abs(q.pnl)} quote={q.quote} />
+    <span className="ml-1 text-xs opacity-70">({formatPercent(q.pnlPct)})</span>
+  </>
+);
+
+const pnlColor = (q: QuotePnl) => (q.isUp ? "text-price-up" : "text-price-down");
 
 export const LiveSummaryCards = ({ grouped, loading }: Readonly<LiveSummaryCardsProps>) => {
   const t = useTranslations("portfolio.summary");
@@ -27,21 +38,27 @@ export const LiveSummaryCards = ({ grouped, loading }: Readonly<LiveSummaryCards
     ),
   );
 
-  const { current, pnl, pnlPct, isUp } = computePortfolioPnl(grouped, prices);
+  const { byQuote } = computePortfolioPnl(grouped, prices);
+  const [primary, ...rest] = byQuote;
 
   return (
     <>
       <SummaryCard
         label={t("currentValue")}
-        value={`$${formatPrice(current)}`}
+        value={<QuotedAmount value={primary.current} quote={primary.quote} />}
         color="text-text-primary"
         loading={loading}
+        secondary={rest.map((q) => ({
+          key: q.quote,
+          node: <>+ <QuotedAmount value={q.current} quote={q.quote} /></>,
+        }))}
       />
       <SummaryCard
         label={t("totalPnl")}
-        value={`${isUp ? "+" : ""}$${formatPrice(Math.abs(pnl))} (${formatPercent(pnlPct)})`}
-        color={isUp ? "text-price-up" : "text-price-down"}
+        value={<PnlNode q={primary} />}
+        color={pnlColor(primary)}
         loading={loading}
+        secondary={rest.map((q) => ({ key: q.quote, node: <PnlNode q={q} />, color: pnlColor(q) }))}
       />
     </>
   );

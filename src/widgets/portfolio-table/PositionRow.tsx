@@ -56,11 +56,11 @@ export const PositionRow = ({ group }: PositionRowProps) => {
           </div>
         </div>
         <span className={styles.cellSecondary}>{group.totalQty}</span>
-        <span className={styles.cellSecondary}>${formatPrice(group.avgBuyPrice)}</span>
-        <span className={styles.cellPrimary}>${formatPrice(currentPrice)}</span>
+        <span className={styles.cellSecondary}>{formatPrice(group.avgBuyPrice)}</span>
+        <span className={styles.cellPrimary}>{formatPrice(currentPrice)}</span>
         <span className={cn(styles.pnlCell, isUp ? "text-price-up" : "text-price-down")}>
           {isUp ? <TrendingUp size={12} /> : <TrendingDown size={12} />}
-          {isUp ? "+" : ""}${formatPrice(Math.abs(pnl))}
+          {isUp ? "+" : "-"}{formatPrice(Math.abs(pnl))}
           <span className="text-xs opacity-70">({formatPercent(pnlPct)})</span>
         </span>
         <span />

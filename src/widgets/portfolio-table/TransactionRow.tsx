@@ -22,7 +22,7 @@ export const TransactionRow = ({ tx }: { tx: PortfolioPosition }) => {
       <span />
       <span className={styles.txDate}>{formattedDate}</span>
       <span className={styles.txValue}>{tx.quantity}</span>
-      <span className={styles.txValue}>${formatPrice(tx.buyPrice)}</span>
+      <span className={styles.txValue}>{formatPrice(tx.buyPrice)}</span>
       <span />
       <span />
       <DeleteIconButton

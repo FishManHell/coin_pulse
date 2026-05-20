@@ -7,6 +7,7 @@ export const styles = {
   summaryCard: "bg-surface border border-border-base rounded-2xl p-4 min-w-0",
   summaryLabel: "text-xs text-text-muted mb-1",
   summaryValue: "text-lg font-bold break-words",
+  summarySecondary: "text-xs mt-1 break-words",
 
   table: "bg-surface border border-border-base rounded-2xl overflow-hidden flex flex-col flex-1 min-h-0",
   tableScroll: "overflow-auto flex-1 min-h-0",

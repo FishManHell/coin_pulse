@@ -14,22 +14,25 @@ const makeGroup = (overrides: Partial<GroupedPosition> = {}): GroupedPosition =>
 });
 
 describe("computePortfolioPnl", () => {
-  it("returns all-zero / isUp=true when there are no groups", () => {
+  it("returns an empty byQuote list when there are no groups", () => {
     const r = computePortfolioPnl([], {});
-    expect(r).toEqual({ invested: 0, current: 0, pnl: 0, pnlPct: 0, isUp: true });
+    expect(r.byQuote).toEqual([]);
   });
 
-  it("aggregates invested and current across multiple priced groups", () => {
+  it("aggregates a single quote into one entry", () => {
     const groups = [
       makeGroup({ symbol: "BTCUSDT", totalQty: 2, totalCost: 100_000, avgBuyPrice: 50_000 }),
       makeGroup({ symbol: "ETHUSDT", totalQty: 10, totalCost: 30_000, avgBuyPrice: 3_000 }),
     ];
     const r = computePortfolioPnl(groups, { BTCUSDT: 60_000, ETHUSDT: 3_500 });
-    expect(r.invested).toBe(130_000);
-    expect(r.current).toBe(155_000);
-    expect(r.pnl).toBe(25_000);
-    expect(r.pnlPct).toBeCloseTo((25_000 / 130_000) * 100);
-    expect(r.isUp).toBe(true);
+    expect(r.byQuote).toHaveLength(1);
+    const usdt = r.byQuote[0];
+    expect(usdt.quote).toBe("USDT");
+    expect(usdt.invested).toBe(130_000);
+    expect(usdt.current).toBe(155_000);
+    expect(usdt.pnl).toBe(25_000);
+    expect(usdt.pnlPct).toBeCloseTo((25_000 / 130_000) * 100);
+    expect(usdt.isUp).toBe(true);
   });
 
   it("falls back to avgBuyPrice for groups whose symbol has no live price", () => {
@@ -38,28 +41,49 @@ describe("computePortfolioPnl", () => {
       makeGroup({ symbol: "ETHUSDT", totalQty: 10, totalCost: 30_000, avgBuyPrice: 3_000 }),
     ];
     const r = computePortfolioPnl(groups, { BTCUSDT: 60_000 });
-    expect(r.invested).toBe(130_000);
-    // ETH contributes 10 * 3000 (fallback) = 30000; BTC contributes 2 * 60000 = 120000
-    expect(r.current).toBe(150_000);
-    expect(r.pnl).toBe(20_000);
-    expect(r.isUp).toBe(true);
+    const usdt = r.byQuote[0];
+    expect(usdt.invested).toBe(130_000);
+    expect(usdt.current).toBe(150_000);
+    expect(usdt.pnl).toBe(20_000);
+    expect(usdt.isUp).toBe(true);
   });
 
-  it("reports a net loss when current value drops below invested", () => {
+  it("reports a per-quote loss when current drops below invested", () => {
     const groups = [makeGroup({ totalQty: 2, totalCost: 100_000, avgBuyPrice: 50_000 })];
     const r = computePortfolioPnl(groups, { BTCUSDT: 40_000 });
-    expect(r.pnl).toBe(-20_000);
-    expect(r.pnlPct).toBe(-20);
-    expect(r.isUp).toBe(false);
+    const usdt = r.byQuote[0];
+    expect(usdt.pnl).toBe(-20_000);
+    expect(usdt.pnlPct).toBe(-20);
+    expect(usdt.isUp).toBe(false);
   });
 
-  it("guards pnlPct against division by zero when invested is 0", () => {
-    const groups = [
-      makeGroup({ totalQty: 0, totalCost: 0, avgBuyPrice: 0 }),
-    ];
+  it("guards pnlPct against division by zero when a quote's invested is 0", () => {
+    const groups = [makeGroup({ totalQty: 0, totalCost: 0, avgBuyPrice: 0 })];
     const r = computePortfolioPnl(groups, { BTCUSDT: 60_000 });
-    expect(r.invested).toBe(0);
-    expect(r.pnlPct).toBe(0);
-    expect(Number.isFinite(r.pnlPct)).toBe(true);
+    const usdt = r.byQuote[0];
+    expect(usdt.invested).toBe(0);
+    expect(usdt.pnlPct).toBe(0);
+    expect(Number.isFinite(usdt.pnlPct)).toBe(true);
+  });
+
+  it("splits totals across multiple quotes and ranks USDT first", () => {
+    const groups = [
+      makeGroup({ symbol: "BTCBUSD", quote: "BUSD", totalQty: 1, totalCost: 30_000, avgBuyPrice: 30_000 }),
+      makeGroup({ symbol: "BTCUSDT", quote: "USDT", totalQty: 1, totalCost: 50_000, avgBuyPrice: 50_000 }),
+      makeGroup({ symbol: "ETHEUR", quote: "EUR", totalQty: 2, totalCost: 4_000, avgBuyPrice: 2_000 }),
+    ];
+    const r = computePortfolioPnl(groups, {
+      BTCBUSD: 35_000,
+      BTCUSDT: 60_000,
+      ETHEUR: 2_500,
+    });
+    expect(r.byQuote.map((q) => q.quote)).toEqual(["USDT", "BUSD", "EUR"]);
+    const [usdt, busd, eur] = r.byQuote;
+    expect(usdt.invested).toBe(50_000);
+    expect(usdt.current).toBe(60_000);
+    expect(busd.invested).toBe(30_000);
+    expect(busd.current).toBe(35_000);
+    expect(eur.invested).toBe(4_000);
+    expect(eur.current).toBe(5_000);
   });
 });
