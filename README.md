@@ -159,7 +159,7 @@ npm test            # single run
 npm run test:watch  # TDD watch mode
 ```
 
-128 tests across 23 files: pure-logic units (Tier 1), Zustand stores (Tier 2), React hooks via `renderHook` + fake timers (Tier 3), plus business logic extracted from forms / smart containers / API routes (Tier 4-6: `deriveEffectiveSymbol`, `compute*Pnl`, `parsePortfolioPayload`, `ROLE_PERMISSIONS`, `translateGlobal`). `vitest run` is wired into `prebuild` — Vercel + CI fail on red tests. See `.claude/skills/coin-pulse/references/testing.md` for the pure-extract strategy and explicit skip list.
+138 tests across 23 files: pure-logic units (Tier 1), Zustand stores (Tier 2), React hooks via `renderHook` + fake timers (Tier 3), plus business logic extracted from forms / smart containers / API routes (Tier 4-6: `deriveEffectiveSymbol`, `compute*Pnl`, `parsePortfolioPayload`, `ROLE_PERMISSIONS`, `translateGlobal`). `vitest run` is wired into `prebuild` — Vercel + CI fail on red tests. See `.claude/skills/coin-pulse/references/testing.md` for the pure-extract strategy and explicit skip list.
 
 ---
 
