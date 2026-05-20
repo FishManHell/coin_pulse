@@ -14,6 +14,10 @@
 
 </div>
 
+![CoinPulse dashboard — live prices and candlestick chart](./public/screenshots/dashboard.png)
+
+![CoinPulse portfolio — positions with real-time P&L](./public/screenshots/portfolio.png)
+
 ---
 
 ## What is CoinPulse?
