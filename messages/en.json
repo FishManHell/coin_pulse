@@ -188,6 +188,12 @@
     },
     "watchlist": {
       "symbolAndNameRequired": "Symbol and name are required"
+    },
+    "session": {
+      "expiredTitle": "Session expired",
+      "expiredDescription": "Please sign in again.",
+      "forbiddenTitle": "Permission denied",
+      "forbiddenDescription": "You don't have access to this action."
     }
   },
   "toasts": {

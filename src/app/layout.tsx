@@ -6,6 +6,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { SessionProvider } from "@/app/_providers/session-provider";
 import { QueryProvider } from "@/app/_providers/query-provider";
+import { GlobalTranslatorBridge } from "@/shared/lib/global-translator-bridge";
 import "./globals.css";
 import {ReactNode} from "react";
 
@@ -28,6 +29,7 @@ const RootLayout = async ({children,}: Readonly<{ children: ReactNode }>) =>  {
     <html lang={locale} className={`${inter.variable} h-full`} suppressHydrationWarning>
       <body className="min-h-full bg-bg text-text-primary antialiased" suppressHydrationWarning>
         <NextIntlClientProvider locale={locale} messages={messages}>
+          <GlobalTranslatorBridge />
           <ThemeProvider attribute="class" defaultTheme="light" disableTransitionOnChange>
             <SessionProvider>
               <QueryProvider>

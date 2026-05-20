@@ -188,6 +188,12 @@
     },
     "watchlist": {
       "symbolAndNameRequired": "Потрібні символ і назва"
+    },
+    "session": {
+      "expiredTitle": "Сесія закінчилась",
+      "expiredDescription": "Будь ласка, увійдіть знову.",
+      "forbiddenTitle": "Доступ заборонено",
+      "forbiddenDescription": "Ви не маєте права на цю дію."
     }
   },
   "toasts": {
