@@ -93,6 +93,32 @@
       "noResultsForQuery": "No coins found for \"{query}\""
     }
   },
+  "profile": {
+    "edit": {
+      "title": "Profile information",
+      "fullName": "Full name",
+      "email": "Email",
+      "googleManagedNote": "Name and email are managed by your Google account.",
+      "submit": "Save changes",
+      "saving": "Saving…",
+      "success": "Profile updated."
+    },
+    "password": {
+      "title": "Change password",
+      "currentLabel": "Current password",
+      "newLabel": "New password",
+      "confirmLabel": "Confirm new password",
+      "newPlaceholder": "Min. 8 characters",
+      "submit": "Update password",
+      "updating": "Updating…",
+      "success": "Password changed.",
+      "mismatch": "Passwords do not match"
+    },
+    "googleNotice": {
+      "title": "Password",
+      "description": "You signed in with Google. Manage your password in your Google account."
+    }
+  },
   "portfolio": {
     "columns": {
       "asset": "Asset",

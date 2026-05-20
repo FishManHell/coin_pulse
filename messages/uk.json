@@ -24,7 +24,7 @@
       "asset": "Актив",
       "price": "Ціна",
       "change24h": "Зміна за 24 год",
-      "volume": "Обʼєм"
+      "volume": "Обсяг"
     },
     "filter": {
       "label": "Котирування",
@@ -41,7 +41,7 @@
   "admin": {
     "columns": {
       "user": "Користувач",
-      "email": "Email",
+      "email": "Пошта",
       "role": "Роль",
       "joined": "Приєднано"
     },
@@ -93,6 +93,32 @@
       "noResultsForQuery": "Монет не знайдено за запитом «{query}»"
     }
   },
+  "profile": {
+    "edit": {
+      "title": "Інформація профілю",
+      "fullName": "Повне імʼя",
+      "email": "Пошта",
+      "googleManagedNote": "Імʼя та пошта керуються вашим Google-акаунтом.",
+      "submit": "Зберегти зміни",
+      "saving": "Збереження…",
+      "success": "Профіль оновлено."
+    },
+    "password": {
+      "title": "Зміна пароля",
+      "currentLabel": "Поточний пароль",
+      "newLabel": "Новий пароль",
+      "confirmLabel": "Підтвердження нового пароля",
+      "newPlaceholder": "Мін. 8 символів",
+      "submit": "Оновити пароль",
+      "updating": "Оновлення…",
+      "success": "Пароль змінено.",
+      "mismatch": "Паролі не збігаються"
+    },
+    "googleNotice": {
+      "title": "Пароль",
+      "description": "Ви увійшли через Google. Керуйте паролем у своєму Google-акаунті."
+    }
+  },
   "portfolio": {
     "columns": {
       "asset": "Актив",
@@ -140,7 +166,7 @@
     "auth": {
       "requiredFields": "Заповніть усі поля",
       "weakPassword": "Пароль має містити щонайменше 8 символів",
-      "emailTaken": "Цей email уже зайнятий",
+      "emailTaken": "Цю пошту вже зайнято",
       "invalidRole": "Неприпустима роль",
       "cantChangeOwnRole": "Не можна змінити власну роль",
       "cantChangeThisRole": "Не можна змінити цю роль",
@@ -148,7 +174,7 @@
     },
     "profile": {
       "noChanges": "Немає змін для збереження",
-      "googleManaged": "Імʼя та email керуються вашим Google-акаунтом",
+      "googleManaged": "Імʼя та пошта керуються вашим Google-акаунтом",
       "googleNoPassword": "Google-акаунти не можуть встановлювати пароль тут",
       "currentPasswordRequired": "Потрібен поточний пароль",
       "currentPasswordIncorrect": "Поточний пароль неправильний"

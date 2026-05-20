@@ -6,15 +6,17 @@ export interface PasswordValues {
 
 interface FieldConfig {
   key: keyof PasswordValues;
-  label: string;
-  placeholder: string;
+  labelKey: "currentLabel" | "newLabel" | "confirmLabel";
+  placeholderKey: "newPlaceholder" | null;
 }
 
 export const PASSWORD_FIELDS: ReadonlyArray<FieldConfig> = [
-  { key: "currentPassword", label: "Current password", placeholder: "••••••••" },
-  { key: "newPassword", label: "New password", placeholder: "Min. 8 characters" },
-  { key: "confirm", label: "Confirm new password", placeholder: "••••••••" },
+  { key: "currentPassword", labelKey: "currentLabel", placeholderKey: null },
+  { key: "newPassword", labelKey: "newLabel", placeholderKey: "newPlaceholder" },
+  { key: "confirm", labelKey: "confirmLabel", placeholderKey: null },
 ];
+
+export const PASSWORD_PLACEHOLDER_MASK = "••••••••";
 
 export const initialPasswordValues: PasswordValues = {
   currentPassword: "",
