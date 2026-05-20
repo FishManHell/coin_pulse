@@ -1,21 +1,27 @@
 "use client";
 
 import { toast } from "sonner";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import { deleteWatchlistItem, useWatchlistStore } from "@/entities/watchlist";
+import {
+  deleteWatchlistItem,
+  watchlistKeys,
+  type WatchlistItem,
+} from "@/entities/watchlist";
 import { useApiErrorTranslator } from "@/shared/lib/use-api-error-translator";
 
 export const useRemoveFromWatchlist = () => {
-  const setItems = useWatchlistStore((s) => s.setItems);
+  const queryClient = useQueryClient();
   const t = useTranslations("toasts.watchlist");
   const translateError = useApiErrorTranslator();
 
   const { mutate, isPending: loading } = useMutation({
     mutationFn: deleteWatchlistItem,
     onSuccess: (_, symbol) => {
-      const current = useWatchlistStore.getState().items;
-      setItems(current.filter((w) => w.symbol !== symbol));
+      queryClient.setQueryData<WatchlistItem[]>(
+        watchlistKeys.list(),
+        (prev) => (prev ?? []).filter((w) => w.symbol !== symbol),
+      );
       toast.success(t("removed"));
     },
     onError: (err) => {

@@ -1,33 +1,22 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { useWatchlistStore } from "@/entities/watchlist";
+import { useWatchlist } from "@/entities/watchlist";
 import { usePriceStream } from "@/entities/coin";
 import { ALL_QUOTES, WatchlistQuoteFilter } from "@/features/filter-watchlist-by-quote";
 import { EmptyState } from "./EmptyState";
 import { TableHeader } from "./TableHeader";
 import { WatchlistRow } from "./WatchlistRow";
 import { styles } from "./styles";
-import type { WatchlistItem } from "@/entities/watchlist";
 
-type WatchlistTableProps = Readonly<{
-  initialItems: WatchlistItem[];
-}>;
-
-export const WatchlistTable = ({ initialItems }: WatchlistTableProps) => {
-  const setItems = useWatchlistStore((s) => s.setItems);
-  const watchlist = useWatchlistStore((s) => s.items);
+export const WatchlistTable = () => {
+  const { data: watchlist = [] } = useWatchlist();
   const [filter, setFilter] = useState<string>(ALL_QUOTES);
   const t = useTranslations("watchlist.filter");
 
   const symbols = useMemo(() => watchlist.map((w) => w.symbol), [watchlist]);
   usePriceStream(symbols);
-
-  // One-time hydration from server props. Including deps would re-fire on
-  // every prop update and overwrite later store changes from user actions.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { setItems(initialItems); }, []);
 
   const quotes = useMemo(
     () => [...new Set(watchlist.map((w) => w.quote))].sort(),

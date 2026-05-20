@@ -1,25 +1,28 @@
 "use client";
 
 import { toast } from "sonner";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import {
   createPortfolioPosition,
-  usePortfolioStore,
+  portfolioKeys,
   type CreatePortfolioInput,
+  type PortfolioPosition,
 } from "@/entities/portfolio";
 import { useApiErrorTranslator } from "@/shared/lib/use-api-error-translator";
 
 export const useAddToPortfolio = () => {
-  const setPositions = usePortfolioStore((s) => s.setPositions);
+  const queryClient = useQueryClient();
   const t = useTranslations("toasts.portfolio");
   const translateError = useApiErrorTranslator();
 
   const mutation = useMutation({
     mutationFn: createPortfolioPosition,
     onSuccess: (position, input) => {
-      const current = usePortfolioStore.getState().positions;
-      setPositions([position, ...current]);
+      queryClient.setQueryData<PortfolioPosition[]>(
+        portfolioKeys.list(),
+        (prev) => [position, ...(prev ?? [])],
+      );
       toast.success(t("added", { name: input.name }));
     },
     onError: (err) => {

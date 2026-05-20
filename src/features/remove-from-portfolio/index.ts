@@ -1,21 +1,27 @@
 "use client";
 
 import { toast } from "sonner";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import { deletePortfolioPosition, usePortfolioStore } from "@/entities/portfolio";
+import {
+  deletePortfolioPosition,
+  portfolioKeys,
+  type PortfolioPosition,
+} from "@/entities/portfolio";
 import { useApiErrorTranslator } from "@/shared/lib/use-api-error-translator";
 
 export const useRemoveFromPortfolio = () => {
-  const setPositions = usePortfolioStore((s) => s.setPositions);
+  const queryClient = useQueryClient();
   const t = useTranslations("toasts.portfolio");
   const translateError = useApiErrorTranslator();
 
   const { mutate, isPending: loading } = useMutation({
     mutationFn: deletePortfolioPosition,
     onSuccess: (_, id) => {
-      const current = usePortfolioStore.getState().positions;
-      setPositions(current.filter((p) => p.id !== id));
+      queryClient.setQueryData<PortfolioPosition[]>(
+        portfolioKeys.list(),
+        (prev) => (prev ?? []).filter((p) => p.id !== id),
+      );
       toast.success(t("removed"));
     },
     onError: (err) => {

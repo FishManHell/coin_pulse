@@ -7,6 +7,15 @@ export interface CreateWatchlistInput {
   quote: string;
 }
 
+export const fetchWatchlist = async (): Promise<WatchlistItem[]> => {
+  const res = await apiFetch("/api/watchlist");
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.error ?? "Failed to load watchlist");
+  }
+  return res.json();
+};
+
 export const createWatchlistItem = async (
   input: CreateWatchlistInput,
 ): Promise<WatchlistItem> => {

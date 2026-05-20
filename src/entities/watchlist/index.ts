@@ -1,8 +1,14 @@
 export type { WatchlistItem, WatchlistItemLean } from "./types";
 export { toWatchlistDTO } from "./serializers";
 export {
+  fetchWatchlist,
   createWatchlistItem,
   deleteWatchlistItem,
   type CreateWatchlistInput,
 } from "./api";
-export { useWatchlistStore } from "./model/store";
+export {
+  watchlistKeys,
+  watchlistListOptions,
+  useWatchlist,
+  dehydrateWatchlist,
+} from "./model/queries";

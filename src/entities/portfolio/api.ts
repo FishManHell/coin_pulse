@@ -9,6 +9,15 @@ export interface CreatePortfolioInput {
   buyPrice: number;
 }
 
+export const fetchPortfolio = async (): Promise<PortfolioPosition[]> => {
+  const res = await apiFetch("/api/portfolio");
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.error ?? "Failed to load portfolio");
+  }
+  return res.json();
+};
+
 export const createPortfolioPosition = async (
   input: CreatePortfolioInput,
 ): Promise<PortfolioPosition> => {

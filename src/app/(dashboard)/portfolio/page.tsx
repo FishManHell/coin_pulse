@@ -1,8 +1,9 @@
+import { HydrationBoundary } from "@tanstack/react-query";
 import { getTranslations } from "next-intl/server";
 import { requireUser } from "@/entities/user/lib/require-user";
 import connectDB from "@/shared/lib/db";
 import PortfolioPosition from "@/entities/portfolio/model/portfolio-position";
-import { toPortfolioDTO } from "@/entities/portfolio";
+import { dehydratePortfolio, toPortfolioDTO } from "@/entities/portfolio";
 import { Header } from "@/widgets/header";
 import { PortfolioTable } from "@/widgets/portfolio-table";
 
@@ -27,10 +28,12 @@ const PortfolioPage = async () => {
             {t("sections.positionsCount", { count: positions.length })}
           </p>
         </div>
-        <PortfolioTable initialPositions={positions} />
+        <HydrationBoundary state={dehydratePortfolio(positions)}>
+          <PortfolioTable />
+        </HydrationBoundary>
       </div>
     </>
   );
-}
+};
 
 export default PortfolioPage;

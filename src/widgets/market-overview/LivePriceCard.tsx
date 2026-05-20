@@ -3,7 +3,7 @@
 import { useCallback } from "react";
 import { useSelectionStore } from "@/shared/store";
 import { usePricesStore, PriceCard } from "@/entities/coin";
-import { useWatchlistStore } from "@/entities/watchlist";
+import { useWatchlist } from "@/entities/watchlist";
 import { useCoinMeta } from "@/shared/hooks/useCoinMeta";
 import { useAddToWatchlist } from "@/features/add-to-watchlist";
 import { useRemoveFromWatchlist } from "@/features/remove-from-watchlist";
@@ -20,7 +20,9 @@ export const LivePriceCard = ({ symbol, timedOut }: Readonly<LivePriceCardProps>
   const selected = useSelectionStore((s) => s.selectedSymbol === symbol);
   const setSelectedSymbol = useSelectionStore((s) => s.setSelectedSymbol);
   const selectedQuote = useSelectionStore((s) => s.selectedQuote);
-  const isWatched = useWatchlistStore((s) => s.items.some((w) => w.symbol === symbol));
+  const { data: isWatched = false } = useWatchlist((items) =>
+    items.some((w) => w.symbol === symbol),
+  );
   const { names } = useCoinMeta(selectedQuote);
   const { add, loading: adding } = useAddToWatchlist();
   const { remove, loading: removing } = useRemoveFromWatchlist();

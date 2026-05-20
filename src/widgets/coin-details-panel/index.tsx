@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { useSelectionStore } from "@/shared/store";
-import { useWatchlistStore } from "@/entities/watchlist";
+import { useWatchlist } from "@/entities/watchlist";
 import { useCoinMeta } from "@/shared/hooks/useCoinMeta";
 import { useAddToWatchlist } from "@/features/add-to-watchlist";
 import { useRemoveFromWatchlist } from "@/features/remove-from-watchlist";
@@ -14,7 +14,9 @@ import { styles } from "./styles";
 export const CoinDetailsPanel = () => {
   const selectedSymbol = useSelectionStore((s) => s.selectedSymbol);
   const selectedQuote  = useSelectionStore((s) => s.selectedQuote);
-  const isWatched      = useWatchlistStore((s) => s.items.some((w) => w.symbol === selectedSymbol));
+  const { data: isWatched = false } = useWatchlist((items) =>
+    items.some((w) => w.symbol === selectedSymbol),
+  );
   const { add,    loading: adding }   = useAddToWatchlist();
   const { remove, loading: removing } = useRemoveFromWatchlist();
   const t = useTranslations("dashboard.coinDetails");
