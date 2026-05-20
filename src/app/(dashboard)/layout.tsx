@@ -2,18 +2,12 @@ import { HydrationBoundary } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 import { requireUser } from "@/entities/user/lib/require-user";
 import { Sidebar } from "@/widgets/sidebar";
-import connectDB from "@/shared/lib/db";
-import WatchlistItem from "@/entities/watchlist/model/watchlist-item";
-import { dehydrateWatchlist, toWatchlistDTO } from "@/entities/watchlist";
+import { dehydrateWatchlist } from "@/entities/watchlist";
+import { getWatchlistItems } from "@/entities/watchlist/model/server-queries";
 
 const PrivateLayout = async ({ children }: { children: ReactNode }) => {
   const user = await requireUser();
-
-  await connectDB();
-  const rawItems = await WatchlistItem.find({ userId: user.id })
-    .sort({ addedAt: -1 })
-    .lean();
-  const items = rawItems.map(toWatchlistDTO);
+  const items = await getWatchlistItems(user.id);
 
   return (
     <div className="flex h-screen bg-bg overflow-hidden">

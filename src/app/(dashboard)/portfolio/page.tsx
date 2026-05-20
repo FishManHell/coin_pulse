@@ -1,22 +1,15 @@
 import { HydrationBoundary } from "@tanstack/react-query";
 import { getTranslations } from "next-intl/server";
 import { requireUser } from "@/entities/user/lib/require-user";
-import connectDB from "@/shared/lib/db";
-import PortfolioPosition from "@/entities/portfolio/model/portfolio-position";
-import { dehydratePortfolio, toPortfolioDTO } from "@/entities/portfolio";
+import { dehydratePortfolio } from "@/entities/portfolio";
+import { getPortfolioPositions } from "@/entities/portfolio/model/server-queries";
 import { Header } from "@/widgets/header";
 import { PortfolioTable } from "@/widgets/portfolio-table";
 import { PortfolioCount } from "@/widgets/portfolio-table/PortfolioCount";
 
 const PortfolioPage = async () => {
   const user = await requireUser();
-
-  await connectDB();
-  const rawPositions = await PortfolioPosition.find({ userId: user.id })
-    .sort({ createdAt: -1 })
-    .lean();
-  const positions = rawPositions.map(toPortfolioDTO);
-
+  const positions = await getPortfolioPositions(user.id);
   const t = await getTranslations();
 
   return (

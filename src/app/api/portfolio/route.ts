@@ -4,18 +4,13 @@ import connectDB from "@/shared/lib/db";
 import { tradingPairs } from "@/shared/api/binance";
 import PortfolioPosition from "@/entities/portfolio/model/portfolio-position";
 import { toPortfolioDTO, parsePortfolioPayload } from "@/entities/portfolio";
+import { getPortfolioPositions } from "@/entities/portfolio/model/server-queries";
 import { apiError, ERRORS } from "@/shared/lib/api-response";
 
 export async function GET() {
   const auth = await requireApiUser();
   if ("error" in auth) return auth.error;
-
-  await connectDB();
-  const items = await PortfolioPosition.find({ userId: auth.user.id })
-    .sort({ createdAt: -1 })
-    .lean();
-
-  return NextResponse.json(items.map(toPortfolioDTO));
+  return NextResponse.json(await getPortfolioPositions(auth.user.id));
 }
 
 export async function POST(req: Request) {

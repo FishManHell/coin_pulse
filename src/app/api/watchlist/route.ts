@@ -4,18 +4,13 @@ import connectDB from "@/shared/lib/db";
 import { parseQuoteFromSymbol } from "@/shared/lib/parse-quote";
 import WatchlistItem from "@/entities/watchlist/model/watchlist-item";
 import { toWatchlistDTO } from "@/entities/watchlist";
+import { getWatchlistItems } from "@/entities/watchlist/model/server-queries";
 import { apiError } from "@/shared/lib/api-response";
 
 export async function GET() {
   const auth = await requireApiUser();
   if ("error" in auth) return auth.error;
-
-  await connectDB();
-  const items = await WatchlistItem.find({ userId: auth.user.id })
-    .sort({ addedAt: -1 })
-    .lean();
-
-  return NextResponse.json(items.map(toWatchlistDTO));
+  return NextResponse.json(await getWatchlistItems(auth.user.id));
 }
 
 export async function POST(req: Request) {
