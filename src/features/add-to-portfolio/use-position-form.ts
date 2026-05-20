@@ -5,7 +5,6 @@ import { useQuoteCurrencies } from "@/shared/hooks/useQuoteCurrencies";
 import { useCoinMeta } from "@/shared/hooks/useCoinMeta";
 import { useAddToPortfolio } from "./use-add-to-portfolio";
 import { swapQuote } from "@/shared/lib/symbol";
-import { deriveEffectiveSymbol } from "./derive-effective-symbol";
 
 interface Fields {
   symbol: string;
@@ -23,7 +22,7 @@ export const usePositionForm = ({ onSuccessAction }: { onSuccessAction: () => vo
   const quotes = useQuoteCurrencies();
   const { pairs } = useCoinMeta(quote);
 
-  const effectiveSymbol = deriveEffectiveSymbol(fields.symbol, pairs);
+  const effectiveSymbol = pairs.some((p) => p.symbol === fields.symbol) ? fields.symbol : "";
 
   const handleSetQuote = useCallback((newQuote: string) => {
     if (newQuote === quote) return;

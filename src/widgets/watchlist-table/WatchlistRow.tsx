@@ -1,12 +1,12 @@
 "use client";
 
-import { Trash2, TrendingUp, TrendingDown } from "lucide-react";
+import { TrendingUp, TrendingDown } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { usePricesStore } from "@/entities/coin";
 import { useRemoveFromWatchlist } from "@/features/remove-from-watchlist";
 import { formatPrice, formatPercent, cn } from "@/shared/lib/utils";
-import { Button } from "@/shared/ui/button";
 import { CoinIcon } from "@/shared/ui/coin-icon";
+import { DeleteIconButton } from "@/shared/ui/delete-icon-button";
 import { WatchlistRowSkeleton } from "./WatchlistRowSkeleton";
 import { styles } from "./styles";
 import type { WatchlistItem } from "@/entities/watchlist";
@@ -14,13 +14,13 @@ import type { WatchlistItem } from "@/entities/watchlist";
 export const WatchlistRow = ({ item }: { item: WatchlistItem }) => {
   const ticker = usePricesStore((s) => s.prices[item.symbol]);
   const { remove, loading } = useRemoveFromWatchlist();
-  const t = useTranslations("watchlist.actions");
+  const tActions = useTranslations("watchlist.actions");
+  const tConfirm = useTranslations("confirms.deleteWatchlistItem");
 
   if (!ticker) return <WatchlistRowSkeleton item={item} />;
 
   const base = item.symbol.slice(0, -item.quote.length);
   const isUp = ticker.priceChangePercent >= 0;
-  const onRemove = () => remove(item.symbol);
 
   return (
     <div className={styles.row}>
@@ -45,16 +45,16 @@ export const WatchlistRow = ({ item }: { item: WatchlistItem }) => {
         ${(ticker.volume * ticker.price / 1_000_000).toFixed(1)}M
       </span>
 
-      <Button
-        variant="ghost"
-        size="icon-sm"
-        onClick={onRemove}
+      <DeleteIconButton
+        onConfirm={() => remove(item.symbol)}
         disabled={loading}
-        aria-label={t("remove")}
-        className={styles.trashBtn}
-      >
-        <Trash2 />
-      </Button>
+        ariaLabel={tActions("remove")}
+        confirm={{
+          title: tConfirm("title"),
+          confirm: tConfirm("confirm"),
+          cancel: tConfirm("cancel"),
+        }}
+      />
     </div>
   );
 };

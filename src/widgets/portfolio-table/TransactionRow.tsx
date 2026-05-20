@@ -1,23 +1,17 @@
 "use client";
 
-import { MouseEvent } from "react";
-import { Trash2 } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useRemoveFromPortfolio } from "@/features/remove-from-portfolio";
 import { formatPrice } from "@/shared/lib/utils";
-import { Button } from "@/shared/ui/button";
+import { DeleteIconButton } from "@/shared/ui/delete-icon-button";
 import { styles } from "./styles";
 import type { PortfolioPosition } from "@/entities/portfolio";
 
 export const TransactionRow = ({ tx }: { tx: PortfolioPosition }) => {
   const { remove, loading } = useRemoveFromPortfolio();
   const format = useFormatter();
-  const t = useTranslations("portfolio.actions");
-
-  const handleDelete = (e: MouseEvent) => {
-    e.stopPropagation();
-    remove(tx.id);
-  };
+  const tActions = useTranslations("portfolio.actions");
+  const tConfirm = useTranslations("confirms.deleteTransaction");
 
   const formattedDate = format.dateTime(new Date(tx.createdAt), {
     month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit",
@@ -31,16 +25,16 @@ export const TransactionRow = ({ tx }: { tx: PortfolioPosition }) => {
       <span className={styles.txValue}>${formatPrice(tx.buyPrice)}</span>
       <span />
       <span />
-      <Button
-        variant="ghost"
-        size="icon-sm"
-        onClick={handleDelete}
+      <DeleteIconButton
+        onConfirm={() => remove(tx.id)}
         disabled={loading}
-        aria-label={t("deleteTransaction")}
-        className="text-text-muted hover:text-price-down hover:bg-price-down/10"
-      >
-        <Trash2 />
-      </Button>
+        ariaLabel={tActions("deleteTransaction")}
+        confirm={{
+          title: tConfirm("title"),
+          confirm: tConfirm("confirm"),
+          cancel: tConfirm("cancel"),
+        }}
+      />
     </div>
   );
 };

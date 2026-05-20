@@ -222,6 +222,16 @@
       "description": "This action cannot be undone. The user and their data will be permanently removed.",
       "confirm": "Delete user",
       "cancel": "Cancel"
+    },
+    "deleteTransaction": {
+      "title": "Delete this purchase?",
+      "confirm": "Delete",
+      "cancel": "Cancel"
+    },
+    "deleteWatchlistItem": {
+      "title": "Remove from watchlist?",
+      "confirm": "Remove",
+      "cancel": "Cancel"
     }
   }
 }

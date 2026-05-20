@@ -8,13 +8,14 @@ interface SearchInputProps extends ComponentProps<"input"> {
   icon?: ReactNode;
 }
 
-export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(({ icon, className, ...props }, ref) => (
+export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(({ icon, className, type, ...props }, ref) => (
     <div className="relative">
       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none z-10">
         {icon ?? <Search size={15} />}
       </span>
       <input
         ref={ref}
+        type={type ?? "search"}
         className={cn(
           "w-full bg-surface border border-border-base rounded-xl pl-9 pr-3 py-2 text-sm",
           "text-text-primary placeholder:text-text-muted outline-none",

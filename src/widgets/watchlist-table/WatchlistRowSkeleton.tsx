@@ -1,19 +1,18 @@
 "use client";
 
-import { Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRemoveFromWatchlist } from "@/features/remove-from-watchlist";
-import { Button } from "@/shared/ui/button";
 import { CoinIcon } from "@/shared/ui/coin-icon";
+import { DeleteIconButton } from "@/shared/ui/delete-icon-button";
 import { Skeleton } from "@/shared/ui/skeleton";
 import { styles } from "./styles";
 import type { WatchlistItem } from "@/entities/watchlist";
 
 export const WatchlistRowSkeleton = ({ item }: { item: WatchlistItem }) => {
   const { remove, loading } = useRemoveFromWatchlist();
-  const t = useTranslations("watchlist.actions");
+  const tActions = useTranslations("watchlist.actions");
+  const tConfirm = useTranslations("confirms.deleteWatchlistItem");
   const base = item.symbol.slice(0, -item.quote.length);
-  const onRemove = () => remove(item.symbol);
 
   return (
     <div className={styles.row}>
@@ -35,16 +34,16 @@ export const WatchlistRowSkeleton = ({ item }: { item: WatchlistItem }) => {
       <span className={styles.volumeCell}>
         <Skeleton className="w-14 h-4" />
       </span>
-      <Button
-        variant="ghost"
-        size="icon-sm"
-        onClick={onRemove}
+      <DeleteIconButton
+        onConfirm={() => remove(item.symbol)}
         disabled={loading}
-        aria-label={t("remove")}
-        className={styles.trashBtn}
-      >
-        <Trash2 />
-      </Button>
+        ariaLabel={tActions("remove")}
+        confirm={{
+          title: tConfirm("title"),
+          confirm: tConfirm("confirm"),
+          cancel: tConfirm("cancel"),
+        }}
+      />
     </div>
   );
 };

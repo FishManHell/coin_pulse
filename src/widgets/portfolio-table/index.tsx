@@ -59,7 +59,7 @@ export const PortfolioTable = ({ initialPositions }: Readonly<PortfolioTableProp
           <div className={styles.tableScroll}>
             <div className={styles.tableInner}>
               <TableHeader />
-              {grouped.map((group) => <PositionRow key={group.symbol} group={group} initialLoad={initialLoad} />)}
+              {grouped.map((group) => <PositionRow key={group.symbol} group={group} />)}
             </div>
           </div>
         )}

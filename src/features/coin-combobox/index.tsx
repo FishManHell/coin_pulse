@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useMemo, type ChangeEvent } from "react";
+import { useState, useRef, useMemo, useId, type ChangeEvent } from "react";
 import { useTranslations } from "next-intl";
 import { useDismiss } from "@/shared/hooks/useDismiss";
 import { stripQuote } from "@/shared/lib/symbol";
@@ -9,6 +9,7 @@ import { SearchInput } from "@/shared/ui/search-input";
 import { useFloatingRect } from "@/shared/hooks/useFloatingRect";
 import type { CoinMeta } from "@/entities/coin";
 import { CoinDropdown } from "./CoinDropdown";
+import { useComboboxKeyboard } from "./use-combobox-keyboard";
 
 interface CoinComboboxProps {
   value: string;
@@ -31,6 +32,7 @@ export const CoinCombobox = ({
 }: CoinComboboxProps) => {
   const t = useTranslations("dashboard.search");
   const effectivePlaceholder = placeholder ?? t("comboboxPlaceholder");
+  const listboxId = useId();
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const [userSelected, setUserSelected] = useState(false);
@@ -50,6 +52,20 @@ export const CoinCombobox = ({
       .slice(0, 8);
   }, [query, pairs]);
 
+  const handleSelect = (coin: CoinMeta) => {
+    onChange(coin);
+    setUserSelected(true);
+    setOpen(false);
+    inputRef.current?.blur();
+  };
+
+  const { activeIndex, onKeyDown, onHoverItem } = useComboboxKeyboard({
+    open,
+    setOpen,
+    results,
+    onSelect: handleSelect,
+  });
+
   const selected = pairs.find((c) => c.symbol === value);
   const selectedShort = selected ? stripQuote(selected.symbol, quote) : "";
 
@@ -63,19 +79,13 @@ export const CoinCombobox = ({
   }
   if (wasOpen !== open) setWasOpen(open);
 
-  const handleSelect = (coin: CoinMeta) => {
-    onChange(coin);
-    setUserSelected(true);
-    setOpen(false);
-    inputRef.current?.blur();
-  };
-
   const handleQueryChange = (e: ChangeEvent<HTMLInputElement>) => {
     setQuery(e.target.value);
     setOpen(true);
   };
 
-  const handleFocus = () => setOpen(true);
+  const showDropdown = open && rect && query.length > 0;
+  const activeId = activeIndex >= 0 ? `${listboxId}-option-${activeIndex}` : undefined;
 
   return (
     <div ref={containerRef} className={cn("relative", className)}>
@@ -83,17 +93,26 @@ export const CoinCombobox = ({
         ref={inputRef}
         value={query}
         onChange={handleQueryChange}
-        onFocus={handleFocus}
+        onFocus={() => setOpen(true)}
+        onKeyDown={onKeyDown}
         disabled={disabled}
         placeholder={selectedShort || effectivePlaceholder}
+        role="combobox"
+        aria-expanded={Boolean(showDropdown)}
+        aria-controls={showDropdown ? listboxId : undefined}
+        aria-autocomplete="list"
+        aria-activedescendant={showDropdown ? activeId : undefined}
       />
-      {open && rect && query.length > 0 && (
+      {showDropdown && (
         <CoinDropdown
+          listboxId={listboxId}
           results={results}
           selectedSymbol={value}
           quote={quote}
           rect={rect}
+          activeIndex={activeIndex}
           onSelect={handleSelect}
+          onHoverItem={onHoverItem}
         />
       )}
     </div>

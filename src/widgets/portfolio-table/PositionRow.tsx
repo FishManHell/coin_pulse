@@ -14,15 +14,14 @@ import { computePositionPnl } from "./compute-position-pnl";
 
 interface PositionRowProps {
   group: GroupedPosition;
-  initialLoad: boolean;
 }
 
-export const PositionRow = ({ group, initialLoad }: PositionRowProps) => {
+export const PositionRow = ({ group }: PositionRowProps) => {
   const [expanded, setExpanded] = useState(false);
   const ticker = usePricesStore((s) => s.prices[group.symbol]);
   const t = useTranslations("portfolio.table");
 
-  if (!ticker && initialLoad) return <PositionRowSkeleton group={group} />;
+  if (!ticker) return <PositionRowSkeleton group={group} />;
 
   const base = group.symbol.slice(0, -group.quote.length);
   const { currentPrice, pnl, pnlPct, isUp } = computePositionPnl(group, ticker?.price);

@@ -76,7 +76,7 @@ export const AddPositionForm = ({ onCloseAction }: { onCloseAction: () => void }
           />
         </div>
         <div className="flex items-end gap-2">
-          <Button type="submit" variant="gradient" disabled={loading || noPairs} className="flex-1">
+          <Button type="submit" variant="gradient" disabled={loading || noPairs || !fields.symbol} className="flex-1">
             {loading ? "…" : t("submit")}
           </Button>
           <Button type="button" variant="outline" size="icon" onClick={onCloseAction} aria-label={t("cancel")}>
