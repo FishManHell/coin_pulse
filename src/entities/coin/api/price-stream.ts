@@ -1,126 +1,69 @@
-import type { BinanceStreamEnvelope, BinanceTickerEvent } from "@/shared/api/binance/types";
-import { buildStreamUrl, parseTicker } from "@/shared/api/binance/stream-parse";
+import { buildStreamUrl } from "@/shared/api/binance/stream-parse";
 import { usePricesStore } from "../model/store";
+import { createTickerSocket } from "./binance-ticker-socket";
+import { RefCountedSet } from "./ref-counted-set";
+import { diffSymbols } from "./diff-symbols";
+import { subscribeMessage, unsubscribeMessage } from "./subscribe-message";
 
-const RECONNECT_DELAY_MS = 5000;
-
-// ─── Connection lifecycle ────────────────────────────────────────────────────
-
-let activeSocket: WebSocket | null = null;
-let activeSymbols: string[] = [];
-let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
-
-const clearReconnectTimer = () => {
-  if (reconnectTimer === null) return;
-  clearTimeout(reconnectTimer);
-  reconnectTimer = null;
-};
-
-const scheduleReconnect = () => {
-  if (reconnectTimer !== null) return;
-  reconnectTimer = setTimeout(() => {
-    reconnectTimer = null;
-    if (refCounts.size > 0) scheduleReconcile();
-  }, RECONNECT_DELAY_MS);
-};
-
-const closeActiveSocket = () => {
-  clearReconnectTimer();
-  if (!activeSocket) return;
-  const closing = activeSocket;
-  activeSocket = null;
-  closing.onmessage = null;
-  closing.onclose = null;
-
-  if (closing.readyState === WebSocket.CONNECTING) {
-    // Closing during handshake produces a "closed before connection established"
-    // browser warning. Defer the close until the socket actually opens.
-    closing.onopen = () => closing.close();
-    return;
-  }
-
-  if (closing.readyState === WebSocket.OPEN) {
-    closing.close();
-  }
-};
-
-const openSocket = (symbols: string[]) => {
-  const nextSocket = new WebSocket(buildStreamUrl(symbols));
-
-  nextSocket.onmessage = (event) => {
-    // Ignore late messages from a socket that's already been replaced.
-    if (nextSocket !== activeSocket) return;
-    // Combined-stream endpoint always wraps payloads in the envelope shape.
-    const payload = JSON.parse(event.data) as BinanceStreamEnvelope<BinanceTickerEvent>;
-    const ticker = payload.data;
-    if (ticker?.s) usePricesStore.getState().updatePrice(parseTicker(ticker));
-  };
-
-  // Recovery path. Intentional closes null this handler first, so it only fires
-  // for genuine drops (network blip, Binance restart, etc.). `error` is followed
-  // by `close` per the WebSocket spec — routing all recovery through `close`
-  // keeps a single path. Clearing activeSymbols forces the next reconcile to
-  // detect a delta and reopen.
-  nextSocket.onclose = () => {
-    if (nextSocket !== activeSocket) return;
-    activeSocket = null;
-    activeSymbols = [];
-    scheduleReconnect();
-  };
-
-  activeSocket = nextSocket;
-};
-
-// ─── Reconciliation ──────────────────────────────────────────────────────────
-
-const refCounts = new Map<string, number>();
+const refs = new RefCountedSet<string>();
+let subscribedSymbols: string[] = [];
+let nextRequestId = 1;
 let reconcileScheduled = false;
 
-const sameList = (a: string[], b: string[]) =>
-  a.length === b.length && a.every((s, i) => s === b[i]);
+const socket = createTickerSocket({
+  onTicker: (ticker) => usePricesStore.getState().updatePrice(ticker),
+  onReconnectNeeded: () => {
+    // Drop signal arrived from transport. Clearing `subscribedSymbols` makes
+    // reconcile take the cold-open branch (URL with seed streams), which is
+    // strictly more efficient than reopening with `[]` and then SUBSCRIBE-ing.
+    subscribedSymbols = [];
+    scheduleReconcile();
+  },
+});
 
 const reconcile = () => {
   reconcileScheduled = false;
-  const desired = Array.from(refCounts.keys()).sort();
+  const desired = refs.keys();
 
-  if (sameList(desired, activeSymbols)) return;
+  if (desired.length === 0) {
+    socket.disconnect();
+    subscribedSymbols = [];
+    return;
+  }
 
-  closeActiveSocket();
-  activeSymbols = desired;
-  if (desired.length > 0) openSocket(desired);
+  if (subscribedSymbols.length === 0) {
+    // Cold open OR reopen after drop. The URL carries the full set as seed
+    // streams so Binance starts pushing immediately, no follow-up SUBSCRIBE.
+    socket.connect(buildStreamUrl(desired));
+    subscribedSymbols = desired;
+    return;
+  }
+
+  const { add, remove } = diffSymbols(subscribedSymbols, desired);
+  if (add.length === 0 && remove.length === 0) return;
+
+  if (add.length > 0) socket.send(subscribeMessage(add, nextRequestId++));
+  if (remove.length > 0) socket.send(unsubscribeMessage(remove, nextRequestId++));
+
+  subscribedSymbols = desired;
 };
 
 const scheduleReconcile = () => {
   if (reconcileScheduled) return;
   reconcileScheduled = true;
-  // Microtask coalesces sync mount/unmount cycles (e.g. StrictMode, parallel hooks).
+  // Microtask coalesces sync mount/unmount cycles (StrictMode, parallel hooks)
+  // into a single SUB/UNSUB pair instead of one per ref change.
   queueMicrotask(reconcile);
 };
-
-const incrementRefs = (symbols: string[]) => {
-  for (const s of symbols) {
-    refCounts.set(s, (refCounts.get(s) ?? 0) + 1);
-  }
-};
-
-const decrementRefs = (symbols: string[]) => {
-  for (const s of symbols) {
-    const next = (refCounts.get(s) ?? 0) - 1;
-    if (next <= 0) refCounts.delete(s);
-    else refCounts.set(s, next);
-  }
-};
-
-// ─── Public API ──────────────────────────────────────────────────────────────
 
 export const subscribe = (symbols: string[]): (() => void) => {
   if (typeof window === "undefined" || symbols.length === 0) return () => {};
 
-  incrementRefs(symbols);
+  refs.increment(symbols);
   scheduleReconcile();
 
   return () => {
-    decrementRefs(symbols);
+    refs.decrement(symbols);
     scheduleReconcile();
   };
 };
