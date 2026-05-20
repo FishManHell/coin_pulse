@@ -35,6 +35,7 @@ CoinPulse is a full-stack crypto dashboard that streams live prices from Binance
 | ⚙️ **Admin panel** | User management, role assignment, delete users |
 | 👤 **Profile** | Edit name, email, change password (Google users get read-only profile + "managed by Google" notice) |
 | 🌗 **Dark / Light theme** | Persisted theme switcher |
+| 🌐 **i18n** | English + Ukrainian (cookie-based locale, next-intl 4) |
 | 🔍 **Search** | Live coin search with price dropdown |
 | 📱 **Responsive** | Sidebar collapses to icons on mobile, expandable search |
 
@@ -52,6 +53,7 @@ CoinPulse is a full-stack crypto dashboard that streams live prices from Binance
 | State | Zustand (client) + TanStack Query (server cache) |
 | Toasts | sonner |
 | Auth | NextAuth v4 — JWT, Credentials + Google OAuth |
+| i18n | next-intl 4 (EN/UK, cookie-based, no `[locale]` URL segment) |
 | Database | MongoDB Atlas + Mongoose |
 | Tests | Vitest 4 (node env by default; jsdom opt-in per file) |
 | Deploy | Vercel |
@@ -153,7 +155,7 @@ npm test            # single run
 npm run test:watch  # TDD watch mode
 ```
 
-125 tests across 22 files: pure-logic units (Tier 1), Zustand stores (Tier 2), React hooks via `renderHook` + fake timers (Tier 3), plus business logic extracted from forms / smart containers / API routes (Tier 4-6: `deriveEffectiveSymbol`, `compute*Pnl`, `parsePortfolioPayload`, `ROLE_PERMISSIONS`). `vitest run` is wired into `prebuild` — Vercel + CI fail on red tests. See `.claude/skills/coin-pulse/references/testing.md` for the pure-extract strategy and explicit skip list.
+128 tests across 23 files: pure-logic units (Tier 1), Zustand stores (Tier 2), React hooks via `renderHook` + fake timers (Tier 3), plus business logic extracted from forms / smart containers / API routes (Tier 4-6: `deriveEffectiveSymbol`, `compute*Pnl`, `parsePortfolioPayload`, `ROLE_PERMISSIONS`, `translateGlobal`). `vitest run` is wired into `prebuild` — Vercel + CI fail on red tests. See `.claude/skills/coin-pulse/references/testing.md` for the pure-extract strategy and explicit skip list.
 
 ---
 
