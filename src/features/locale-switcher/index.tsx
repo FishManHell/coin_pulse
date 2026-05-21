@@ -3,7 +3,7 @@
 import { useTransition } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Select } from "radix-ui";
-import { Check, ChevronDown } from "lucide-react";
+import { Check, ChevronDown, Globe } from "lucide-react";
 import { LOCALES, LOCALE_LABELS, isLocale } from "@/i18n/config";
 import { setLocaleAction } from "./set-locale-action";
 import { styles } from "./styles";
@@ -23,8 +23,9 @@ export const LocaleSwitcher = () => {
   return (
     <Select.Root value={locale} onValueChange={onValueChange} disabled={isPending}>
       <Select.Trigger aria-label={t("changeLanguage")} className={styles.trigger}>
-        <span>{locale.toUpperCase()}</span>
-        <Select.Icon>
+        <Globe size={16} className="sm:hidden" />
+        <span className="hidden sm:inline">{locale.toUpperCase()}</span>
+        <Select.Icon className="hidden sm:flex">
           <ChevronDown size={12} />
         </Select.Icon>
       </Select.Trigger>

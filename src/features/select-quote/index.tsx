@@ -4,6 +4,7 @@ import { useSelectionStore } from "@/shared/store";
 import { useQuoteCurrencies } from "@/shared/hooks/useQuoteCurrencies";
 import { symbolExists } from "@/shared/api/binance/client";
 import { swapQuote } from "@/shared/lib/symbol";
+import { CoinIcon } from "@/shared/ui/coin-icon";
 import {
   Select,
   SelectContent,
@@ -37,8 +38,13 @@ export const QuoteSelector = () => {
 
   return (
     <Select value={selectedQuote} onValueChange={handleQuoteChange}>
-      <SelectTrigger className="w-24 h-9 rounded-xl text-xs border-border-base bg-bg">
-        <SelectValue />
+      <SelectTrigger className="w-9 sm:w-24 h-9 rounded-xl text-xs border-border-base bg-bg p-0 sm:px-3 justify-center sm:justify-between [&>svg]:hidden sm:[&>svg]:block">
+        <span className="sm:hidden">
+          <CoinIcon base={selectedQuote} size="sm" />
+        </span>
+        <span className="hidden sm:inline">
+          <SelectValue />
+        </span>
       </SelectTrigger>
       <SelectContent className="bg-surface border-border-base">
         {quotes.map((q) => (

@@ -1,6 +1,6 @@
 export const styles = {
   trigger:
-    "inline-flex items-center justify-center gap-1.5 rounded-xl border border-border-base bg-bg text-text-muted hover:text-text-primary hover:border-accent-indigo h-9 px-3 text-xs font-semibold transition-all outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:opacity-50 cursor-pointer",
+    "inline-flex items-center justify-center gap-1.5 rounded-xl border border-border-base bg-bg text-text-muted hover:text-text-primary hover:border-accent-indigo h-9 w-9 sm:w-auto sm:px-3 text-xs font-semibold transition-all outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:opacity-50 cursor-pointer",
   content:
     "min-w-[8rem] rounded-xl border border-border-base bg-surface p-1 shadow-lg z-50",
   item:
