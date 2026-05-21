@@ -36,7 +36,7 @@ export const CoinIcon = ({ base, size = "md", className }: Readonly<CoinIconProp
   const advanceCdn = () => {
     setCdnIdx((i) => (i < COIN_ICON_CDN_COUNT - 1 ? i + 1 : COIN_ICON_CDN_COUNT));
   }
-  
+
   const onLoad = () => setLoaded(true)
 
   // If the SSR-rendered <img> finished loading before hydration, onLoad never
