@@ -5,8 +5,12 @@ export const styles = {
   liveRow: "flex items-center gap-1.5 text-xs text-price-up",
   liveDot: "w-1.5 h-1.5 rounded-full bg-price-up animate-pulse",
 
-  grid: "flex sm:grid sm:grid-cols-2 xl:grid-cols-3 gap-4 overflow-x-auto sm:overflow-visible snap-x snap-mandatory",
-  snapItem: "snap-start shrink-0 basis-[85%] sm:basis-auto sm:shrink",
+  grid:
+    "grid gap-4 grid-flow-col grid-rows-2 auto-cols-[80%] " +
+    "overflow-x-auto snap-x snap-mandatory " +
+    "sm:grid-flow-row sm:grid-rows-none sm:grid-cols-2 sm:auto-cols-auto sm:overflow-visible " +
+    "xl:grid-cols-3",
+  snapItem: "snap-start min-w-0",
 
   emptyState: "col-span-3 flex flex-col items-center justify-center py-16 text-center",
   emptyTitle: "text-text-primary font-medium mb-1",

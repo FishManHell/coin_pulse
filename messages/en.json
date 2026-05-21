@@ -9,7 +9,9 @@
     "portfolio": "Portfolio",
     "settings": "Settings",
     "profile": "Profile",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "menu": "Menu",
+    "openMenu": "Open menu"
   },
   "sections": {
     "yourWatchlist": "Your watchlist",

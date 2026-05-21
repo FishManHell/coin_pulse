@@ -1,6 +1,6 @@
 {
   "name": "coin_pulse",
-  "version": "1.2.22",
+  "version": "1.2.23",
   "private": true,
   "packageManager": "npm@11.12.1",
   "scripts": {

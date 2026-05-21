@@ -2,7 +2,7 @@
 
 import { AlertDialog } from "radix-ui";
 import { Button } from "@/shared/ui/button";
-import { styles } from "./confirm-dialog.styles";
+import { styles } from "./styles";
 
 interface ConfirmDialogProps {
   open: boolean;

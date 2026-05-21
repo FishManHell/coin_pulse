@@ -6,6 +6,7 @@ import { cn } from "@/shared/lib/utils";
 import { ThemeToggle } from "@/shared/ui/theme-toggle";
 import { LocaleSwitcher } from "@/features/locale-switcher";
 import { SearchCoin } from "@/features/search-coin";
+import { MobileNavTrigger } from "./MobileNavTrigger";
 import { styles } from "./styles";
 
 interface HeaderProps {
@@ -22,6 +23,8 @@ export const Header = ({ title, actions, showSearch = true }: HeaderProps) => {
 
   return (
     <header className={styles.header}>
+      {!mobileSearchOpen && <MobileNavTrigger />}
+
       <h1 className={cn(styles.title, mobileSearchOpen && "hidden md:block")}>
         {title}
       </h1>

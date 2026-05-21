@@ -38,7 +38,7 @@ export const QuoteSelector = () => {
 
   return (
     <Select value={selectedQuote} onValueChange={handleQuoteChange}>
-      <SelectTrigger className="w-9 sm:w-24 h-9 rounded-xl text-xs border-border-base bg-bg p-0 sm:px-3 justify-center sm:justify-between [&>svg]:hidden sm:[&>svg]:block">
+      <SelectTrigger className="w-9 sm:w-28 h-9 rounded-xl text-xs border-border-base bg-bg p-0 sm:px-3 justify-center sm:justify-between [&>svg]:hidden sm:[&>svg]:block">
         <span className="sm:hidden">
           <CoinIcon base={selectedQuote} size="sm" />
         </span>
@@ -48,8 +48,16 @@ export const QuoteSelector = () => {
       </SelectTrigger>
       <SelectContent className="bg-surface border-border-base">
         {quotes.map((q) => (
-          <SelectItem key={q} value={q} className="text-xs cursor-pointer">
-            {q}
+          <SelectItem
+            key={q}
+            value={q}
+            textValue={q}
+            className="text-xs cursor-pointer"
+          >
+            <span className="flex items-center gap-2">
+              <CoinIcon base={q} size="sm" />
+              <span>{q}</span>
+            </span>
           </SelectItem>
         ))}
       </SelectContent>

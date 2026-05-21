@@ -25,7 +25,7 @@ export const ChartHeader = ({ base, quote, ticker }: ChartHeaderProps) => {
           </span>
         )}
       </div>
-      <p className="text-3xl font-bold text-text-primary">
+      <p className="text-3xl font-bold text-text-primary tabular-nums">
         {ticker ? `$${formatPrice(ticker.price)}` : "—"}
       </p>
     </div>

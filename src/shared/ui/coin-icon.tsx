@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { cn } from "@/shared/lib/utils";
 import { getCoinIconUrl, COIN_ICON_CDN_COUNT } from "@/shared/lib/coin-icon";
 import { getCoinGradient } from "@/shared/lib/coin-gradient";
@@ -23,8 +23,8 @@ export const CoinIcon = ({ base, size = "md", className }: Readonly<CoinIconProp
   const [loaded, setLoaded] = useState(false);
   const [cdnIdx, setCdnIdx] = useState(0);
   const [prevBase, setPrevBase] = useState(base);
+  const imgRef = useRef<HTMLImageElement>(null);
 
-  // Reset load state when base changes — canonical "adjusting state on prop change" pattern.
   if (prevBase !== base) {
     setPrevBase(base);
     setLoaded(false);
@@ -33,35 +33,42 @@ export const CoinIcon = ({ base, size = "md", className }: Readonly<CoinIconProp
 
   const exhausted = cdnIdx >= COIN_ICON_CDN_COUNT;
 
-  const handleError = () => {
-    if (cdnIdx < COIN_ICON_CDN_COUNT - 1) {
-      setCdnIdx(cdnIdx + 1);
-      setLoaded(false);
-      return;
-    }
-    setCdnIdx(COIN_ICON_CDN_COUNT);
-  };
+  const advanceCdn = () => {
+    setCdnIdx((i) => (i < COIN_ICON_CDN_COUNT - 1 ? i + 1 : COIN_ICON_CDN_COUNT));
+  }
+  
+  const onLoad = () => setLoaded(true)
+
+  // If the SSR-rendered <img> finished loading before hydration, onLoad never
+  // fires — inspect complete/naturalWidth on mount so we don't stay at opacity-0.
+  useEffect(() => {
+    const img = imgRef.current;
+    if (!img?.complete) return;
+    if (img.naturalWidth > 0) setLoaded(true);
+    else advanceCdn();
+  }, [cdnIdx]);
 
   return (
     <div className={cn("relative rounded-full shrink-0", sizeClasses[size], className)}>
       <div
         className={cn(
           "absolute inset-0 rounded-full flex items-center justify-center text-white font-bold",
+          "bg-gradient-to-br",
           getCoinGradient(base),
         )}
       >
-        {base[0]}
+        {exhausted && base[0]}
       </div>
       {!exhausted && (
         <img
+          ref={imgRef}
           key={cdnIdx}
           src={getCoinIconUrl(base, cdnIdx)}
           alt={base}
-          loading="lazy"
-          onLoad={() => setLoaded(true)}
-          onError={handleError}
+          onLoad={onLoad}
+          onError={advanceCdn}
           className={cn(
-            "absolute inset-0 w-full h-full rounded-full bg-white transition-opacity duration-200",
+            "absolute inset-0 w-full h-full rounded-full bg-white transition-opacity duration-150",
             loaded ? "opacity-100" : "opacity-0",
           )}
         />

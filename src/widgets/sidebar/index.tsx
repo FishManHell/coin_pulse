@@ -1,60 +1,36 @@
 "use client";
 
+import { useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
-import { Settings } from "lucide-react";
-import { ROLE_PERMISSIONS, type UserRole } from "@/shared/types/roles";
-import { ROUTES } from "@/shared/config/routes";
-import { NAV_ITEMS } from "./nav-items";
-import { SidebarLogo } from "./SidebarLogo";
-import { SidebarNavLink } from "./SidebarNavLink";
-import { SidebarProfileCard } from "./SidebarProfileCard";
-import { SidebarLogoutButton } from "./SidebarLogoutButton";
+import { Sheet } from "@/shared/ui/sheet";
+import { useMobileNavStore } from "@/shared/store";
+import { SidebarContent } from "./SidebarContent";
 import { styles } from "./styles";
 
 export const Sidebar = () => {
-  const pathname = usePathname();
-  const { data: session } = useSession();
   const t = useTranslations("nav");
-  const role = (session?.user as { role?: UserRole } | undefined)?.role;
+  const pathname = usePathname();
+  const open = useMobileNavStore((s) => s.open);
+
+  // Sync to external system (URL): auto-close drawer on route change.
+  useEffect(() => {
+    useMobileNavStore.getState().close();
+  }, [pathname]);
 
   return (
-    <aside className={styles.aside}>
-      <SidebarLogo />
+    <>
+      <aside className={styles.rail.aside}>
+        <SidebarContent variant="rail" />
+      </aside>
 
-      <nav className={styles.nav}>
-        {NAV_ITEMS.map(({ href, key, icon }) => (
-          <SidebarNavLink
-            key={href}
-            href={href}
-            label={t(key)}
-            icon={icon}
-            active={pathname === href}
-          />
-        ))}
-      </nav>
-
-      <div className={styles.bottom}>
-        {role && ROLE_PERMISSIONS.canAccessSettings(role) && (
-          <SidebarNavLink
-            href={ROUTES.settings}
-            label={t("settings")}
-            icon={Settings}
-            active={pathname === ROUTES.settings}
-          />
-        )}
-
-        {session?.user && (
-          <SidebarProfileCard
-            name={session.user.name}
-            email={session.user.email}
-            active={pathname === ROUTES.profile}
-          />
-        )}
-
-        <SidebarLogoutButton />
-      </div>
-    </aside>
+      <Sheet
+        open={open}
+        onOpenChange={(next) => useMobileNavStore.getState().setOpen(next)}
+        title={t("menu")}
+      >
+        <SidebarContent variant="drawer" />
+      </Sheet>
+    </>
   );
 };

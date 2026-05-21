@@ -9,7 +9,9 @@
     "portfolio": "Портфель",
     "settings": "Налаштування",
     "profile": "Профіль",
-    "signOut": "Вийти"
+    "signOut": "Вийти",
+    "menu": "Меню",
+    "openMenu": "Відкрити меню"
   },
   "sections": {
     "yourWatchlist": "Ваш список спостереження",
