@@ -4,26 +4,16 @@ import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { useShallow } from "zustand/react/shallow";
 import { usePricesStore } from "@/entities/coin";
-import { formatPercent } from "@/shared/lib/utils";
 import type { GroupedPosition } from "./group-positions";
 import { SummaryCard } from "./SummaryCard";
 import { QuotedAmount } from "./QuotedAmount";
-import { computePortfolioPnl, type QuotePnl } from "./compute-portfolio-pnl";
+import { computePortfolioPnl } from "./compute-portfolio-pnl";
+import { PnlNode, pnlColor } from "./PnlNode";
 
 interface LiveSummaryCardsProps {
   grouped: GroupedPosition[];
   loading: boolean;
 }
-
-const PnlNode = ({ q }: { q: QuotePnl }) => (
-  <>
-    {q.isUp ? "+" : "-"}
-    <QuotedAmount value={Math.abs(q.pnl)} quote={q.quote} />
-    <span className="ml-1 text-xs opacity-70">({formatPercent(q.pnlPct)})</span>
-  </>
-);
-
-const pnlColor = (q: QuotePnl) => (q.isUp ? "text-price-up" : "text-price-down");
 
 export const LiveSummaryCards = ({ grouped, loading }: Readonly<LiveSummaryCardsProps>) => {
   const t = useTranslations("portfolio.summary");
