@@ -1,5 +1,5 @@
 export const styles = {
-  aside: "fixed left-0 top-0 h-screen bg-surface border-r border-border-base flex flex-col z-40 w-16 lg:w-60 transition-all duration-300",
+  aside: "fixed left-0 top-0 h-dvh bg-surface border-r border-border-base flex flex-col z-40 w-16 lg:w-60 transition-all duration-300",
 
   logoSection: "h-16 flex items-center justify-center lg:justify-start border-b border-border-base px-0 lg:px-6 shrink-0",
   logoLink: "flex items-center gap-2.5 min-w-0",

@@ -5,7 +5,7 @@ export const styles = {
   liveRow: "flex items-center gap-1.5 text-xs text-price-up",
   liveDot: "w-1.5 h-1.5 rounded-full bg-price-up animate-pulse",
 
-  grid: "grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 max-h-[460px] overflow-y-auto pr-1 sm:max-h-none sm:overflow-visible sm:pr-0",
+  grid: "grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4",
 
   emptyState: "col-span-3 flex flex-col items-center justify-center py-16 text-center",
   emptyTitle: "text-text-primary font-medium mb-1",
