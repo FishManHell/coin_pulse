@@ -41,7 +41,7 @@ CoinPulse is a full-stack crypto dashboard that streams live prices from Binance
 | 🌗 **Dark / Light theme** | Persisted theme switcher |
 | 🌐 **i18n** | English + Ukrainian (cookie-based locale, next-intl 4) |
 | 🔍 **Search** | Live coin search with price dropdown |
-| 📱 **Responsive** | Sidebar collapses to icons on mobile, expandable search |
+| 📱 **Responsive** | Sidebar slides in as a burger drawer on mobile, icon rail on tablet, full labels on desktop |
 
 ---
 

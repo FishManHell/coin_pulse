@@ -202,10 +202,15 @@ Series swap on `chartType` change happens internally via `chart.removeSeries(old
 
 ## Sidebar Responsive Pattern
 
-- `w-16` on mobile (collapsed, icons only) → `lg:w-60` expanded
-- All nav items: `justify-center lg:justify-start` to center icons when collapsed
-- Text labels: `hidden lg:block`
-- `main` content: `ml-16 lg:ml-60` matches sidebar width
+Three breakpoints, two surfaces:
+
+- `< md` — fixed sidebar hidden; mobile renders a **burger-triggered drawer** (`<Sheet>` over Radix Dialog). Trigger lives in the header (`MobileNavTrigger`), state in `useMobileNavStore` (Zustand), drawer auto-closes on `usePathname` change.
+- `md` — icon rail (`md:w-16`), `justify-center`, labels hidden.
+- `lg` — expanded (`lg:w-60`), `justify-start`, labels visible.
+
+Both surfaces render the same `SidebarContent` component with `variant: "rail" | "drawer"` so logo/nav-link/profile-card/logout-button stay single-implementation; per-variant Tailwind chains live in `widgets/sidebar/styles.ts` as `styles.rail` / `styles.drawer`.
+
+`main` content margin: `md:ml-16 lg:ml-60` (no margin under `md` since sidebar is off-screen).
 
 ## Header Search — Mobile Pattern
 
@@ -215,11 +220,13 @@ Series swap on `chartType` change happens internally via `chart.removeSeries(old
 
 ## Coin Avatars — `<CoinIcon base="BTC" />`
 
-`shared/ui/coin-icon.tsx` is the single source of truth for coin avatars (used by `PriceCard`, `WatchlistRow`, `PositionRow`, `MarketOverview`, `CoinDetailsPanel`, etc.). It renders a gradient placeholder with the first letter immediately, then crossfades the real SVG on top once it loads:
+`shared/ui/coin-icon.tsx` is the single source of truth for coin avatars (used by `PriceCard`, `WatchlistRow`, `PositionRow`, `MarketOverview`, `CoinDetailsPanel`, etc.). It renders a deterministic gradient circle immediately and crossfades the real SVG/PNG on top once it loads.
 
-- Real SVG/PNG comes from a **CDN chain** exported by `shared/lib/coin-icon.ts` as `CDN_BUILDERS`: atomiclabs/cryptocurrency-icons first (crisp SVGs, top ~500 coins), then assets.coincap.io (PNG, long-tail coverage). The component tracks `cdnIdx`, increments on `onError`, and only falls through to the gradient when the chain exhausts. Add another CDN by appending to `CDN_BUILDERS`.
-- Placeholder gradient is deterministic per base via a small string-hash → palette lookup in `shared/lib/coin-gradient.ts` (`getCoinGradient(base)`). Same base always picks the same gradient so the avatar feels stable across renders.
-- The gradient stays under the `<img>` the whole time — even mid-chain, you see the gradient until the next CDN responds, never a broken icon.
+- **CDN chain** in `shared/lib/coin-icon.ts` as `CDN_BUILDERS`: atomiclabs/cryptocurrency-icons first (crisp SVGs, top ~500 coins), then assets.coincap.io (PNG, long-tail). Component tracks `cdnIdx`, `advanceCdn` (functional updater) bumps it on `onError`. Add another CDN by appending to `CDN_BUILDERS`.
+- **Placeholder gradient** is deterministic per base via a small string-hash → palette lookup in `shared/lib/coin-gradient.ts` (`getCoinGradient(base)`). Same base always picks the same gradient so the avatar feels stable across renders. **Gradient must include direction** (`bg-gradient-to-br`) — `from-X to-Y` alone paints nothing.
+- **Letter fallback (`base[0]`) shows ONLY when the CDN chain is exhausted** — during loading the user sees the plain gradient circle, never a letter that gets covered by the icon a moment later.
+- **SSR/hydration race fix**: `<img onLoad>` does not fire if the browser finishes the request before React hydrates. The component reads `imgRef.current.complete` / `naturalWidth` inside a `useEffect([cdnIdx])` to either `setLoaded(true)` or `advanceCdn()`. Do not remove this effect — without it SSR'd icons stick at opacity-0. See [[feedback_img_hydration_race]].
+- **No `loading="lazy"`** — these icons are tiny and in-viewport; deferring hurts more than it helps on iOS Safari.
 
 Never re-introduce hardcoded `COIN_ICONS` or `COIN_COLORS` maps. New coins are discovered dynamically, so any static table immediately falls behind.
 
@@ -309,16 +316,25 @@ than blindly silencing.
 ## shared/ui — Generic Primitives Only
 
 `shared/ui/` holds **reusable UI primitives** with no domain knowledge: Button, Input,
-SearchInput, Select, Skeleton, CoinIcon, WatchlistStarButton, ThemeToggle, LabeledField,
-GoogleIcon. As soon as a component reads from a domain slice (e.g. `selectedSymbol`,
-`watchlist`) or wraps an app-shell concern (next-auth, TanStack Query), it belongs
-elsewhere:
+SearchInput, Select, Sheet, ConfirmDialog, Skeleton, CoinIcon, WatchlistStarButton,
+DeleteIconButton, ThemeToggle, LabeledField, GoogleIcon. As soon as a component reads
+from a domain slice (e.g. `selectedSymbol`, `watchlist`) or wraps an app-shell concern
+(next-auth, TanStack Query), it belongs elsewhere:
 
 - Domain-coupled components → `entities/<entity>/ui/`
   (selected-symbol-stream, watchlist-initializer, watchlist-provider, price-card,
   current-user-role-badge)
 - App-shell providers → `app/_providers/` (session-provider, query-provider).
   Underscore prefix opts the directory out of Next App Router routing.
+
+### Folder layout convention
+
+- **Single-file primitive** → flat: `shared/ui/button.tsx`, `shared/ui/coin-icon.tsx`.
+- **Primitive with paired styles** → folder with `index.tsx` + `styles.ts` (FSD-style),
+  so the pair never dangles as two siblings among unrelated files. Examples:
+  `shared/ui/sheet/`, `shared/ui/confirm-dialog/`. Import stays `@/shared/ui/sheet`
+  (resolves to `index.tsx`) — callsites don't change when a primitive grows from flat
+  to folder.
 
 ## Internal Routes — `ROUTES` Const
 
