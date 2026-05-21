@@ -16,9 +16,19 @@ export const MarketOverview = ({ initialSymbols }: { initialSymbols: string[] })
   const t = useTranslations("dashboard.marketOverview");
 
   const renderContent = () => {
-    if (fetching) return Array.from({ length: SKELETON_COUNT }, (_, i) => <SkeletonCard key={i} />);
+    if (fetching) {
+      return Array.from({ length: SKELETON_COUNT }, (_, i) => (
+        <div key={i} className={styles.snapItem}>
+          <SkeletonCard />
+        </div>
+      ));
+    }
     if (symbols.length === 0) return <EmptyState />;
-    return symbols.map((s) => <LivePriceCard key={s} symbol={s} timedOut={timedOut} />);
+    return symbols.map((s) => (
+      <div key={s} className={styles.snapItem}>
+        <LivePriceCard symbol={s} timedOut={timedOut} />
+      </div>
+    ));
   };
 
   return (

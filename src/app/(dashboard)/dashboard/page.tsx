@@ -18,7 +18,7 @@ const DashboardPage = async () => {
       <Header title={t("dashboard")} actions={<QuoteSelector />} />
       <SelectedSymbolStream />
       <div className="flex flex-1 min-h-0">
-        <div className="flex-1 p-6 space-y-6 overflow-y-auto">
+        <div className="flex-1 px-3 py-6 sm:p-6 space-y-6 overflow-y-auto">
           <MarketOverview initialSymbols={initialSymbols} />
           <CandlestickChart />
         </div>
